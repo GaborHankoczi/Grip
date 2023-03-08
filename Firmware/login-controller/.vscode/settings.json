@@ -1,0 +1,31 @@
+{
+    "C_Cpp.intelliSenseEngine": "Tag Parser",
+    "idf.adapterTargetName": "esp32",
+    "idf.customExtraPaths": "/mnt/2TB/linux/esp/.espressif/tools/xtensa-esp-elf-gdb/11.2_20220823/xtensa-esp-elf-gdb/bin:/mnt/2TB/linux/esp/.espressif/tools/riscv32-esp-elf-gdb/11.2_20220823/riscv32-esp-elf-gdb/bin:/mnt/2TB/linux/esp/.espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin:/mnt/2TB/linux/esp/.espressif/tools/xtensa-esp32s2-elf/esp-2022r1-11.2.0/xtensa-esp32s2-elf/bin:/mnt/2TB/linux/esp/.espressif/tools/xtensa-esp32s3-elf/esp-2022r1-11.2.0/xtensa-esp32s3-elf/bin:/mnt/2TB/linux/esp/.espressif/tools/riscv32-esp-elf/esp-2022r1-11.2.0/riscv32-esp-elf/bin:/mnt/2TB/linux/esp/.espressif/tools/esp32ulp-elf/2.35_20220830/esp32ulp-elf/bin:/mnt/2TB/linux/esp/.espressif/tools/cmake/3.24.0/bin:/mnt/2TB/linux/esp/.espressif/tools/openocd-esp32/v0.11.0-esp32-20221026/openocd-esp32/bin:/mnt/2TB/linux/esp/.espressif/tools/ninja/1.10.2",
+    "idf.customExtraVars": "{\"OPENOCD_SCRIPTS\":\"/mnt/2TB/linux/esp/.espressif/tools/openocd-esp32/v0.11.0-esp32-20221026/openocd-esp32/share/openocd/scripts\"}",
+    "idf.espIdfPath": "/mnt/2TB/linux/esp/esp-idf",
+    "idf.openOcdConfigs": [
+        "board/esp32-bridge.cfg"
+    ],
+    "idf.pythonBinPath": "/mnt/2TB/linux/esp/.espressif/python_env/idf5.0_py3.10_env/bin/python",
+    "idf.toolsPath": "/mnt/2TB/linux/esp/.espressif",
+    "idf.flashType": "JTAG",
+    "idf.port": "/dev/ttyUSB0",
+    "files.associations": {
+        "rc522.h": "c",
+        "spi_master.h": "c",
+        "spi.h": "c",
+        "freertos.h": "c",
+        "task.h": "c",
+        "esp_vfs_fat.h": "c",
+        "string_view": "c",
+        "regex": "c",
+        "esp_wifi.h": "c",
+        "list": "cpp",
+        "config.h": "c",
+        "string": "cpp",
+        "*.tcc": "cpp",
+        "array": "c"
+    },
+    "cmake.configureOnOpen": true
+}

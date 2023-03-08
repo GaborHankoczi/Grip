@@ -1,0 +1,1 @@
+openocd -c "adapter speed 10000; set ESP_RTOS none" -f interface/jlink.cfg -f board/esp-wroom-32.cfg

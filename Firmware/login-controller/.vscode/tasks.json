@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Start_OpenOCD",
+            "type": "shell",
+            "command": ". /mnt/2TB/linux/esp/esp-idf/export.sh; openocd -c \"adapter_khz 1000\" -f interface/jlink.cfg -f board/esp-wroom-32.cfg",
+        },
+        {
+            "label": "BuildAndUpload",
+            "type": "shell",
+            "command": ". /mnt/2TB/linux/esp/esp-idf/export.sh; idf.py build; openocd -c \"adapter_khz 1000;program_esp build/login-controller.bin 0x10000 verify exit\" -f interface/jlink.cfg -f board/esp32-wrover-kit-3.3v.cfg",
+        }
+    ]
+}

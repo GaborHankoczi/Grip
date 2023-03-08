@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "_preLaunchTask": "Start_OpenOCD",
+      "type": "cppdbg",
+      "name": "ESP32 OpenOCD Debug",
+      "request": "launch",
+      "cwd":"${workspaceFolder}/build",
+      "program": "${workspaceFolder}/build/login-controller.elf",
+      "miDebuggerPath": "/mnt/2TB/linux/esp/.espressif/tools/xtensa-esp32-elf/esp-2022r1-11.2.0/xtensa-esp32-elf/bin/xtensa-esp32-elf-gdb",
+      "setupCommands": [
+        {"text": "target remote localhost:3333"},
+        {"text": "set remote hardware-watchpoint-limit 2"},
+        {"text": "monitor reset halt"},
+        {"text": "flushregs"}
+      ]
+    },
+    {
+      "name":"Launch",
+      "preLaunchTask": "BuildAndUpload",
+    }
+  ]
+}
