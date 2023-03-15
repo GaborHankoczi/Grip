@@ -1,0 +1,20 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Port=5432;Database=grip;User Id=<username>;Password=<password>;"
+  },
+  "Logging": {
+      "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+      }
+    },
+  "IdentityServer": {
+    "Clients": {
+      "Server": {
+        "Profile": "IdentityServerSPA"
+      }
+    }
+  },
+"AllowedHosts": "*"
+}
