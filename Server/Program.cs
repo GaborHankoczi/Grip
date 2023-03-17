@@ -2,9 +2,10 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Grip.DAL;
 using Microsoft.AspNetCore.Identity;
-using Grip.Model;
+using Grip.DAL.Model;
 using Grip.Services;
 using AutoMapper;
+using Grip.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,10 +14,23 @@ var connectionString = builder.Configuration.GetConnectionString("DatabaseConnec
 builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<User, IdentityRole>()
-    .AddRoles<IdentityRole>()
+/// Add Identity
+builder.Services.AddIdentity<User, Role>(options => {
+    /// Define username, password, email requirements
+    options.SignIn.RequireConfirmedAccount = false;
+    options.SignIn.RequireConfirmedEmail = true;
+    options.SignIn.RequireConfirmedPhoneNumber = false;
+    options.User.RequireUniqueEmail = true;    
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = true;
+    options.Password.RequiredLength = 8;
+    options.User.AllowedUserNameCharacters= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-. ";
+    })
+    .AddRoles<Role>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
-    .AddDefaultTokenProviders();
+    .AddTokenProvider<EmailTokenProvider<User>>(TokenOptions.DefaultProvider);
 
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();

@@ -7,6 +7,7 @@ namespace Grip.DAL
         public MappingProfile()
         {
             CreateMap<Model.User, DAL.DTO.UserDTO>();
+            CreateMap<Model.User, DAL.DTO.LoginResultDTO>();
         }
     }
 }

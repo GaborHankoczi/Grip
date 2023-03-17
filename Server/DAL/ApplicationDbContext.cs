@@ -1,11 +1,10 @@
-using Grip.Model;
-using Microsoft.AspNetCore.Identity;
+using Grip.DAL.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Grip.DAL;
 
-public class ApplicationDbContext : IdentityDbContext<User>
+public class ApplicationDbContext : IdentityDbContext<User,Role,int>
 {
     IConfiguration _configuration;
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
