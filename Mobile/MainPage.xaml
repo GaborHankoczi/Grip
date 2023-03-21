@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GripMobile.MainPage"
+             Title="Grip Mobile"
+             BackgroundColor="White">
+
+    <AbsoluteLayout Margin="25">
+
+        <Image
+                Source="grip_logo_no_background.png"
+                SemanticProperties.Description="Grip logo"
+                HeightRequest="100"
+                AbsoluteLayout.LayoutBounds="0.5, 0.2"
+                AbsoluteLayout.LayoutFlags="PositionProportional"/>
+
+        <Button
+                Text="Belépés"
+                TextColor="Black"
+                FontAttributes="Bold"
+                FontSize="20"
+                BackgroundColor="White"
+                BorderColor="Black"
+                BorderWidth="2"
+                AbsoluteLayout.LayoutBounds="0.5, 0.9, 1, 0.07"
+                AbsoluteLayout.LayoutFlags="All" />
+
+        <Button
+                Text="Regisztráció"
+                TextColor="White"
+                FontAttributes="Bold"
+                FontSize="20"
+                BackgroundColor="Black"
+                AbsoluteLayout.LayoutBounds="0.5, 1, 1, 0.07"
+                AbsoluteLayout.LayoutFlags="All"/>
+
+    </AbsoluteLayout>
+
+</ContentPage>
