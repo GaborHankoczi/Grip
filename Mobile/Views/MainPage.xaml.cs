@@ -1,4 +1,4 @@
-﻿namespace GripMobile;
+﻿namespace GripMobile.Views;
 
 public partial class MainPage : ContentPage
 {

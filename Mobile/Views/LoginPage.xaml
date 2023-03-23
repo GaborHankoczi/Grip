@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GripMobile.Views.LoginPage"
+             Title="Belépés"
+             BackgroundColor="White">
+    
+    <AbsoluteLayout Margin="25">
+        <Label 
+            Text="Belépés"
+            FontSize="60"
+            FontAttributes="Bold"
+            AbsoluteLayout.LayoutBounds="0, 0.2"
+            AbsoluteLayout.LayoutFlags="PositionProportional"/>
+
+        <Entry
+            MaxLength="8"   
+            Keyboard="Text"
+            ReturnType="Next"
+            Placeholder="Személyazonosító igazolvány száma"
+            TextTransform="Uppercase"
+            IsTextPredictionEnabled="False"
+            ClearButtonVisibility="WhileEditing"
+            AbsoluteLayout.LayoutBounds="0.5, 0.5, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All"/>
+
+        <Entry
+            IsPassword="True"
+            Keyboard="Text"
+            ReturnType="Done"
+            Placeholder="Jelszó"
+            IsTextPredictionEnabled="False"
+            ClearButtonVisibility="WhileEditing"
+            AbsoluteLayout.LayoutBounds="0.5, 0.6, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All"/>
+
+        <Label
+            Text="Elfelejtettem a jelszavam"
+            FontSize="15"
+            FontAttributes="Bold"
+            TextDecorations="Underline"
+            AbsoluteLayout.LayoutBounds="1, 0.66"
+            AbsoluteLayout.LayoutFlags="PositionProportional">
+
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer/>
+                </Label.GestureRecognizers>
+        </Label>
+
+        <Button 
+            Text="Belépés"
+            TextColor="White"
+            FontAttributes="Bold"
+            FontSize="20"
+            BackgroundColor="Black"
+            AbsoluteLayout.LayoutBounds="0.5, 0.8, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All" />
+
+        <Line
+            X1="0"
+            Y1="0"
+            X2="150"
+            Y2="0"
+            Stroke="#808080"
+            StrokeThickness="1"
+            StrokeLineCap="Round"
+            AbsoluteLayout.LayoutBounds="0, 0.878"
+            AbsoluteLayout.LayoutFlags="PositionProportional"/>
+
+        <Label
+            Text="vagy"
+            FontSize="13"
+            FontAttributes="Bold"
+            AbsoluteLayout.LayoutBounds="0.5, 0.8825"
+            AbsoluteLayout.LayoutFlags="PositionProportional" />
+
+        <Line
+            X1="0"
+            Y1="0"
+            X2="150"
+            Y2="0"
+            Stroke="#808080"
+            StrokeThickness="1"
+            StrokeLineCap="Round"
+            AbsoluteLayout.LayoutBounds="1, 0.878"
+            AbsoluteLayout.LayoutFlags="PositionProportional"/>
+
+        <Button 
+            Text="Regisztráció"
+            TextColor="Black"
+            FontAttributes="Bold"
+            FontSize="20"
+            BackgroundColor="White"
+            BorderWidth="2"
+            AbsoluteLayout.LayoutBounds="0.5, 1, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All" />
+    </AbsoluteLayout>
+    
+</ContentPage>
