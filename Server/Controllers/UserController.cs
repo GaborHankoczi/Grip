@@ -19,10 +19,10 @@ public class UserController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly UserManager<User> _userManager;
     private readonly SignInManager<User> _signInManager;
-    private readonly RoleManager<IdentityRole> _roleManager;
+    private readonly RoleManager<Role> _roleManager;
     private readonly IMapper _mapper;
 
-    public UserController(ILogger<User> logger, ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager, IMapper mapper)
+    public UserController(ILogger<User> logger, ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager, IMapper mapper)
     {
         _logger = logger;
         _context = context;
@@ -34,6 +34,8 @@ public class UserController : ControllerBase
 
     [Authorize(Roles="Admin")]
     [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserDTO>))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public ActionResult<IEnumerable<DAL.DTO.UserDTO>> Get()
     {
         return _context.Users.Select(u => _mapper.Map<DAL.DTO.UserDTO>(u)).ToList();
@@ -41,6 +43,9 @@ public class UserController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<DAL.DTO.UserDTO>> Get(int id)
     {
         var requester = await _userManager.GetUserAsync(User);
@@ -58,6 +63,7 @@ public class UserController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created,Type = typeof(UserDTO))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ModelStateDictionary))]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async  Task<ActionResult<UserDTO>> Register([FromBody] RegisterUserDTO user)
     {
@@ -68,7 +74,6 @@ public class UserController : ControllerBase
             
             _logger.LogInformation($"New user {user.Name} ({user.Email}) created by admin with activation token: {token}");
             //Todo send email
-
 
             var createdLocation = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}/{createdUser?.Id}");
             
@@ -231,6 +236,66 @@ public class UserController : ControllerBase
             return Ok();
         }else{
             _logger.LogInformation($"User {user.Email} not updated: {result.Errors.First().Description}");
+            ModelState.AddModelError(nameof(UserDTO.Id),result.Errors.First().Description);
+            return BadRequest(ModelState);
+        }
+    }
+
+    /// <summary>
+    /// Add role to user
+    /// </summary>
+    /// <param name="userId">User id</param>
+    /// <param name="roleId">Role id</param>    
+    [Authorize(Roles="Admin")]
+    [HttpPost("AddRole/{userId}/{roleId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ModelStateDictionary))]
+    public async Task<ActionResult> AddRole(int userId, string roleId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());        
+        var role = await _roleManager.FindByNameAsync(roleId.ToString());
+        if(user==null || role==null)
+            return NotFound();
+        var result = await _userManager.AddToRoleAsync(user, role.Name);
+        if(result.Succeeded){
+            _logger.LogInformation($"User {user.Email} assigned to role {roleId} by admin.");
+            return Ok();
+        }else{
+            _logger.LogInformation($"User {user.Email} role {roleId} not added by admin: {result.Errors.First().Description}");
+            ModelState.AddModelError(nameof(UserDTO.Id),result.Errors.First().Description);
+            return BadRequest(ModelState);
+        }
+    }
+
+    /// <summary>
+    /// Add role to user
+    /// </summary>
+    /// <param name="userId">User id</param>
+    /// <param name="roleId">Role id</param>    
+    [Authorize(Roles="Admin")]
+    [HttpPost("RemoveRole/{userId}/{roleId}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ModelStateDictionary))]
+    public async Task<ActionResult> RemoveRole(int userId, int roleId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());        
+        var role = await _roleManager.FindByIdAsync(roleId.ToString());
+        if(user==null || role==null)
+            return NotFound();
+        if(!await _userManager.IsInRoleAsync(user, role.Name))
+        {            
+            return BadRequest("User is not in role");
+        }
+        var result = await _userManager.RemoveFromRoleAsync(user, role.Name);
+        if(result.Succeeded){
+            _logger.LogInformation($"User {user.Email} removed from role {roleId} by admin.");
+            return Ok();
+        }else{
+            _logger.LogInformation($"User {user.Email} wasn't removed from role {roleId} by admin: {result.Errors.First().Description}");
             ModelState.AddModelError(nameof(UserDTO.Id),result.Errors.First().Description);
             return BadRequest(ModelState);
         }
