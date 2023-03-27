@@ -6,7 +6,6 @@ using Grip.DAL.Model;
 using Grip.Services;
 using AutoMapper;
 using System.Security.Cryptography.X509Certificates;
-using System.Net.Mail;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,12 +35,12 @@ builder.Services.AddIdentity<User, Role>(options => {
     options.SignIn.RequireConfirmedEmail = true;
     options.SignIn.RequireConfirmedPhoneNumber = false;
     options.User.RequireUniqueEmail = true;    
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-. áéíőúűóüöÁÉÍŐÚŰÓÜÖ";
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = true;
     options.Password.RequiredLength = 8;
-    options.User.AllowedUserNameCharacters= "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-. ";
     })
     .AddRoles<Role>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -52,6 +51,11 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+builder.Services.AddSingleton<EmailService>();
 
 builder.Services.AddSwaggerGen();
 
@@ -65,8 +69,6 @@ builder.Services.AddSingleton(mapper);
 
 //builder.Services.Add(new ServiceDescriptor(typeof(StartupService), new StartupService()));
 
-builder.Logging.ClearProviders();
-builder.Logging.AddConsole();
 
 
 
@@ -111,19 +113,6 @@ var logger = scope.ServiceProvider.GetRequiredService<ILogger<User>>();
 
 var hostName = builder.Configuration.GetValue<string>("Host") ?? throw new Exception("HostName not found in configuration");
 
-/*
-var smtpHost = builder.Configuration.GetValue<string>("Smtp:Host");
-if(smtpHost!=null){
-    var smtpPort = builder.Configuration.GetValue<int>("Smtp:Port");
-
-    SmtpClient ss = new SmtpClient(smtpHost, smtpPort);
-    ss.Send(new MailMessage($"noreply@{hostName}", "hankoczigabor@gmail.com", "Test", "Test"));
-}else{
-    logger.LogWarning("Smtp host not found in configuration");
-}*/
-
-
-
 // Create admin user if not exists
 if(!(await userManager.GetUsersInRoleAsync("Admin")).Any()){
     logger.LogInformation("No admin user found, creating one");
@@ -135,17 +124,11 @@ if(!(await userManager.GetUsersInRoleAsync("Admin")).Any()){
             logger.LogInformation("Admin role created");
         }
         await userManager.AddToRoleAsync(user, "Admin");
+        user.EmailConfirmed = true;
+        await userManager.UpdateAsync(user);
     }
 }
 
-/*var userManager = app.Services.GetRequiredService<UserManager<User>>();
-var result = await userManager.CreateAsync(new User{UserName = "Admin", Email = "admin@localhost"}, "Admin123!");
-if(result.Succeeded){
-    var user = await userManager.FindByNameAsync("Admin");
-    if(user == null)
-        throw new Exception("User not found");
-    await userManager.AddToRoleAsync(user, "Admin");
-}*/
 
 
 app.Run();

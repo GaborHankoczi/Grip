@@ -6,6 +6,7 @@ using Grip.DAL.DTO;
 using Grip.DAL.Model;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Grip.Services;
 
 namespace Grip.Controllers;
 
@@ -21,8 +22,9 @@ public class UserController : ControllerBase
     private readonly SignInManager<User> _signInManager;
     private readonly RoleManager<Role> _roleManager;
     private readonly IMapper _mapper;
+    private readonly EmailService _emailService; // TODO add abstraction
 
-    public UserController(ILogger<User> logger, ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager, IMapper mapper)
+    public UserController(ILogger<User> logger, ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager, IMapper mapper, EmailService emailService)
     {
         _logger = logger;
         _context = context;
@@ -30,6 +32,7 @@ public class UserController : ControllerBase
         _signInManager = signInManager;
         _roleManager = roleManager;
         _mapper = mapper;
+        _emailService = emailService;
     }
 
     [Authorize(Roles="Admin")]
@@ -73,7 +76,8 @@ public class UserController : ControllerBase
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(createdUser);
             
             _logger.LogInformation($"New user {user.Name} ({user.Email}) created by admin with activation token: {token}");
-            //Todo send email
+            await _emailService.SendEmailAsync(user.Email, "Confirm your email", $"Your authentication token is: {token}"); //$"Please confirm your email by clicking this link: {Request.Scheme}://{Request.Host}/api/User/ConfirmEmail?token={token}&email={user.Email}");
+
 
             var createdLocation = new Uri($"{Request.Scheme}://{Request.Host}{Request.Path}/{createdUser?.Id}");
             
@@ -152,7 +156,8 @@ public class UserController : ControllerBase
             return NotFound();
         }
         string result = await _userManager.GeneratePasswordResetTokenAsync(user);
-        // TODO send email
+        await _emailService.SendEmailAsync(user.Email, "Reset your password", $"Your authentication token is: {result}");
+
         _logger.LogInformation($"User {user.Email} forgot password, token generated: {result}");
         return Ok();
     }
