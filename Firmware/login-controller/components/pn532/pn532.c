@@ -64,23 +64,27 @@ void receiveLog(char* data, int datalen){
     printf("\n");*/
 }
 
-void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss)
+void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss, uint8_t irq)
 {
     obj->_clk = clk;
     obj->_miso = miso;
     obj->_mosi = mosi;
     obj->_ss = ss;
+    obj->_irq = irq;
+
 
     gpio_reset_pin(obj->_clk);
     gpio_reset_pin(obj->_miso);
     gpio_reset_pin(obj->_mosi);
     gpio_reset_pin(obj->_ss);
+    gpio_reset_pin(obj->_irq);
 
     gpio_set_direction(obj->_ss, GPIO_MODE_OUTPUT);
     gpio_set_level(obj->_ss, 1);
     gpio_set_direction(obj->_clk, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_mosi, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_miso, GPIO_MODE_INPUT);
+    gpio_set_direction(obj->_irq, GPIO_MODE_INPUT);
 }
 
 /**************************************************************************/
@@ -175,10 +179,12 @@ bool pn532_sendCommandCheckAck(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen, uint1
 
     // For SPI only wait for the chip to be ready again.
     // This is unnecessary with I2C.
-    if (!pn532_waitready(obj, timeout))
+    //I don't think this is necessary for SPI either
+    /*if (!pn532_waitready(obj, timeout))
     {
         return false;
-    }
+    }*/
+    PN532_DELAY(10);
 
     return true; // ack'd command
 }
@@ -1242,6 +1248,8 @@ bool pn532_readack(pn532_t *obj)
 /**************************************************************************/
 bool pn532_isready(pn532_t *obj)
 {
+    //return gpio_get_level(obj->_irq);
+    
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10);
     char i = PN532_SPI_STATREAD;
@@ -1251,6 +1259,7 @@ bool pn532_isready(pn532_t *obj)
     uint8_t x = pn532_spi_read(obj);
     receiveLog((char *)&x,1);
     gpio_set_level(obj->_ss, 1);
+    
 
     // Check if status is ready.
     return x == PN532_SPI_READY;

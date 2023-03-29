@@ -130,6 +130,7 @@ typedef struct {
     uint8_t _miso;
     uint8_t _mosi;
     uint8_t _ss;
+    uint8_t _irq;
 
     uint8_t _uid[7];       // ISO14443A uid
     uint8_t _uidLen;       // uid len
@@ -138,7 +139,7 @@ typedef struct {
 
 } pn532_t;
 
-void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss);
+void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss, uint8_t irq);
 void pn532_begin(pn532_t *obj);
 uint32_t pn532_getFirmwareVersion(pn532_t *obj);
 bool pn532_sendCommandCheckAck(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen, uint16_t timeout);

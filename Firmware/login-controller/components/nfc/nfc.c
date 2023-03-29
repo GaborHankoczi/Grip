@@ -15,17 +15,28 @@
 #define PIN_NUM_NFC_MOSI  23
 #define PIN_NUM_NFC_CLK   18
 #define PIN_NUM_NFC_CS 5
+#define PIN_NUM_NFC_IRQ 17
 
 
 static char TAG[] = "nfc";
 
 static pn532_t nfc;
 
+void nfc_emulate(){
+    pn532_AsTarget(&nfc);
+    ESP_LOGI(TAG,"Emulating");
+}
+
 void nfc_task(void *pvParameter)
 {
-    pn532_spi_init(&nfc, PIN_NUM_NFC_CLK, PIN_NUM_NFC_MISO, PIN_NUM_NFC_MOSI, PIN_NUM_NFC_CS);
+    pn532_spi_init(&nfc, PIN_NUM_NFC_CLK, PIN_NUM_NFC_MISO, PIN_NUM_NFC_MOSI, PIN_NUM_NFC_CS, PIN_NUM_NFC_IRQ);
     pn532_begin(&nfc);
 
+    /*nfc_emulate();
+    while (1)
+    {
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }*/
     // configure board to read RFID tags
     if(!pn532_SAMConfig(&nfc)){
         ESP_LOGE(TAG, "SAMConfig failed");
