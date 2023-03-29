@@ -21,14 +21,14 @@ void app_main(void)
     sd_init();
     config_init();
     nfc_init();
-    wifi_init();
+    //wifi_init();
 
     ESP_LOGI("main","Setup complete");
     char free_heap[16];
     while(1){
-        ESP_LOGI(TAG, "current time: %lld", time(NULL));
+        /*ESP_LOGI(TAG, "current time: %lld", time(NULL));
         itoa(esp_get_free_heap_size(), free_heap, 10);
-        ESP_LOGI(TAG, "free heap: %s bytes",free_heap);
+        ESP_LOGI(TAG, "free heap: %s bytes",free_heap);*/
         vTaskDelay(1000 / portTICK_PERIOD_MS);
     }
     return;
