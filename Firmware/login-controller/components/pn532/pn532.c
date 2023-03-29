@@ -50,18 +50,18 @@ static void pn532_spi_write(pn532_t *obj, uint8_t c);
 static uint8_t pn532_spi_read(pn532_t *obj);
 
 void sendLog(char* data, int datalen){
-    printf("Sending:");
+    /*printf("Sending:");
     for(int i = 0;i<datalen;i++){
         printf(" 0x%x", data[i] && 0xFF);
     }
-    printf("\n");
+    printf("\n");*/
 }
 void receiveLog(char* data, int datalen){
-    printf("Receiving:");
+    /*printf("Receiving:");
     for(int i = 0;i<datalen;i++){
         printf(" 0x%x", data[i] && 0xFF);
     }
-    printf("\n");
+    printf("\n");*/
 }
 
 void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss)
@@ -92,15 +92,18 @@ void pn532_begin(pn532_t *obj)
 {
     gpio_set_level(obj->_ss, 0);
 
-    PN532_DELAY(1000);
+    PN532_DELAY(100);
 
     // not exactly sure why but we have to send a dummy command to get synced up
     pn532_packetbuffer[0] = PN532_COMMAND_GETFIRMWAREVERSION;
     pn532_sendCommandCheckAck(obj, pn532_packetbuffer, 1, 1000);
 
     // ignore response!
+    
     gpio_set_level(obj->_ss, 1);
 }
+
+
 
 /**************************************************************************/
 /*!
@@ -1301,7 +1304,7 @@ void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
     }
     for (int i = 0; i < n; i++)
     {
-        PN532_DEBUG(" %02x", buff[i]);
+        PN532_DEBUG(" 0x%02x,", buff[i]);
     }
     PN532_DEBUG("\n");
 
@@ -1437,20 +1440,20 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
     pn532_spi_write(obj, PN532_HOSTTOPN532);
     checksum += PN532_HOSTTOPN532;
 
-    PN532_DEBUG(" %02x %02x %02x %02x %02x %02x", (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_STARTCODE2, (uint8_t)cmdlen, (uint8_t)(~cmdlen + 1), (uint8_t)PN532_HOSTTOPN532);
+    PN532_DEBUG(" 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x,", (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_STARTCODE2, (uint8_t)cmdlen, (uint8_t)(~cmdlen + 1), (uint8_t)PN532_HOSTTOPN532);
 
     for (uint8_t i = 0; i < cmdlen - 1; i++)
     {
         pn532_spi_write(obj, cmd[i]);
         checksum += cmd[i];
-        PN532_DEBUG(" %02x", cmd[i]);
+        PN532_DEBUG(" 0x%02x,", cmd[i]);
     }
 
     pn532_spi_write(obj, ~checksum);
     pn532_spi_write(obj, PN532_POSTAMBLE);
     gpio_set_level(obj->_ss, 1);
 
-    PN532_DEBUG(" %02x %02x\n", (uint8_t)~checksum, (uint8_t)PN532_POSTAMBLE);
+    PN532_DEBUG(" 0x%02x, 0x%02x\n", (uint8_t)~checksum, (uint8_t)PN532_POSTAMBLE);
 }
 /************** low level SPI */
 

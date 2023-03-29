@@ -1,0 +1,4 @@
+PN532 Documentation: https://cdn-shop.adafruit.com/datasheets/PN532C106_Application+Note_v1.2.pdf
+Frame structure: page 9
+API command codes: page 26
+How to emulate card: page 59

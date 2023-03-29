@@ -26,6 +26,15 @@ void nfc_task(void *pvParameter)
     pn532_spi_init(&nfc, PIN_NUM_NFC_CLK, PIN_NUM_NFC_MISO, PIN_NUM_NFC_MOSI, PIN_NUM_NFC_CS);
     pn532_begin(&nfc);
 
+    // configure board to read RFID tags
+    if(!pn532_SAMConfig(&nfc)){
+        ESP_LOGE(TAG, "SAMConfig failed");
+        while (1)
+        {
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
+    }
+
     uint32_t versiondata = pn532_getFirmwareVersion(&nfc);
     if (!versiondata)
     {
@@ -39,13 +48,14 @@ void nfc_task(void *pvParameter)
     ESP_LOGI(TAG, "Found chip PN5 %x", (unsigned int)((versiondata >> 24) & 0xFF));
     ESP_LOGI(TAG, "Firmware ver. %d.%d", (int)((versiondata >> 16) & 0xFF), (int)((versiondata >> 8) & 0xFF));
 
-    // configure board to read RFID tags
-    if(!pn532_SAMConfig(&nfc)){
-        ESP_LOGW(TAG, "SAMConfig failed");
+    
+    if(!pn532_setPassiveActivationRetries(&nfc,0xFF)){
+        ESP_LOGE(TAG, "setPassiveActivationRetries failed");
         while (1)
         {
             vTaskDelay(1000 / portTICK_PERIOD_MS);
         }
+
     }
 
     ESP_LOGI(TAG, "Waiting for an ISO14443A Card ...");
