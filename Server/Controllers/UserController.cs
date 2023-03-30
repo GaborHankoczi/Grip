@@ -37,7 +37,7 @@ public class UserController : ControllerBase
 
     [Authorize(Roles="Admin")]
     [HttpGet]
-    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<UserDTO>))]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ModelStateDictionary))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public ActionResult<IEnumerable<DAL.DTO.UserDTO>> Get()
     {

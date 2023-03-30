@@ -9,7 +9,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Server.DAL.Migrations
+namespace Grip.DAL.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
     [Migration("20230317172813_Identity")]
