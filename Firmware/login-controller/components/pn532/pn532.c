@@ -13,6 +13,7 @@
 
 #include "driver/gpio.h"
 #include "pn532.h"
+#include "driver/spi_master.h"
 
 #define PN532_DEBUG_EN
 #define MIFARE_DEBUG_EN
@@ -46,8 +47,12 @@ static void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen);
 static bool pn532_readack(pn532_t *obj);
 static bool pn532_isready(pn532_t *obj);
 static bool pn532_waitready(pn532_t *obj, uint16_t timeout);
-static void pn532_spi_write(pn532_t *obj, uint8_t c);
-static uint8_t pn532_spi_read(pn532_t *obj);
+//static void pn532_spi_write(pn532_t *obj, uint8_t c);
+//static uint8_t pn532_spi_read(pn532_t *obj);
+void pn532_spi_transmit(pn532_t *obj, uint8_t *data, uint16_t size);
+
+
+spi_device_handle_t dev;
 
 void sendLog(char* data, int datalen){
     /*printf("Sending:");
@@ -71,7 +76,7 @@ void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8
     obj->_mosi = mosi;
     obj->_ss = ss;
 
-    gpio_reset_pin(obj->_clk);
+    /*gpio_reset_pin(obj->_clk);
     gpio_reset_pin(obj->_miso);
     gpio_reset_pin(obj->_mosi);
     gpio_reset_pin(obj->_ss);
@@ -81,6 +86,34 @@ void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8
     gpio_set_direction(obj->_clk, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_mosi, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_miso, GPIO_MODE_INPUT);
+    gpio_set_direction(obj->_irq, GPIO_MODE_INPUT);*/
+
+
+    esp_err_t ret;
+    
+    spi_bus_config_t buscfg={
+        .miso_io_num=miso,
+        .mosi_io_num=mosi,
+        .sclk_io_num=clk,
+        .quadwp_io_num=-1,
+        .quadhd_io_num=-1,
+        .max_transfer_sz=0
+    };
+    spi_device_interface_config_t devcfg={
+        .clock_speed_hz=5000,           //Clock out at 4 KHz
+        .mode=0,                                //SPI mode 0
+        .spics_io_num=ss,               //CS pin
+        .queue_size=7,                          //We want to be able to queue 7 transactions at a time
+        .cs_ena_pretrans = 0,
+        .flags = SPI_DEVICE_HALFDUPLEX
+    };
+    //Initialize the SPI bus
+    ret=spi_bus_initialize(VSPI_HOST, &buscfg, SPI_DMA_DISABLED);
+    ESP_ERROR_CHECK(ret);
+    
+    ret = spi_bus_add_device(VSPI_HOST,&devcfg,&dev);
+    ESP_ERROR_CHECK(ret);
+
 }
 
 /**************************************************************************/
@@ -1260,7 +1293,7 @@ uint8_t pn532_ntag2xx_WriteNDEFURI(pn532_t *obj, uint8_t uriIdentifier, char *ur
 /**************************************************************************/
 bool pn532_readack(pn532_t *obj)
 {
-    uint8_t ackbuff[6];
+    uint8_t ackbuff[6] = {};
 
     pn532_readdata(obj, ackbuff, 6);
 
@@ -1274,18 +1307,21 @@ bool pn532_readack(pn532_t *obj)
 /**************************************************************************/
 bool pn532_isready(pn532_t *obj)
 {
-    gpio_set_level(obj->_ss, 0);
-    PN532_DELAY(10);
-    char i = PN532_SPI_STATREAD;
-    sendLog(&i,1);
-    pn532_spi_write(obj, PN532_SPI_STATREAD);
-    // read uint8_t
-    uint8_t x = pn532_spi_read(obj);
-    receiveLog((char *)&x,1);
-    gpio_set_level(obj->_ss, 1);
-
+    /*gpio_set_level(obj->_ss, 0);
+    PN532_DELAY(10);*/
+    uint8_t cmd = PN532_SPI_STATREAD;
+    esp_err_t ret;
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(t));       //Zero out the transaction
+    t.length=1*8;                     //Command is 8 bits
+    t.tx_buffer = &cmd;               //The data is the cmd itself
+    t.flags = SPI_TRANS_USE_RXDATA;
+    t.rxlength = 1*8;
+    ret=spi_device_transmit(dev, &t);  //Transmit!
+    assert(ret==ESP_OK);            //Should have had no issues.
+    printf("Ready response: 0x%02X\n",   t.rx_data[0]);
     // Check if status is ready.
-    return x == PN532_SPI_READY;
+    return t.rx_data[0] == PN532_SPI_READY;
 }
 
 /**************************************************************************/
@@ -1326,6 +1362,7 @@ uint8_t ackPacket[] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
 /**************************************************************************/
 void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
 {
+    /*
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10);
     char i=PN532_SPI_DATAREAD;
@@ -1349,7 +1386,19 @@ void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
     }
     PN532_DEBUG("\n");
 
-    gpio_set_level(obj->_ss, 1);
+    gpio_set_level(obj->_ss, 1);*/
+
+    uint8_t cmd = PN532_SPI_DATAREAD;
+    esp_err_t ret;
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(t));       //Zero out the transaction
+    t.length=1*8;                     //Command is 8 bits
+    t.tx_buffer = &cmd;               //The data is the cmd itself
+    t.rx_buffer = buff;               // using buffer, because response can be longer than 4 bytes
+    ret=spi_device_transmit(dev, &t);  //Transmit!
+    printf("Response %d: 0x%02X\n",t.rxlength, buff[0]);
+    assert(ret==ESP_OK);            //Should have had no issues.
+
 }
 
 /**************************************************************************/
@@ -1483,38 +1532,72 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
 
     PN532_DEBUG("Sending with length %d:", cmdlen-1);
 
-    gpio_set_level(obj->_ss, 0);
-    PN532_DELAY(10); // or whatever the PN532_DELAY is for waking up the board
-
-    pn532_spi_write(obj, PN532_SPI_DATAWRITE);
 
     checksum = PN532_PREAMBLE + PN532_PREAMBLE + PN532_STARTCODE2;
-    pn532_spi_write(obj, PN532_PREAMBLE);
-    pn532_spi_write(obj, PN532_PREAMBLE);
-    pn532_spi_write(obj, PN532_STARTCODE2);
-
-    pn532_spi_write(obj, cmdlen);
-    pn532_spi_write(obj, ~cmdlen + 1);
-
-    pn532_spi_write(obj, PN532_HOSTTOPN532);
     checksum += PN532_HOSTTOPN532;
 
     //PN532_DEBUG(" 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x,", (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_STARTCODE2, (uint8_t)cmdlen, (uint8_t)(~cmdlen + 1), (uint8_t)PN532_HOSTTOPN532);
-
+    uint8_t* txbuffer = (uint8_t*)malloc(cmdlen+8);
+    txbuffer[0] = (uint8_t)PN532_SPI_DATAWRITE;
+    txbuffer[1] = (uint8_t)PN532_PREAMBLE;
+    txbuffer[2] = (uint8_t)PN532_PREAMBLE;
+    txbuffer[3] = (uint8_t)PN532_PREAMBLE;
+    txbuffer[4] = (uint8_t)PN532_STARTCODE2;
+    txbuffer[5] = (uint8_t)cmdlen;
+    txbuffer[6] = (uint8_t)(~cmdlen + 1);
+    txbuffer[7] = (uint8_t)PN532_HOSTTOPN532;
+    memcpy(txbuffer+8, cmd, cmdlen);
     for (uint8_t i = 0; i < cmdlen - 1; i++)
     {
-        pn532_spi_write(obj, cmd[i]);
         checksum += cmd[i];
         PN532_DEBUG(" 0x%02x,", cmd[i]);
     }
-    PN532_DEBUG("\n");
-    pn532_spi_write(obj, ~checksum);
-    pn532_spi_write(obj, PN532_POSTAMBLE);
-    gpio_set_level(obj->_ss, 1);
-
+    txbuffer[cmdlen+7] = (uint8_t)~checksum;
+    txbuffer[cmdlen+8] = (uint8_t)PN532_POSTAMBLE;
     //PN532_DEBUG(" 0x%02x, 0x%02x\n", (uint8_t)~checksum, (uint8_t)PN532_POSTAMBLE);
+
+    pn532_spi_transmit(obj, txbuffer, cmdlen+8);
+
+    free(txbuffer);
 }
 /************** low level SPI */
+
+void print_hex(uint8_t* data, size_t length) {
+    for (size_t i = 0; i < length; i++) {
+        printf("%02x ", (unsigned char)data[i]);
+    }
+    printf("\n");
+}
+
+void pn532_spi_transmit(pn532_t *obj, uint8_t *data, uint16_t size)
+{
+    esp_err_t ret;
+    spi_transaction_t t;
+    uint8_t buffer[128] = {};
+    memset(&t, 0, sizeof(t));       //Zero out the transaction
+    t.length=size*8;                     //Command is 8 bits
+    t.tx_buffer = data;               //The data is the cmd itself
+    t.rx_buffer = buffer;
+    t.rxlength = 10*8;
+    ret=spi_device_transmit(dev, &t);  //Transmit!
+    //printf("Response %d: 0x%02X\n",t.rxlength, t.rx_data[0]);
+    printf("\nReceived: ");
+    print_hex(buffer, 128);
+    assert(ret==ESP_OK);            //Should have had no issues.
+    
+}
+/*
+void pn532_spi_receive(pn532_t *obj, uint8_t *data, uint16_t size)
+{
+    esp_err_t ret;
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(t));       //Zero out the transaction
+    t.length=size*8;                     //Command is 8 bits
+    t.rx_buffer=data;               //The data is the cmd itself
+    t.user=(void*)0;                //D/C needs to be set to 0
+    ret=spi_device_rece(dev, &t);  //Transmit!
+    assert(ret==ESP_OK);            //Should have had no issues.
+}*/
 
 /**************************************************************************/
 /*!
@@ -1522,7 +1605,7 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
     @param  c       8-bit command to write to the SPI bus
 */
 /**************************************************************************/
-void pn532_spi_write(pn532_t *obj, uint8_t c)
+/*void pn532_spi_write(pn532_t *obj, uint8_t c)
 {
 
     int8_t i;
@@ -1541,7 +1624,7 @@ void pn532_spi_write(pn532_t *obj, uint8_t c)
         }
         gpio_set_level(obj->_clk, 1);
     }
-}
+}*/
 
 /**************************************************************************/
 /*!
@@ -1549,7 +1632,7 @@ void pn532_spi_write(pn532_t *obj, uint8_t c)
     @returns The 8-bit value that was read from the SPI bus
 */
 /**************************************************************************/
-uint8_t pn532_spi_read(pn532_t *obj)
+/*uint8_t pn532_spi_read(pn532_t *obj)
 {
     int8_t i, x;
     x = 0;
@@ -1567,4 +1650,4 @@ uint8_t pn532_spi_read(pn532_t *obj)
     }
 
     return x;
-}
+}*/
