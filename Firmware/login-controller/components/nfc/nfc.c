@@ -15,7 +15,6 @@
 #define PIN_NUM_NFC_MOSI  23
 #define PIN_NUM_NFC_CLK   18
 #define PIN_NUM_NFC_CS 5
-#define PIN_NUM_NFC_IRQ 17
 
 
 static char TAG[] = "nfc";
@@ -23,28 +22,18 @@ static char TAG[] = "nfc";
 static pn532_t nfc;
 
 void nfc_emulate(){
-    pn532_AsTarget(&nfc);
-    ESP_LOGI(TAG,"Emulating");
+
+    if(pn532_AsTarget(&nfc)){
+        ESP_LOGI(TAG, "pn532_AsTarget success");
+    }else{
+        ESP_LOGI(TAG, "pn532_AsTarget failed");
+    }
 }
 
 void nfc_task(void *pvParameter)
 {
-    pn532_spi_init(&nfc, PIN_NUM_NFC_CLK, PIN_NUM_NFC_MISO, PIN_NUM_NFC_MOSI, PIN_NUM_NFC_CS, PIN_NUM_NFC_IRQ);
+    pn532_spi_init(&nfc, PIN_NUM_NFC_CLK, PIN_NUM_NFC_MISO, PIN_NUM_NFC_MOSI, PIN_NUM_NFC_CS);
     pn532_begin(&nfc);
-
-    /*nfc_emulate();
-    while (1)
-    {
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }*/
-    // configure board to read RFID tags
-    if(!pn532_SAMConfig(&nfc)){
-        ESP_LOGE(TAG, "SAMConfig failed");
-        while (1)
-        {
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
-        }
-    }
 
     uint32_t versiondata = pn532_getFirmwareVersion(&nfc);
     if (!versiondata)
@@ -56,8 +45,32 @@ void nfc_task(void *pvParameter)
         }
     }
     // Got ok data, print it out!
-    ESP_LOGI(TAG, "Found chip PN5 %x", (unsigned int)((versiondata >> 24) & 0xFF));
+    ESP_LOGI(TAG, "Found chip PN5%x", (unsigned int)((versiondata >> 24) & 0xFF));
     ESP_LOGI(TAG, "Firmware ver. %d.%d", (int)((versiondata >> 16) & 0xFF), (int)((versiondata >> 8) & 0xFF));
+    /*if(pn532_setParameters(&nfc)){
+        ESP_LOGI(TAG, "pn532_setParameters success");
+    }else{
+        ESP_LOGI(TAG, "pn532_setParameters failed");
+    }*/
+    pn532_SAMConfig(&nfc);
+    pn532_setPassiveActivationRetries(&nfc,0xFF);
+    pn532_setParameters(&nfc);
+    while(1){
+        nfc_emulate();
+    }
+    while(1){
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+    // configure board to read RFID tags
+    if(!pn532_SAMConfig(&nfc)){
+        ESP_LOGE(TAG, "SAMConfig failed");
+        while (1)
+        {
+            vTaskDelay(1000 / portTICK_PERIOD_MS);
+        }
+    }
+
+    
 
     
     if(!pn532_setPassiveActivationRetries(&nfc,0xFF)){

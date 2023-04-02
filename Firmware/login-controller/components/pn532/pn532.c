@@ -64,27 +64,23 @@ void receiveLog(char* data, int datalen){
     printf("\n");*/
 }
 
-void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss, uint8_t irq)
+void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss)
 {
     obj->_clk = clk;
     obj->_miso = miso;
     obj->_mosi = mosi;
     obj->_ss = ss;
-    obj->_irq = irq;
-
 
     gpio_reset_pin(obj->_clk);
     gpio_reset_pin(obj->_miso);
     gpio_reset_pin(obj->_mosi);
     gpio_reset_pin(obj->_ss);
-    gpio_reset_pin(obj->_irq);
 
     gpio_set_direction(obj->_ss, GPIO_MODE_OUTPUT);
     gpio_set_level(obj->_ss, 1);
     gpio_set_direction(obj->_clk, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_mosi, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_miso, GPIO_MODE_INPUT);
-    gpio_set_direction(obj->_irq, GPIO_MODE_INPUT);
 }
 
 /**************************************************************************/
@@ -179,12 +175,10 @@ bool pn532_sendCommandCheckAck(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen, uint1
 
     // For SPI only wait for the chip to be ready again.
     // This is unnecessary with I2C.
-    //I don't think this is necessary for SPI either
-    /*if (!pn532_waitready(obj, timeout))
+    if (!pn532_waitready(obj, timeout))
     {
         return false;
-    }*/
-    PN532_DELAY(10);
+    }
 
     return true; // ack'd command
 }
@@ -319,6 +313,38 @@ bool pn532_SAMConfig(pn532_t *obj)
 
     int offset = 5;
     return (pn532_packetbuffer[offset] == 0x15);
+}
+
+#define PN532_PARAM_FNADUSED (1 << 0)
+#define PN532_PARAM_FDIDUSED (1 << 1)
+#define PN532_PARAM_FAUTOMATIC_ATR_RES (1 << 2)
+#define PN532_PARAM_FAUTOMATICRATS (1 << 4)
+#define PN532_PARAM_FISO14443_4_PICC (1 << 5)
+#define PN532_PARAM_REMOVE_PREPOSTAMBLE (1 << 6)
+
+bool pn532_setParameters(pn532_t *obj)
+{
+    uint8_t config = 0;
+    config |= PN532_PARAM_FNADUSED;
+    config |= PN532_PARAM_FDIDUSED;
+    config |= PN532_PARAM_FAUTOMATIC_ATR_RES;
+    config |= PN532_PARAM_FAUTOMATICRATS;
+    config |= PN532_PARAM_FISO14443_4_PICC;
+    // Adding remove pre/postamble will break this library
+
+    uint8_t setParamCmd[] = {
+        0x12, // PN532_COMMAND_SET_PARAMETERS (Documentation 7.2.9 page: 85)
+        config
+    };
+
+    if (!pn532_sendCommandCheckAck(obj, setParamCmd, 2, 1000))
+        return false;
+
+    // read data packet
+    pn532_readdata(obj, pn532_packetbuffer, 8);
+
+    int offset = 5;
+    return (pn532_packetbuffer[offset] == 0x13);
 }
 
 /**************************************************************************/
@@ -1248,8 +1274,6 @@ bool pn532_readack(pn532_t *obj)
 /**************************************************************************/
 bool pn532_isready(pn532_t *obj)
 {
-    //return gpio_get_level(obj->_irq);
-    
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10);
     char i = PN532_SPI_STATREAD;
@@ -1259,7 +1283,6 @@ bool pn532_isready(pn532_t *obj)
     uint8_t x = pn532_spi_read(obj);
     receiveLog((char *)&x,1);
     gpio_set_level(obj->_ss, 1);
-    
 
     // Check if status is ready.
     return x == PN532_SPI_READY;
@@ -1290,12 +1313,16 @@ bool pn532_waitready(pn532_t *obj, uint16_t timeout)
     return true;
 }
 
+uint8_t ackPacket[] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
+
 /**************************************************************************/
 /*!
     @brief  Reads n bytes of data from the PN532 via SPI or I2C.
     @param  buff      Pointer to the buffer where data will be written
     @param  n         Number of bytes to be read
 */
+
+
 /**************************************************************************/
 void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
 {
@@ -1305,15 +1332,20 @@ void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
     sendLog(&i,1);
     pn532_spi_write(obj, PN532_SPI_DATAREAD);
 
-    PN532_DEBUG("Reading:");
+    
     for (uint8_t i = 0; i < n; i++)
     {
         PN532_DELAY(10);
         buff[i] = pn532_spi_read(obj);
     }
-    for (int i = 0; i < n; i++)
-    {
-        PN532_DEBUG(" 0x%02x,", buff[i]);
+    if(memcmp(buff,ackPacket,6)==0){
+        PN532_DEBUG("ACK received");
+    }else{
+        PN532_DEBUG("Reading with length %d: ",buff[2]-1);
+        for (int i = 6; i < 5+buff[2]; i++)
+        {
+            PN532_DEBUG(" 0x%02x,", buff[i]);
+        }
     }
     PN532_DEBUG("\n");
 
@@ -1332,28 +1364,46 @@ void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
 /**************************************************************************/
 uint8_t pn532_AsTarget(pn532_t *obj)
 {
-    pn532_packetbuffer[0] = 0x8C;
     uint8_t target[] = {
         0x8C,             // INIT AS TARGET
-        0x00,             // MODE -> BITFIELD
-        0x08, 0x00,       //SENS_RES - MIFARE PARAMS
-        0xdc, 0x44, 0x20, //NFCID1T
-        0x60,             //SEL_RES
+        0x05,             // MODE -> BITFIELD
+        0x04, 0x00,       //SENS_RES - MIFARE PARAMS
+        0x00, 0x00, 0x00, //NFCID1T
+        0x20,             //SEL_RES
+        // FELICA PARAMS
+        0x01, 0xFE,         // NFCID2t (8 bytes) https://github.com/adafruit/Adafruit-PN532/blob/master/Adafruit_PN532.cpp FeliCa NEEDS TO BEGIN WITH 0x01 0xFE!
+        0x05, 0x01, 0x86,
+        0x04, 0x02, 0x02,
+        0x03, 0x00,         // PAD (8 bytes)
+        0x4B, 0x02, 0x4F, 
+        0x49, 0x8A, 0x00,   
+        0xFF, 0xFF,         // System code (2 bytes)
+
+        0x01, 0x01, 0x66,   // NFCID3t (10 bytes)
+        0x6D, 0x01, 0x01, 0x10,
+        0x02, 0x00, 0x00,
+
+        0x00, // length of general bytes
+        0x00  // length of historical bytes
+        /*
         0x01, 0xfe,       //NFCID2T MUST START WITH 01fe - FELICA PARAMS - POL_RES
         0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7,
         0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7,                                    //PAD
         0xff, 0xff,                                                                        //SYSTEM CODE
         0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x01, 0x00,            //NFCID3t MAX 47 BYTES ATR_RES
         0x0d, 0x52, 0x46, 0x49, 0x44, 0x49, 0x4f, 0x74, 0x20, 0x50, 0x4e, 0x35, 0x33, 0x32 //HISTORICAL BYTES
+        */
     };
-    if (!pn532_sendCommandCheckAck(obj, target, sizeof(target), 1000))
+    if (!pn532_sendCommandCheckAck(obj, target, sizeof(target), (uint16_t)1000000000))
         return false;
 
     // read data packet
-    pn532_readdata(obj, pn532_packetbuffer, 8);
-
-    int offset = 5;
-    return (pn532_packetbuffer[offset] == 0x15);
+    pn532_readdata(obj, pn532_packetbuffer, 64);
+    // Response shold be something like: 0x00 0x00 0xFF 0x03 0xFD 0xD5 0x87 0x29 0x7B 0x00
+    // 87 is the response code
+    // 29 means released by initiator
+    int offset = 6;
+    return (pn532_packetbuffer[offset] == 0x8D /*&& pn532_packetbuffer[offset+1] == 0x29*/);
 }
 /**************************************************************************/
 /*!
@@ -1431,7 +1481,7 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
 
     cmdlen++;
 
-    PN532_DEBUG("Sending:");
+    PN532_DEBUG("Sending with length %d:", cmdlen-1);
 
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10); // or whatever the PN532_DELAY is for waking up the board
@@ -1449,7 +1499,7 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
     pn532_spi_write(obj, PN532_HOSTTOPN532);
     checksum += PN532_HOSTTOPN532;
 
-    PN532_DEBUG(" 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x,", (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_STARTCODE2, (uint8_t)cmdlen, (uint8_t)(~cmdlen + 1), (uint8_t)PN532_HOSTTOPN532);
+    //PN532_DEBUG(" 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x,", (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_STARTCODE2, (uint8_t)cmdlen, (uint8_t)(~cmdlen + 1), (uint8_t)PN532_HOSTTOPN532);
 
     for (uint8_t i = 0; i < cmdlen - 1; i++)
     {
@@ -1457,12 +1507,12 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
         checksum += cmd[i];
         PN532_DEBUG(" 0x%02x,", cmd[i]);
     }
-
+    PN532_DEBUG("\n");
     pn532_spi_write(obj, ~checksum);
     pn532_spi_write(obj, PN532_POSTAMBLE);
     gpio_set_level(obj->_ss, 1);
 
-    PN532_DEBUG(" 0x%02x, 0x%02x\n", (uint8_t)~checksum, (uint8_t)PN532_POSTAMBLE);
+    //PN532_DEBUG(" 0x%02x, 0x%02x\n", (uint8_t)~checksum, (uint8_t)PN532_POSTAMBLE);
 }
 /************** low level SPI */
 
