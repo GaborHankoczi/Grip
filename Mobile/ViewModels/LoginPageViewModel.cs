@@ -5,13 +5,14 @@ using GripMobile.Model;
 using GripMobile.Services;
 using GripMobile.Views;
 using CommunityToolkit.Maui.Core;
+using System.Text.RegularExpressions;
 
 namespace GripMobile.ViewModels
 {
     public partial class LoginPageViewModel: ObservableObject
     {
         [ObservableProperty]
-        private string idCardNumber = "";
+        private string emailAddress = "";
 
         [ObservableProperty]
         private string password = "";
@@ -20,13 +21,19 @@ namespace GripMobile.ViewModels
 
         private LoginService loginService;
 
-        public LoginPageViewModel(LoginService loginService) => this.loginService = loginService; 
+        public LoginPageViewModel(LoginService loginService) => this.loginService = loginService;
+
+        [GeneratedRegex(@"^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$")]
+        private partial Regex EmailAddressRegex();
+
+        [GeneratedRegex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$")]
+        private partial Regex PasswordRegex();
 
         [RelayCommand]
         async void LogInUser()
         {
-            //Validáció
-            if (IdCardNumber == "" || Password == "" || IdCardNumber.Length < 8 || Password.Length < 8)
+            //Validation
+            if (!EmailAddressRegex().IsMatch(EmailAddress) || !PasswordRegex().IsMatch(Password))
             {
                 CancellationTokenSource cancellationTokenSource = new();
 
@@ -39,9 +46,10 @@ namespace GripMobile.ViewModels
             
             try
             {
-                user = await loginService.CheckUserCredentials(IdCardNumber, Password);
+                user = await loginService.CheckUserCredentials(EmailAddress, Password);
 
-                if (user.Id == -1)
+                //Validtaion
+                if (user.UserName == null || user.Email == null || user.Roles.Length == 0)
                 {
                     CancellationTokenSource cancellationTokenSource = new();
 
@@ -52,19 +60,17 @@ namespace GripMobile.ViewModels
                     return;
                 }
 
+                //TODO: a role-oknak megfelelő oldalra kell továbbítani a felhasználót.
                 await Shell.Current.GoToAsync(nameof(UserDetailsPage));
             }
             catch (Exception exception)
             {
                 System.Diagnostics.Debug.WriteLine(@"\tERROR {0}", exception.Message);
-                await Shell.Current.DisplayAlert("Error!", exception.Message, "OK");
+                await Shell.Current.DisplayAlert("Error!", message: exception.Message, cancel: "OK");
             }
         }
         
         [RelayCommand]
         async void NavigateToForgotPasswordPage() => await Shell.Current.GoToAsync(nameof(ForgotPasswordPage));
-        
-        [RelayCommand]
-        async void NavigateToRegisterPage() => await Shell.Current.GoToAsync(nameof(RegisterPage));
     }
 }

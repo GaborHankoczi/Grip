@@ -8,8 +8,5 @@ namespace GripMobile.ViewModels
     {
         [RelayCommand]
         async void NavigateToLoginPage() => await Shell.Current.GoToAsync(nameof(LoginPage));
-
-        [RelayCommand]
-        async void NavigateToRegisterPage() => await Shell.Current.GoToAsync(nameof(RegisterPage));
     }
 }

@@ -6,8 +6,9 @@
              x:DataType="viewmodel:LoginPageViewModel"
              Title="Belépés"
              BackgroundColor="White">
-
+    
     <AbsoluteLayout Margin="25">
+        
         <Label 
             Text="Belépés"
             FontSize="60"
@@ -16,13 +17,10 @@
             AbsoluteLayout.LayoutFlags="PositionProportional"/>
 
         <Entry
-            Text="{Binding IdCardNumber}"
-            MaxLength="8"   
-            Keyboard="Text"
+            Text="{Binding EmailAddress}"
+            Keyboard="Email"
             ReturnType="Next"
-            Placeholder="Személyazonosító igazolvány száma"
-            TextTransform="Uppercase"
-            IsTextPredictionEnabled="False"
+            Placeholder="E-mail cím"
             ClearButtonVisibility="WhileEditing"
             AbsoluteLayout.LayoutBounds="0.5, 0.5, 1, 0.07"
             AbsoluteLayout.LayoutFlags="All"/>
@@ -58,49 +56,13 @@
             FontSize="20"
             BackgroundColor="Black"
             Command="{Binding LogInUserCommand}"
-            AbsoluteLayout.LayoutBounds="0.5, 0.8, 1, 0.07"
-            AbsoluteLayout.LayoutFlags="All" />
-
-        <Line
-            X1="0"
-            Y1="0"
-            X2="150"
-            Y2="0"
-            Stroke="#808080"
-            StrokeThickness="1"
-            StrokeLineCap="Round"
-            AbsoluteLayout.LayoutBounds="0, 0.878"
-            AbsoluteLayout.LayoutFlags="PositionProportional"/>
-
-        <Label
-            Text="vagy"
-            FontSize="13"
-            FontAttributes="Bold"
-            AbsoluteLayout.LayoutBounds="0.5, 0.8825"
-            AbsoluteLayout.LayoutFlags="PositionProportional" />
-
-        <Line
-            X1="0"
-            Y1="0"
-            X2="150"
-            Y2="0"
-            Stroke="#808080"
-            StrokeThickness="1"
-            StrokeLineCap="Round"
-            AbsoluteLayout.LayoutBounds="1, 0.878"
-            AbsoluteLayout.LayoutFlags="PositionProportional"/>
-
-        <Button 
-            Text="Regisztráció"
-            TextColor="Black"
-            FontAttributes="Bold"
-            FontSize="20"
-            BackgroundColor="White"
-            BorderWidth="2"
-            Command="{Binding NavigateToRegisterPageCommand}"
-            AbsoluteLayout.LayoutBounds="0.5, 1, 1, 0.07"
+            AbsoluteLayout.LayoutBounds="0.5, 0.9, 1, 0.07"
             AbsoluteLayout.LayoutFlags="All" />
 
     </AbsoluteLayout>
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior IsEnabled="False" IsVisible="False"/>
+    </Shell.BackButtonBehavior>
 
 </ContentPage>

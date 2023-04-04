@@ -19,12 +19,11 @@ namespace GripMobile.Services
 
         public LoginService() => this.httpClient = new HttpClient();
 
-        public async Task<User> CheckUserCredentials(string idCardNumber, string password)
+        public async Task<User> CheckUserCredentials(string email, string password)
         {
             try
             {
-                //Email helyett idcardnumber kell majd!!!
-                string json = $"{{\"email\": \"{idCardNumber}\", \"password\": \"{password}\"}}";
+                string json = $"{{\"email\": \"{email}\", \"password\": \"{password}\"}}";
                 StringContent content = new(json, Encoding.UTF8, "application/json");
 
                 var response = await httpClient.PostAsync("https://grip.sytes.net/api/User/Login", content);

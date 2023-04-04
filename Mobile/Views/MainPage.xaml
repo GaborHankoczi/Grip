@@ -25,19 +25,9 @@
                 BorderColor="Black"
                 BorderWidth="2"
                 Command="{Binding NavigateToLoginPageCommand}"
-                AbsoluteLayout.LayoutBounds="0.5, 0.9, 1, 0.07"
+                AbsoluteLayout.LayoutBounds="0.5, 0.95, 1, 0.07"
                 AbsoluteLayout.LayoutFlags="All" />
-
-        <Button
-                Text="Regisztráció"
-                TextColor="White"
-                FontAttributes="Bold"
-                FontSize="20"
-                BackgroundColor="Black"
-                Command="{Binding NavigateToRegisterPageCommand}"
-                AbsoluteLayout.LayoutBounds="0.5, 1, 1, 0.07"
-                AbsoluteLayout.LayoutFlags="All"/>
-
+        
     </AbsoluteLayout>
 
 </ContentPage>
