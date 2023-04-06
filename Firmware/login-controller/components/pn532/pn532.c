@@ -19,8 +19,12 @@
 
 #ifdef PN532_DEBUG_EN
 #define PN532_DEBUG(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#define DMSG(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#define DMSG_HEX(num) printf(" 0x%02X", num & 0xff);
 #else
 #define PN532_DEBUG(fmt, ...)
+#define DMSG(fmt, ...)
+#define DMSG_HEX(num)
 #endif
 
 #ifdef MIFARE_DEBUG_EN
@@ -35,6 +39,72 @@
 #define _BV(bit) (1 << (bit))
 #endif
 
+#define MAX_TGREAD
+#define NDEF_MAX_LENGTH 1024 // theoratically ndef can handle messages ut to 128 kB
+
+typedef enum
+{
+    NONE,
+    CC,
+    NDEF
+} tag_file; // CC ... Compatibility Container
+
+typedef enum
+{
+    COMMAND_COMPLETE,
+    TAG_NOT_FOUND,
+    FUNCTION_NOT_SUPPORTED,
+    MEMORY_FAILURE,
+    END_OF_FILE_BEFORE_REACHED_LE_BYTES
+} responseCommand;
+
+uint8_t compatibility_container[] = {
+    0, 0x0F,
+    0x20,
+    0, 0x54,
+    0, 0xFF,
+    0x04,                                                        // T
+    0x06,                                                        // L
+    0xE1, 0x04,                                                  // File identifier
+    ((NDEF_MAX_LENGTH & 0xFF00) >> 8), (NDEF_MAX_LENGTH & 0xFF), // maximum NDEF file size
+    0x00,                                                        // read access 0x0 = granted
+    0x00                                                         // write access 0x0 = granted | 0xFF = deny
+};
+
+uint8_t ndef_file[NDEF_MAX_LENGTH];
+
+// Command APDU
+#define C_APDU_CLA 0
+#define C_APDU_INS 1  // instruction
+#define C_APDU_P1 2   // parameter 1
+#define C_APDU_P2 3   // parameter 2
+#define C_APDU_LC 4   // length command
+#define C_APDU_DATA 5 // data
+
+#define C_APDU_P1_SELECT_BY_ID 0x00
+#define C_APDU_P1_SELECT_BY_NAME 0x04
+
+// Response APDU
+#define R_APDU_SW1_COMMAND_COMPLETE 0x90
+#define R_APDU_SW2_COMMAND_COMPLETE 0x00
+
+#define R_APDU_SW1_NDEF_TAG_NOT_FOUND 0x6a
+#define R_APDU_SW2_NDEF_TAG_NOT_FOUND 0x82
+
+#define R_APDU_SW1_FUNCTION_NOT_SUPPORTED 0x6A
+#define R_APDU_SW2_FUNCTION_NOT_SUPPORTED 0x81
+
+#define R_APDU_SW1_MEMORY_FAILURE 0x65
+#define R_APDU_SW2_MEMORY_FAILURE 0x81
+
+#define R_APDU_SW1_END_OF_FILE_BEFORE_REACHED_LE_BYTES 0x62
+#define R_APDU_SW2_END_OF_FILE_BEFORE_REACHED_LE_BYTES 0x82
+
+// ISO7816-4 commands
+#define ISO7816_SELECT_FILE 0xA4
+#define ISO7816_READ_BINARY 0xB0
+#define ISO7816_UPDATE_BINARY 0xD6
+
 #define PN532_DELAY(ms) vTaskDelay(ms / portTICK_PERIOD_MS)
 
 static uint8_t pn532ack[] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
@@ -48,15 +118,19 @@ static bool pn532_isready(pn532_t *obj);
 static bool pn532_waitready(pn532_t *obj, uint16_t timeout);
 static void pn532_spi_write(pn532_t *obj, uint8_t c);
 static uint8_t pn532_spi_read(pn532_t *obj);
+void pn532_inRelease(pn532_t *obj);
+void pn532_setResponse(responseCommand cmd, uint8_t *buf, uint8_t *sendlen, uint8_t sendlenOffset);
 
-void sendLog(char* data, int datalen){
+void sendLog(char *data, int datalen)
+{
     /*printf("Sending:");
     for(int i = 0;i<datalen;i++){
         printf(" 0x%x", data[i] && 0xFF);
     }
     printf("\n");*/
 }
-void receiveLog(char* data, int datalen){
+void receiveLog(char *data, int datalen)
+{
     /*printf("Receiving:");
     for(int i = 0;i<datalen;i++){
         printf(" 0x%x", data[i] && 0xFF);
@@ -99,11 +173,9 @@ void pn532_begin(pn532_t *obj)
     pn532_sendCommandCheckAck(obj, pn532_packetbuffer, 1, 1000);
 
     // ignore response!
-    
+
     gpio_set_level(obj->_ss, 1);
 }
-
-
 
 /**************************************************************************/
 /*!
@@ -334,8 +406,7 @@ bool pn532_setParameters(pn532_t *obj)
 
     uint8_t setParamCmd[] = {
         0x12, // PN532_COMMAND_SET_PARAMETERS (Documentation 7.2.9 page: 85)
-        config
-    };
+        config};
 
     if (!pn532_sendCommandCheckAck(obj, setParamCmd, 2, 1000))
         return false;
@@ -680,10 +751,10 @@ uint8_t pn532_mifareclassic_AuthenticateBlock(pn532_t *obj, uint8_t *uid, uint8_
     {
         MIFARE_DEBUG("Authentification failed\n");
         for (int i = 0; i < 12; i++)
-    {
-        MIFARE_DEBUG(" %02x", pn532_packetbuffer[i]);
-    }
-    MIFARE_DEBUG("\n");
+        {
+            MIFARE_DEBUG(" %02x", pn532_packetbuffer[i]);
+        }
+        MIFARE_DEBUG("\n");
         return 0;
     }
 
@@ -737,7 +808,7 @@ uint8_t pn532_mifareclassic_ReadDataBlock(pn532_t *obj, uint8_t blockNumber, uin
     /* Block content starts at uint8_t 9 of a valid response */
     memcpy(data, pn532_packetbuffer + 8, 16);
 
-/* Display data for debug if requested */
+    /* Display data for debug if requested */
     MIFARE_DEBUG("Block %d\n", blockNumber);
     for (int i = 0; i < 16; i++)
     {
@@ -959,7 +1030,7 @@ uint8_t pn532_mifareultralight_ReadPage(pn532_t *obj, uint8_t page, uint8_t *buf
         return 0;
     }
 
-/* Display data for debug if requested */
+    /* Display data for debug if requested */
     MIFARE_DEBUG("Page %d:", page);
     for (int i = 0; i < 4; i++)
     {
@@ -1086,7 +1157,7 @@ uint8_t pn532_ntag2xx_ReadPage(pn532_t *obj, uint8_t page, uint8_t *buffer)
         return 0;
     }
 
-/* Display data for debug if requested */
+    /* Display data for debug if requested */
     MIFARE_DEBUG("Page %d:", page);
     for (int i = 0; i < 4; i++)
     {
@@ -1277,11 +1348,11 @@ bool pn532_isready(pn532_t *obj)
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10);
     char i = PN532_SPI_STATREAD;
-    sendLog(&i,1);
+    sendLog(&i, 1);
     pn532_spi_write(obj, PN532_SPI_STATREAD);
     // read uint8_t
     uint8_t x = pn532_spi_read(obj);
-    receiveLog((char *)&x,1);
+    receiveLog((char *)&x, 1);
     gpio_set_level(obj->_ss, 1);
 
     // Check if status is ready.
@@ -1296,19 +1367,20 @@ bool pn532_isready(pn532_t *obj)
 /**************************************************************************/
 bool pn532_waitready(pn532_t *obj, uint16_t timeout)
 {
+    uint8_t step = 1;
     uint16_t timer = 0;
     while (!pn532_isready(obj))
     {
         if (timeout != 0)
         {
-            timer += 10;
+            timer += step;
             if (timer > timeout)
             {
                 PN532_DEBUG("TIMEOUT!\n");
                 return false;
             }
         }
-        PN532_DELAY(10);
+        PN532_DELAY(step);
     }
     return true;
 }
@@ -1322,27 +1394,29 @@ uint8_t ackPacket[] = {0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00};
     @param  n         Number of bytes to be read
 */
 
-
 /**************************************************************************/
 void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
 {
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10);
-    char i=PN532_SPI_DATAREAD;
-    sendLog(&i,1);
+    char i = PN532_SPI_DATAREAD;
+    sendLog(&i, 1);
     pn532_spi_write(obj, PN532_SPI_DATAREAD);
 
-    
     for (uint8_t i = 0; i < n; i++)
     {
         PN532_DELAY(10);
         buff[i] = pn532_spi_read(obj);
     }
-    if(memcmp(buff,ackPacket,6)==0){
+    if (memcmp(buff, ackPacket, 6) == 0)
+    {
         PN532_DEBUG("ACK received");
-    }else{
-        PN532_DEBUG("Reading with length %d: ",buff[2]-1);
-        for (int i = 6; i < 5+buff[2]; i++)
+    }
+    else
+    {
+        uint8_t buffer_offset = buff[0] == 0x00 && buff[1] == 0xFF ? 5 : 6; // Preampble not allways present
+        PN532_DEBUG("Reading with length %d: ", buff[3 + (buffer_offset - 6)] - 1);
+        for (int i = buffer_offset; i < buffer_offset - 1 + buff[3 + (buffer_offset - 6)]; i++)
         {
             PN532_DEBUG(" 0x%02x,", buff[i]);
         }
@@ -1352,34 +1426,22 @@ void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
     gpio_set_level(obj->_ss, 1);
 }
 
-/**************************************************************************/
-/*!
-    @brief  set the PN532 as iso14443a Target behaving as a SmartCard
-    @param  None
-    #author Salvador Mendoza(salmg.net) new functions:
-    -AsTarget
-    -getDataTarget
-    -setDataTarget
-*/
-/**************************************************************************/
-uint8_t pn532_AsTarget(pn532_t *obj)
-{
-    uint8_t target[] = {
+uint8_t target[] = {
         0x8C,             // INIT AS TARGET
         0x05,             // MODE -> BITFIELD
-        0x04, 0x00,       //SENS_RES - MIFARE PARAMS
-        0x00, 0x00, 0x00, //NFCID1T
-        0x20,             //SEL_RES
+        0x04, 0x00,       // SENS_RES - MIFARE PARAMS
+        0x00, 0x00, 0x00, // NFCID1T
+        0x20,             // SEL_RES
         // FELICA PARAMS
-        0x01, 0xFE,         // NFCID2t (8 bytes) https://github.com/adafruit/Adafruit-PN532/blob/master/Adafruit_PN532.cpp FeliCa NEEDS TO BEGIN WITH 0x01 0xFE!
+        0x01, 0xFE, // NFCID2t (8 bytes) https://github.com/adafruit/Adafruit-PN532/blob/master/Adafruit_PN532.cpp FeliCa NEEDS TO BEGIN WITH 0x01 0xFE!
         0x05, 0x01, 0x86,
         0x04, 0x02, 0x02,
-        0x03, 0x00,         // PAD (8 bytes)
-        0x4B, 0x02, 0x4F, 
-        0x49, 0x8A, 0x00,   
-        0xFF, 0xFF,         // System code (2 bytes)
+        0x03, 0x00, // PAD (8 bytes)
+        0x4B, 0x02, 0x4F,
+        0x49, 0x8A, 0x00,
+        0xFF, 0xFF, // System code (2 bytes)
 
-        0x01, 0x01, 0x66,   // NFCID3t (10 bytes)
+        0x01, 0x01, 0x66, // NFCID3t (10 bytes)
         0x6D, 0x01, 0x01, 0x10,
         0x02, 0x00, 0x00,
 
@@ -1394,6 +1456,22 @@ uint8_t pn532_AsTarget(pn532_t *obj)
         0x0d, 0x52, 0x46, 0x49, 0x44, 0x49, 0x4f, 0x74, 0x20, 0x50, 0x4e, 0x35, 0x33, 0x32 //HISTORICAL BYTES
         */
     };
+
+/**************************************************************************/
+/*!
+    @brief  set the PN532 as iso14443a Target behaving as a SmartCard
+    @param  None
+    #author Salvador Mendoza(salmg.net) new functions:
+    -AsTarget
+    -getDataTarget
+    -setDataTarget
+*/
+/**************************************************************************/
+uint8_t pn532_AsTarget(pn532_t *obj,uint32_t uid)
+{
+    if(uid!=0){
+        memcpy(target+4,&uid,3);
+    }
     if (!pn532_sendCommandCheckAck(obj, target, sizeof(target), (uint16_t)1000000000))
         return false;
 
@@ -1405,6 +1483,198 @@ uint8_t pn532_AsTarget(pn532_t *obj)
     int offset = 6;
     return (pn532_packetbuffer[offset] == 0x8D /*&& pn532_packetbuffer[offset+1] == 0x29*/);
 }
+
+void pn532_setNdefFile(const uint8_t *ndef, const int16_t ndefLength)
+{
+    if (ndefLength > (NDEF_MAX_LENGTH - 2))
+    {
+        DMSG("ndef file too large (> NDEF_MAX_LENGHT -2) - aborting");
+        return;
+    }
+
+    ndef_file[0] = ndefLength >> 8;
+    ndef_file[1] = ndefLength & 0xFF;
+    memcpy(ndef_file + 2, ndef, ndefLength);
+}
+
+bool pn532_emulate(pn532_t *obj, uint32_t uid)
+{
+    if (pn532_AsTarget(obj,uid))
+    {
+        // ESP_LOGI(TAG, "pn532_AsTarget success");
+
+        bool processingCommands = true;
+        uint8_t rwbuf[128];
+        uint8_t sendlen;
+        tag_file currentFile = NONE;
+        while (processingCommands)
+        {
+            // TODO check for communication ending 0x29
+            uint8_t readLength = 0;
+            if (!pn532_getDataTarget(obj, rwbuf, &readLength))
+            {
+                DMSG("pn532_getDataTarget failed\n");
+                pn532_inRelease(obj);
+                return false;
+            }
+            uint8_t p1 = rwbuf[C_APDU_P1];
+            uint8_t p2 = rwbuf[C_APDU_P2];
+            uint8_t lc = rwbuf[C_APDU_LC];
+            uint16_t p1p2_length = ((int16_t)p1 << 8) + p2;
+
+            switch (rwbuf[C_APDU_INS]) // switch instruction command
+            {
+            case ISO7816_SELECT_FILE:
+                switch (p1)
+                {
+                case C_APDU_P1_SELECT_BY_ID:
+                    if (p2 != 0x0c)
+                    {
+                        DMSG("C_APDU_P2 != 0x0c\n");
+                        pn532_setResponse(COMMAND_COMPLETE, rwbuf, &sendlen, 0);
+                    }
+                    else if (lc == 2 && rwbuf[C_APDU_DATA] == 0xE1 && (rwbuf[C_APDU_DATA + 1] == 0x03 || rwbuf[C_APDU_DATA + 1] == 0x04))
+                    {
+                        pn532_setResponse(COMMAND_COMPLETE, rwbuf, &sendlen, 0);
+                        if (rwbuf[C_APDU_DATA + 1] == 0x03)
+                        {
+                            currentFile = CC;
+                        }
+                        else if (rwbuf[C_APDU_DATA + 1] == 0x04)
+                        {
+                            currentFile = NDEF;
+                        }
+                    }
+                    else
+                    {
+                        pn532_setResponse(TAG_NOT_FOUND, rwbuf, &sendlen, 0);
+                    }
+                    break;
+                case C_APDU_P1_SELECT_BY_NAME:
+                    const uint8_t ndef_tag_application_name_v2[] = {0, 0x7, 0xD2, 0x76, 0x00, 0x00, 0x85, 0x01, 0x01};
+                    if (0 == memcmp(ndef_tag_application_name_v2, rwbuf + C_APDU_P2, sizeof(ndef_tag_application_name_v2)))
+                    {
+                        pn532_setResponse(COMMAND_COMPLETE, rwbuf, &sendlen, 0);
+                    }
+                    else
+                    {
+                        DMSG("function not supported\n");
+                        pn532_setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen, 0);
+                    }
+                    break;
+                }
+                break;
+            case ISO7816_READ_BINARY:
+                switch (currentFile)
+                {
+                case NONE:
+                    pn532_setResponse(TAG_NOT_FOUND, rwbuf, &sendlen, 0);
+                    break;
+                case CC:
+                    if (p1p2_length > NDEF_MAX_LENGTH)
+                    {
+                        pn532_setResponse(END_OF_FILE_BEFORE_REACHED_LE_BYTES, rwbuf, &sendlen, 0);
+                    }
+                    else
+                    {
+                        memcpy(rwbuf, compatibility_container + p1p2_length, lc);
+                        pn532_setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
+                    }
+                    break;
+                case NDEF:
+                    if (p1p2_length > NDEF_MAX_LENGTH)
+                    {
+                        pn532_setResponse(END_OF_FILE_BEFORE_REACHED_LE_BYTES, rwbuf, &sendlen, 0);
+                    }
+                    else
+                    {
+                        memcpy(rwbuf, ndef_file + p1p2_length, lc);
+                        pn532_setResponse(COMMAND_COMPLETE, rwbuf + lc, &sendlen, lc);
+                    }
+                    break;
+                }
+                break;
+            case ISO7816_UPDATE_BINARY:
+                if (true) // Tag writeable?
+                {
+                    pn532_setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen, 0);
+                }
+                else
+                {
+                    if (p1p2_length > NDEF_MAX_LENGTH)
+                    {
+                        pn532_setResponse(MEMORY_FAILURE, rwbuf, &sendlen, 0);
+                    }
+                    else
+                    {
+                        // Probably shouldn't update the original message
+                        memcpy(ndef_file + p1p2_length, rwbuf + C_APDU_DATA, lc);
+                        pn532_setResponse(COMMAND_COMPLETE, rwbuf, &sendlen, 0);
+
+                        uint16_t ndef_length = (ndef_file[0] << 8) + ndef_file[1];
+                        if ((ndef_length > 0) /*&& (updateNdefCallback != 0)*/)
+                        {
+                            DMSG("Tag was written by initiator, do something");
+                            // updateNdefCallback(ndef_file + 2, ndef_length);
+                        }
+                    }
+                }
+                break;
+            default:
+                DMSG("Command not supported!");
+                DMSG_HEX(rwbuf[C_APDU_INS]);
+                DMSG("\n");
+                pn532_setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen, 0);
+            }
+        }
+
+        if (!pn532_setDataTarget(obj, rwbuf, sendlen))
+        {
+            DMSG("tgSetData failed\n!");
+            pn532_inRelease(obj);
+            return false;
+        }
+        return true;
+    }
+    else
+    {
+        DMSG("pn532_AsTarget failed");
+        return false;
+    }
+}
+
+void pn532_setResponse(responseCommand cmd, uint8_t *buf, uint8_t *sendlen, uint8_t sendlenOffset)
+{
+    switch (cmd)
+    {
+    case COMMAND_COMPLETE:
+        buf[0] = R_APDU_SW1_COMMAND_COMPLETE;
+        buf[1] = R_APDU_SW2_COMMAND_COMPLETE;
+        *sendlen = 2 + sendlenOffset;
+        break;
+    case TAG_NOT_FOUND:
+        buf[0] = R_APDU_SW1_NDEF_TAG_NOT_FOUND;
+        buf[1] = R_APDU_SW2_NDEF_TAG_NOT_FOUND;
+        *sendlen = 2;
+        break;
+    case FUNCTION_NOT_SUPPORTED:
+        buf[0] = R_APDU_SW1_FUNCTION_NOT_SUPPORTED;
+        buf[1] = R_APDU_SW2_FUNCTION_NOT_SUPPORTED;
+        *sendlen = 2;
+        break;
+    case MEMORY_FAILURE:
+        buf[0] = R_APDU_SW1_MEMORY_FAILURE;
+        buf[1] = R_APDU_SW2_MEMORY_FAILURE;
+        *sendlen = 2;
+        break;
+    case END_OF_FILE_BEFORE_REACHED_LE_BYTES:
+        buf[0] = R_APDU_SW1_END_OF_FILE_BEFORE_REACHED_LE_BYTES;
+        buf[1] = R_APDU_SW2_END_OF_FILE_BEFORE_REACHED_LE_BYTES;
+        *sendlen = 2;
+        break;
+    }
+}
+
 /**************************************************************************/
 /*!
     @brief  retrieve response from the emulation mode
@@ -1425,10 +1695,14 @@ uint8_t pn532_getDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t *cmdlen)
     // read data packet
     pn532_readdata(obj, pn532_packetbuffer, 64);
     length = pn532_packetbuffer[3] - 3;
+    if(pn532_packetbuffer[6] == 0x29) // Released by initiator
+    {
+        return false;
+    }
 
-    //if (length > *responseLength) {// Bug, should avoid it in the reading target data
-    //  length = *responseLength; // silent truncation...
-    //}
+    // if (length > *responseLength) {// Bug, should avoid it in the reading target data
+    //   length = *responseLength; // silent truncation...
+    // }
 
     for (int i = 0; i < length; ++i)
     {
@@ -1436,6 +1710,14 @@ uint8_t pn532_getDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t *cmdlen)
     }
     *cmdlen = length;
     return true;
+}
+
+void pn532_inRelease(pn532_t *obj)
+{
+    pn532_packetbuffer[0] = 0x52;
+    pn532_packetbuffer[1] = 0x00;
+    pn532_sendCommandCheckAck(obj, pn532_packetbuffer, 2, 1000);
+    pn532_readdata(obj, pn532_packetbuffer, 64);
 }
 
 /**************************************************************************/
@@ -1448,7 +1730,7 @@ uint8_t pn532_getDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t *cmdlen)
 uint8_t pn532_setDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
 {
     uint8_t length;
-    //cmd1[0] = 0x8E; Must!
+    // cmd1[0] = 0x8E; Must!
 
     if (!pn532_sendCommandCheckAck(obj, cmd, cmdlen, 1000))
         return false;
@@ -1460,7 +1742,7 @@ uint8_t pn532_setDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
     {
         cmd[i] = pn532_packetbuffer[8 + i];
     }
-    //cmdl = 0
+    // cmdl = 0
     cmdlen = length;
 
     int offset = 5;
@@ -1481,7 +1763,7 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
 
     cmdlen++;
 
-    PN532_DEBUG("Sending with length %d:", cmdlen-1);
+    PN532_DEBUG("Sending with length %d:", cmdlen - 1);
 
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10); // or whatever the PN532_DELAY is for waking up the board
@@ -1499,7 +1781,7 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
     pn532_spi_write(obj, PN532_HOSTTOPN532);
     checksum += PN532_HOSTTOPN532;
 
-    //PN532_DEBUG(" 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x,", (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_STARTCODE2, (uint8_t)cmdlen, (uint8_t)(~cmdlen + 1), (uint8_t)PN532_HOSTTOPN532);
+    // PN532_DEBUG(" 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x, 0x%02x,", (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_PREAMBLE, (uint8_t)PN532_STARTCODE2, (uint8_t)cmdlen, (uint8_t)(~cmdlen + 1), (uint8_t)PN532_HOSTTOPN532);
 
     for (uint8_t i = 0; i < cmdlen - 1; i++)
     {
@@ -1512,7 +1794,7 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
     pn532_spi_write(obj, PN532_POSTAMBLE);
     gpio_set_level(obj->_ss, 1);
 
-    //PN532_DEBUG(" 0x%02x, 0x%02x\n", (uint8_t)~checksum, (uint8_t)PN532_POSTAMBLE);
+    // PN532_DEBUG(" 0x%02x, 0x%02x\n", (uint8_t)~checksum, (uint8_t)PN532_POSTAMBLE);
 }
 /************** low level SPI */
 

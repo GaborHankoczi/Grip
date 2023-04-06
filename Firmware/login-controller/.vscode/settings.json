@@ -25,7 +25,16 @@
         "config.h": "c",
         "string": "cpp",
         "*.tcc": "cpp",
-        "array": "c"
+        "array": "c",
+        "ratio": "c",
+        "cstddef": "cpp",
+        "chrono": "cpp",
+        "compare": "cpp",
+        "functional": "cpp",
+        "tuple": "cpp",
+        "type_traits": "cpp",
+        "utility": "cpp",
+        "gpio.h": "c"
     },
     "cmake.configureOnOpen": true
 }
