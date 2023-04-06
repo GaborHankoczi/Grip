@@ -2,37 +2,45 @@
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Maui.Alerts;
 using GripMobile.Model;
-using GripMobile.Services;
-using GripMobile.Views;
+using GripMobile.Service;
+using GripMobile.View;
 using CommunityToolkit.Maui.Core;
 using System.Text.RegularExpressions;
 
-namespace GripMobile.ViewModels
+namespace GripMobile.ViewModel
 {
+    /// <summary>
+    /// Class <c>LoginPageViewModel</c> implements the logic behind Login Page.
+    /// </summary>
     public partial class LoginPageViewModel: ObservableObject
     {
         [ObservableProperty]
-        private string emailAddress = "";
+        private string emailAddress;
 
         [ObservableProperty]
-        private string password = "";
+        private string password;
         
-        private User user = new();
+        private LoginUserDTO userData;
+        private LoginResultDTO result;
 
-        private LoginService loginService;
+        private readonly LoginService loginService;
 
         public LoginPageViewModel(LoginService loginService) => this.loginService = loginService;
 
-        [GeneratedRegex(@"^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$")]
+        [GeneratedRegex("^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*$")]
         private partial Regex EmailAddressRegex();
 
         [GeneratedRegex(@"^(?=.*[A-Z])(?=.*[a-z])(?=.*\d).{8,}$")]
         private partial Regex PasswordRegex();
 
+        /// <summary>
+        /// Logic behind the "Bejelentkezés" button. If the given data is valid and the communication with the server was successful,
+        /// the user is navigated to the next page according to his/her roles.
+        /// </summary>
         [RelayCommand]
         async void LogInUser()
         {
-            //Validation
+            //Validating the given data.
             if (!EmailAddressRegex().IsMatch(EmailAddress) || !PasswordRegex().IsMatch(Password))
             {
                 CancellationTokenSource cancellationTokenSource = new();
@@ -46,10 +54,17 @@ namespace GripMobile.ViewModels
             
             try
             {
-                user = await loginService.CheckUserCredentials(EmailAddress, Password);
+                //Filling up the LoginUserDTO with the given data.
+                userData = new()
+                {
+                    Email = EmailAddress,
+                    Password = Password
+                };
 
-                //Validtaion
-                if (user.UserName == null || user.Email == null || user.Roles.Length == 0)
+                result = await loginService.CheckUserCredentials(userData);
+
+                //Validating the result got back from the server,
+                if (result.UserName == null || result.Email == null || result.Roles.Length == 0)
                 {
                     CancellationTokenSource cancellationTokenSource = new();
 
@@ -62,6 +77,8 @@ namespace GripMobile.ViewModels
 
                 //TODO: a role-oknak megfelelő oldalra kell továbbítani a felhasználót.
                 await Shell.Current.GoToAsync(nameof(UserDetailsPage));
+
+                return;
             }
             catch (Exception exception)
             {

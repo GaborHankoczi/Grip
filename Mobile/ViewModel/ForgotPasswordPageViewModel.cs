@@ -1,8 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
-using GripMobile.Views;
 
-namespace GripMobile.ViewModels
+namespace GripMobile.ViewModel
 {
     public partial class ForgotPasswordPageViewModel: ObservableObject
     {

@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GripMobile.View.FirstLoginPage"
+             xmlns:viewmodel="clr-namespace:GripMobile.ViewModel"
+             x:DataType="viewmodel:FirstLoginPageViewModel"
+             Title="Első belépés"
+             BackgroundColor="White">
+
+    <AbsoluteLayout Margin="25">
+        <Label 
+            Text="Első belépés"
+            FontSize="50"
+            FontAttributes="Bold"
+            AbsoluteLayout.LayoutBounds="0, 0.2"
+            AbsoluteLayout.LayoutFlags="PositionProportional"/>
+
+        <Entry
+            Text="{Binding EmailAddress}"
+            Keyboard="Email"
+            ReturnType="Next"
+            Placeholder="E-mail cím"
+            ClearButtonVisibility="WhileEditing"
+            AbsoluteLayout.LayoutBounds="0.5, 0.45, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All"/>
+
+        <Entry
+            Text="{Binding Token}"
+            Keyboard="Numeric"
+            ReturnType="Next"
+            Placeholder="Token"
+            MaxLength="6"
+            ClearButtonVisibility="WhileEditing"
+            AbsoluteLayout.LayoutBounds="0.5, 0.55, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All"/>
+
+        <Entry
+            Text="{Binding NewPassword}"
+            IsPassword="True"
+            Keyboard="Text"
+            ReturnType="Next"
+            Placeholder="Új jelszó"
+            IsTextPredictionEnabled="False"
+            ClearButtonVisibility="WhileEditing"
+            AbsoluteLayout.LayoutBounds="0.5, 0.65, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All"/>
+
+        <Entry
+            Text="{Binding NewPasswordAgain}"
+            IsPassword="True"
+            Keyboard="Text"
+            ReturnType="Done"
+            Placeholder="Új jelszó még egyszer"
+            IsTextPredictionEnabled="False"
+            ClearButtonVisibility="WhileEditing"
+            AbsoluteLayout.LayoutBounds="0.5, 0.75, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All"/>
+
+        <Button 
+            Text="Küldés"
+            TextColor="White"
+            FontAttributes="Bold"
+            FontSize="20"
+            BackgroundColor="Black"
+            Command="{Binding ConfirmEmailCommand}"
+            AbsoluteLayout.LayoutBounds="0.5, 0.95, 1, 0.07"
+            AbsoluteLayout.LayoutFlags="All" />
+    </AbsoluteLayout>
+
+</ContentPage>

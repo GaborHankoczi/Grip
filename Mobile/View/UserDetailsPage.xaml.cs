@@ -1,6 +1,6 @@
-using GripMobile.ViewModels;
+using GripMobile.ViewModel;
 
-namespace GripMobile.Views;
+namespace GripMobile.View;
 
 public partial class UserDetailsPage : ContentPage
 {
