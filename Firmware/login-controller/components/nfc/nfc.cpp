@@ -51,7 +51,7 @@ uint8_t nfc_emulate()
 
 void nfc_task(void *pvParameter)
 {
-    pn532_spi_init(&nfc, PIN_NUM_NFC_CLK, PIN_NUM_NFC_MISO, PIN_NUM_NFC_MOSI, PIN_NUM_NFC_CS);
+    pn532_spi_init(&nfc, PIN_NUM_NFC_CLK, PIN_NUM_NFC_MISO, PIN_NUM_NFC_MOSI, PIN_NUM_NFC_CS, PIN_NUM_NFC_IRQ);
     pn532_begin(&nfc);
 
     pn532_SAMConfig(&nfc);

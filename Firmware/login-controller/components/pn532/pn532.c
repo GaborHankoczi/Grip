@@ -18,7 +18,8 @@
 #define MIFARE_DEBUG_EN
 
 #ifdef PN532_DEBUG_EN
-#define PN532_DEBUG(fmt, ...) printf(fmt, ##__VA_ARGS__)
+#define PN532_DEBUG(fmt, ...) ESP_LOGI("NFC",fmt, ##__VA_ARGS__)
+#define PN532_DEBUG_HEX(buffer,len) ESP_LOG_BUFFER_HEXDUMP("NFC",buffer,len,ESP_LOG_INFO)
 #define DMSG(fmt, ...) printf(fmt, ##__VA_ARGS__)
 #define DMSG_HEX(num) printf(" 0x%02X", num & 0xff);
 #else
@@ -138,23 +139,26 @@ void receiveLog(char *data, int datalen)
     printf("\n");*/
 }
 
-void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss)
+void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8_t ss, uint8_t irq)
 {
     obj->_clk = clk;
     obj->_miso = miso;
     obj->_mosi = mosi;
     obj->_ss = ss;
+    obj->_irq = irq;
 
     gpio_reset_pin(obj->_clk);
     gpio_reset_pin(obj->_miso);
     gpio_reset_pin(obj->_mosi);
     gpio_reset_pin(obj->_ss);
+    //gpio_reset_pin(obj->_irq);
 
     gpio_set_direction(obj->_ss, GPIO_MODE_OUTPUT);
     gpio_set_level(obj->_ss, 1);
     gpio_set_direction(obj->_clk, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_mosi, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_miso, GPIO_MODE_INPUT);
+    gpio_set_direction(obj->_irq, GPIO_MODE_INPUT);
 }
 
 /**************************************************************************/
@@ -166,11 +170,11 @@ void pn532_begin(pn532_t *obj)
 {
     gpio_set_level(obj->_ss, 0);
 
-    PN532_DELAY(100);
+    PN532_DELAY(10);
 
     // not exactly sure why but we have to send a dummy command to get synced up
     pn532_packetbuffer[0] = PN532_COMMAND_GETFIRMWAREVERSION;
-    pn532_sendCommandCheckAck(obj, pn532_packetbuffer, 1, 1000);
+    pn532_sendCommandCheckAck(obj, pn532_packetbuffer, 1, 10);
 
     // ignore response!
 
@@ -1345,6 +1349,7 @@ bool pn532_readack(pn532_t *obj)
 /**************************************************************************/
 bool pn532_isready(pn532_t *obj)
 {
+    return gpio_get_level(obj->_irq);
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10);
     char i = PN532_SPI_STATREAD;
@@ -1367,7 +1372,7 @@ bool pn532_isready(pn532_t *obj)
 /**************************************************************************/
 bool pn532_waitready(pn532_t *obj, uint16_t timeout)
 {
-    uint8_t step = 1;
+    uint8_t step = 10;
     uint16_t timer = 0;
     while (!pn532_isready(obj))
     {
@@ -1376,7 +1381,7 @@ bool pn532_waitready(pn532_t *obj, uint16_t timeout)
             timer += step;
             if (timer > timeout)
             {
-                PN532_DEBUG("TIMEOUT!\n");
+                PN532_DEBUG("TIMEOUT!");
                 return false;
             }
         }
@@ -1416,12 +1421,12 @@ void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
     {
         uint8_t buffer_offset = buff[0] == 0x00 && buff[1] == 0xFF ? 5 : 6; // Preampble not allways present
         PN532_DEBUG("Reading with length %d: ", buff[3 + (buffer_offset - 6)] - 1);
-        for (int i = buffer_offset; i < buffer_offset - 1 + buff[3 + (buffer_offset - 6)]; i++)
+        /*for (int i = buffer_offset; i < buffer_offset - 1 + buff[3 + (buffer_offset - 6)]; i++)
         {
             PN532_DEBUG(" 0x%02x,", buff[i]);
-        }
+        }*/
+        PN532_DEBUG_HEX(buff + buffer_offset, buff[3 + (buffer_offset - 6)] - 1);
     }
-    PN532_DEBUG("\n");
 
     gpio_set_level(obj->_ss, 1);
 }
@@ -1787,9 +1792,12 @@ void pn532_writecommand(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
     {
         pn532_spi_write(obj, cmd[i]);
         checksum += cmd[i];
-        PN532_DEBUG(" 0x%02x,", cmd[i]);
+        //PN532_DEBUG(" 0x%02x,", cmd[i]);
     }
-    PN532_DEBUG("\n");
+    PN532_DEBUG_HEX(cmd, cmdlen - 1);
+
+
+    //PN532_DEBUG("\n");
     pn532_spi_write(obj, ~checksum);
     pn532_spi_write(obj, PN532_POSTAMBLE);
     gpio_set_level(obj->_ss, 1);
