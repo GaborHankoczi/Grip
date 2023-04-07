@@ -34,7 +34,9 @@
         "tuple": "cpp",
         "type_traits": "cpp",
         "utility": "cpp",
-        "gpio.h": "c"
+        "gpio.h": "c",
+        "condition_variable": "c",
+        "future": "c"
     },
     "cmake.configureOnOpen": true
 }

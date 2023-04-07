@@ -1352,7 +1352,7 @@ bool pn532_readack(pn532_t *obj)
 bool pn532_isready(pn532_t *obj)
 {
     int res = !gpio_get_level(obj->_irq);
-    PN532_DEBUG("ready check: %s",res==0?"false":"true");
+    //PN532_DEBUG("ready check: %s",res==0?"false":"true");
     return res;
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10);
@@ -1604,7 +1604,7 @@ bool pn532_emulate(pn532_t *obj, uint32_t uid)
                 }
                 break;
             case ISO7816_UPDATE_BINARY:
-                if (true) // Tag writeable?
+                if (false) // Tag writeable?
                 {
                     pn532_setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen, 0);
                 }
@@ -1617,15 +1617,18 @@ bool pn532_emulate(pn532_t *obj, uint32_t uid)
                     else
                     {
                         // Probably shouldn't update the original message
-                        memcpy(ndef_file + p1p2_length, rwbuf + C_APDU_DATA, lc);
+                        char written[100] = {};
+                        memcpy(written, rwbuf + C_APDU_DATA, lc);
+                        written[lc]=0;
+                        //memcpy(ndef_file + p1p2_length, rwbuf + C_APDU_DATA, lc);
                         pn532_setResponse(COMMAND_COMPLETE, rwbuf, &sendlen, 0);
-
-                        uint16_t ndef_length = (ndef_file[0] << 8) + ndef_file[1];
-                        if ((ndef_length > 0) /*&& (updateNdefCallback != 0)*/)
-                        {
-                            DMSG("Tag was written by initiator, do something");
+                        DMSG("Tag was written with new NDEF message: %s",written);
+                        //uint16_t ndef_length = (ndef_file[0] << 8) + ndef_file[1];
+                        //if ((ndef_length > 0) /*&& (updateNdefCallback != 0)*/)
+                        //{
+                            
                             // updateNdefCallback(ndef_file + 2, ndef_length);
-                        }
+                        //}
                     }
                 }
                 break;
@@ -1635,13 +1638,13 @@ bool pn532_emulate(pn532_t *obj, uint32_t uid)
                 DMSG("\n");
                 pn532_setResponse(FUNCTION_NOT_SUPPORTED, rwbuf, &sendlen, 0);
             }
-        }
 
-        if (!pn532_setDataTarget(obj, rwbuf, sendlen))
-        {
-            DMSG("tgSetData failed\n!");
-            pn532_inRelease(obj);
-            return false;
+            if (!pn532_setDataTarget(obj, rwbuf, sendlen))
+            {
+                DMSG("tgSetData failed\n!");
+                pn532_inRelease(obj);
+                return false;
+            }
         }
         return true;
     }
@@ -1705,7 +1708,7 @@ uint8_t pn532_getDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t *cmdlen)
     pn532_readdata(obj, pn532_packetbuffer, 64);
     length = pn532_packetbuffer[3] - 3;
     uint8_t status_offset = pn532_packetbuffer[0] == 0x00 && pn532_packetbuffer[1] == 0xFF ? 0 : 1; // Preamble not allways present
-    if(pn532_packetbuffer[6+1] == 0x29) // Released by initiator
+    if(pn532_packetbuffer[6+1] != 0x00) // Released by initiator or not in proper state
     {
         return false;
     }
@@ -1741,8 +1744,10 @@ uint8_t pn532_setDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
 {
     uint8_t length;
     // cmd1[0] = 0x8E; Must!
+    pn532_packetbuffer[0] = 0x8E;
+    memcpy(pn532_packetbuffer + 1, cmd, cmdlen);
 
-    if (!pn532_sendCommandCheckAck(obj, cmd, cmdlen, 1000))
+    if (!pn532_sendCommandCheckAck(obj, pn532_packetbuffer, cmdlen+1, 1000))
         return false;
 
     // read data packet
@@ -1755,8 +1760,8 @@ uint8_t pn532_setDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen)
     // cmdl = 0
     cmdlen = length;
 
-    int offset = 5;
-    return (pn532_packetbuffer[offset] == 0x15);
+    int offset = 7;
+    return (pn532_packetbuffer[offset] == 0x00);//0x15);
 }
 
 /**************************************************************************/

@@ -10,9 +10,6 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
-#include <iostream>
-#include <thread>
-#include "spi_host_cxx.hpp"
 
 #define PIN_NUM_NFC_MISO 19
 #define PIN_NUM_NFC_MOSI 23
