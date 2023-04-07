@@ -10,11 +10,16 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/event_groups.h"
 #include "freertos/task.h"
+#include <iostream>
+#include <thread>
+#include "spi_host_cxx.hpp"
 
 #define PIN_NUM_NFC_MISO 19
 #define PIN_NUM_NFC_MOSI 23
 #define PIN_NUM_NFC_CLK 18
 #define PIN_NUM_NFC_CS 5
+#define PIN_NUM_NFC_IRQ 17
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -44,13 +49,57 @@ uint8_t nfc_emulate()
   
     // comment out this command for no ndef message
     pn532_setNdefFile(ndefBuf, messageSize);
-    return pn532_emulate(&nfc,0x563412);    
+    return pn532_emulate(&nfc,0x1E0BB0);    
 }
 
+/*using namespace idf;
+
+void nfc_spi_test(){
+    try {
+
+        SPIMaster master(SPINum(2),
+                MOSI(PIN_NUM_NFC_MOSI),
+                MISO(PIN_NUM_NFC_MISO),
+                SCLK(PIN_NUM_NFC_CLK));
+
+        shared_ptr<SPIDevice> spi_dev = master.create_dev(CS(PIN_NUM_NFC_CS), Frequency::MHz(1));
+        uint8_t checksum = 0;
+        checksum += 0xFF;
+        checksum += 0x01;
+        checksum += 0xD4;
+        checksum += 0x02;
+        uint8_t negatedchecksum = ~checksum;
+        vector<uint8_t> write_data = {0x01, 0x00, 0x00, 0xFF,0x01,((uint8_t)~0x01)+1,0xD4,0x02, negatedchecksum, 0x00};
+        vector<uint8_t> result = spi_dev->transfer(write_data).get();
+
+        cout << "Result of WHO_AM_I register: 0x";
+        printf("%02X", result[1]);
+        cout << endl;
+
+        this_thread::sleep_for(std::chrono::seconds(2));
+
+    } catch (const SPIException &e) {
+        cout << "Couldn't read SPI!" << endl;
+    }
+}*/
+
+void IRAM_ATTR gpio_interrupt_handler(void *args)
+{
+    int pinNumber = (int)args;
+    //xQueueSendFromISR(interputQueue, &pinNumber, NULL);
+    ESP_DRAM_LOGI(TAG,"Interrupt from pin %d", pinNumber);
+}
 
 
 void nfc_task(void *pvParameter)
 {
+    /*gpio_set_direction((gpio_num_t)PIN_NUM_NFC_IRQ, GPIO_MODE_INPUT);
+    gpio_set_intr_type((gpio_num_t)PIN_NUM_NFC_IRQ, GPIO_INTR_POSEDGE);
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add((gpio_num_t)PIN_NUM_NFC_IRQ, gpio_interrupt_handler, (void *)PIN_NUM_NFC_IRQ);*/
+    
+    /*nfc_spi_test();
+    while(1);*/
     pn532_spi_init(&nfc, PIN_NUM_NFC_CLK, PIN_NUM_NFC_MISO, PIN_NUM_NFC_MOSI, PIN_NUM_NFC_CS, PIN_NUM_NFC_IRQ);
     pn532_begin(&nfc);
 

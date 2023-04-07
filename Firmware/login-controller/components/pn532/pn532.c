@@ -159,6 +159,8 @@ void pn532_spi_init(pn532_t *obj, uint8_t clk, uint8_t miso, uint8_t mosi, uint8
     gpio_set_direction(obj->_mosi, GPIO_MODE_OUTPUT);
     gpio_set_direction(obj->_miso, GPIO_MODE_INPUT);
     gpio_set_direction(obj->_irq, GPIO_MODE_INPUT);
+
+    pn532_isready(obj);
 }
 
 /**************************************************************************/
@@ -1349,7 +1351,9 @@ bool pn532_readack(pn532_t *obj)
 /**************************************************************************/
 bool pn532_isready(pn532_t *obj)
 {
-    return gpio_get_level(obj->_irq);
+    int res = !gpio_get_level(obj->_irq);
+    PN532_DEBUG("ready check: %s",res==0?"false":"true");
+    return res;
     gpio_set_level(obj->_ss, 0);
     PN532_DELAY(10);
     char i = PN532_SPI_STATREAD;
@@ -1410,7 +1414,7 @@ void pn532_readdata(pn532_t *obj, uint8_t *buff, uint8_t n)
 
     for (uint8_t i = 0; i < n; i++)
     {
-        PN532_DELAY(10);
+        PN532_DELAY(1);
         buff[i] = pn532_spi_read(obj);
     }
     if (memcmp(buff, ackPacket, 6) == 0)
@@ -1504,14 +1508,14 @@ void pn532_setNdefFile(const uint8_t *ndef, const int16_t ndefLength)
 
 bool pn532_emulate(pn532_t *obj, uint32_t uid)
 {
+    bool processingCommands = true;
+    uint8_t rwbuf[128];
+    uint8_t sendlen;
+    tag_file currentFile = NONE;
     if (pn532_AsTarget(obj,uid))
     {
         // ESP_LOGI(TAG, "pn532_AsTarget success");
 
-        bool processingCommands = true;
-        uint8_t rwbuf[128];
-        uint8_t sendlen;
-        tag_file currentFile = NONE;
         while (processingCommands)
         {
             // TODO check for communication ending 0x29
@@ -1700,7 +1704,8 @@ uint8_t pn532_getDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t *cmdlen)
     // read data packet
     pn532_readdata(obj, pn532_packetbuffer, 64);
     length = pn532_packetbuffer[3] - 3;
-    if(pn532_packetbuffer[6] == 0x29) // Released by initiator
+    uint8_t status_offset = pn532_packetbuffer[0] == 0x00 && pn532_packetbuffer[1] == 0xFF ? 0 : 1; // Preamble not allways present
+    if(pn532_packetbuffer[6+1] == 0x29) // Released by initiator
     {
         return false;
     }
