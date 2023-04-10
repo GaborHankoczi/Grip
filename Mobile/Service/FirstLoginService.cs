@@ -1,15 +1,24 @@
 ﻿using GripMobile.Model;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 
 namespace GripMobile.Service
 {
+    /// <summary>
+    /// Class <c>FirstLoginService</c> handles the first login process with the server.
+    /// </summary>
     public class FirstLoginService
     {
         private readonly HttpClient httpClient;
         public FirstLoginService() => httpClient = new HttpClient();
 
-        public async Task<bool> ConfirmEmail(ConfirmEmailDTO userData)
+        /// <summary>
+        /// Method <c>ConfirmEmail</c> sends a POST request with the given user data to the server.
+        /// </summary>
+        /// <param name="userData">the given user data</param>
+        /// <returns>An HTTP status code representing the first login process' result.</returns>
+        public async Task<HttpStatusCode> ConfirmEmail(ConfirmEmailDTO userData)
         {
             try
             {
@@ -18,14 +27,14 @@ namespace GripMobile.Service
 
                 var response = await httpClient.PostAsync("https://grip.sytes.net/api/User/ConfirmEmail", content);
 
-                if(response.IsSuccessStatusCode) return true;
+                return response.StatusCode;
             }
             catch (Exception exception)
             {
                 System.Diagnostics.Debug.WriteLine(@"\tERROR {0}", exception.Message);
             }
 
-            return false;
+            return HttpStatusCode.InternalServerError;
         }
     }
 }

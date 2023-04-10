@@ -1,7 +1,7 @@
 ﻿namespace GripMobile.Model
-{   
+{
     /// <summary>
-    /// Class <c>RegisterUserDTO</c> stores the necessary data from a user needed for registering.
+    /// Class <c>RegisterUserDTO</c> represents a Data Transfer Object and stores the necessary data from a user needed for registering.
     /// </summary>
     public class RegisterUserDTO
     {

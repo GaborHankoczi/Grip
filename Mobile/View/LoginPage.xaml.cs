@@ -10,10 +10,4 @@ public partial class LoginPage : ContentPage
 
 		BindingContext = loginPageViewModel;
 	}
-
-    //Override needed because of the physical back buttons
-	protected override bool OnBackButtonPressed()
-    {
-        return true;
-    }
 }

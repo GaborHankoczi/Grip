@@ -1,7 +1,7 @@
 ﻿namespace GripMobile.Model
 {
     /// <summary>
-    /// Class <c>ResetPasswordDTO</c> is used when a user forgot his/her password.
+    /// Class <c>ResetPasswordDTO</c> represents a Data Transfer Object and used when a user forgot his/her password.
     /// </summary>
     public class ResetPasswordDTO
     {

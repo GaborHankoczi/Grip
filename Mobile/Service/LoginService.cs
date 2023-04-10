@@ -6,7 +6,7 @@ using System.Text.Json;
 namespace GripMobile.Service
 {
     /// <summary>
-    /// Class <c>LoginService</c> tries to establish a connection with the server and stores the received response.
+    /// Class <c>LoginService</c> handles the standard login process with the server.
     /// </summary>
     public class LoginService
     {
@@ -18,9 +18,9 @@ namespace GripMobile.Service
         public LoginService() => httpClient = new HttpClient();
 
         /// <summary>
-        /// Tries to establish a connection with the server and converts the message into JSON and the response into <c>LoginResultDTO</c>.
+        /// Method <c>CheckUserCredentials</c> sends a POST request with the given user data to the server.
         /// </summary>
-        /// <param name="userData"> Represents the data the user has given in the login Activity.</param>
+        /// <param name="userData"> represents the data the user has given in the login Activity.</param>
         /// <returns>An empty or a filled <c>LoginResultDTO</c> according to the connection's success.</returns>
         public async Task<LoginResultDTO> CheckUserCredentials(LoginUserDTO userData)
         {

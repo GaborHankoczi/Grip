@@ -67,4 +67,8 @@
             AbsoluteLayout.LayoutFlags="All" />
     </AbsoluteLayout>
 
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{Binding BackToMainPageCommand}"/>
+    </Shell.BackButtonBehavior>
+
 </ContentPage>

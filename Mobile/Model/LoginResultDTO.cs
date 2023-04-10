@@ -1,7 +1,7 @@
 ﻿namespace GripMobile.Model
 {
     /// <summary>
-    /// Class <c>LoginResultDTO</c> gives back information about the user after a successful login.
+    /// Class <c>LoginResultDTO</c> represents a Data Transfer Object and gives back information about the user after a successful login.
     /// </summary>
     public class LoginResultDTO
     {

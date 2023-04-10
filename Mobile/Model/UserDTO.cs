@@ -1,7 +1,7 @@
 ﻿namespace GripMobile.Model
 {
     /// <summary>
-    /// Class <c>UserDTO</c> stores data which came from or needed for the database. Used for registering or querying/modifying a user by ID.
+    /// Class <c>UserDTO</c> represents a Data Transfer Object and stores data which came from or needed for the database. Used for registering or querying/modifying a user by ID.
     /// </summary>
     public class UserDTO
     {

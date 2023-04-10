@@ -45,7 +45,7 @@
             AbsoluteLayout.LayoutFlags="PositionProportional">
 
             <Label.GestureRecognizers>
-                <TapGestureRecognizer Command="{Binding NavigateToForgotPasswordPageCommand}"/>
+                <TapGestureRecognizer Command="{Binding DisplayForgotPasswordPopupCommand}"/>
             </Label.GestureRecognizers>
         </Label>
 
@@ -62,7 +62,7 @@
     </AbsoluteLayout>
 
     <Shell.BackButtonBehavior>
-        <BackButtonBehavior IsEnabled="False" IsVisible="False"/>
+        <BackButtonBehavior Command="{Binding BackToMainPageCommand}"/>
     </Shell.BackButtonBehavior>
 
 </ContentPage>

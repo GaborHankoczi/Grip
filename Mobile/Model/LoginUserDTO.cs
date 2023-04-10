@@ -1,7 +1,7 @@
 ﻿namespace GripMobile.Model
 {
     /// <summary>
-    /// Class <c>LoginUserDTO</c> is used when a user tries to login. This class holds the data necessary for the authentication.
+    /// Class <c>LoginUserDTO</c> represents a Data Transfer Object and used when a user tries to login. This class holds the data necessary for the authentication.
     /// </summary>
     public class LoginUserDTO
     {

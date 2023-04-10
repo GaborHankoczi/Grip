@@ -26,8 +26,9 @@ public static class MauiProgram
         builder.Services.AddTransient<LoginPageViewModel>();
         builder.Services.AddTransient<LoginService>();
 
-        builder.Services.AddTransient<ForgotPasswordPage>();
-        builder.Services.AddTransient<ForgotPasswordPageViewModel>();
+        builder.Services.AddTransient<ForgotPasswordPopup>();
+        builder.Services.AddTransient<ForgotPasswordPopupViewModel>();
+        builder.Services.AddTransient<ForgotPasswordService>();
 
         builder.Services.AddTransient<UserDetailsPage>();
         builder.Services.AddTransient<UserDetailsPageViewModel>();
@@ -35,6 +36,10 @@ public static class MauiProgram
         builder.Services.AddTransient<FirstLoginPage>();
         builder.Services.AddTransient<FirstLoginPageViewModel>();
         builder.Services.AddTransient<FirstLoginService>();
+
+        builder.Services.AddTransient<ResetPasswordPage>();
+        builder.Services.AddTransient<ResetPasswordPageViewModel>();
+        builder.Services.AddTransient<ResetPasswordService>();
 
         return builder.Build();
     }
