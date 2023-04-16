@@ -162,11 +162,11 @@ uint8_t pn532_mifareultralight_WritePage(pn532_t *obj, uint8_t page, uint8_t *da
 uint8_t pn532_ntag2xx_ReadPage(pn532_t *obj, uint8_t page, uint8_t *buffer);
 uint8_t pn532_ntag2xx_WritePage(pn532_t *obj, uint8_t page, uint8_t *data);
 uint8_t pn532_ntag2xx_WriteNDEFURI(pn532_t *obj, uint8_t uriIdentifier, char *url, uint8_t dataLen);
-uint8_t pn532_AsTarget(pn532_t *obj,uint32_t uid);
+uint8_t pn532_AsTarget(pn532_t *obj,uint32_t uid,uint16_t timeout);
 uint8_t pn532_getDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t *cmdlen);
 uint8_t pn532_setDataTarget(pn532_t *obj, uint8_t *cmd, uint8_t cmdlen);
 bool pn532_setParameters(pn532_t *obj);
-bool pn532_emulate(pn532_t *obj, uint32_t uid);
+bool pn532_emulate(pn532_t *obj, uint32_t uid,uint16_t timeout);
 void pn532_setNdefFile(const uint8_t *ndef, const int16_t ndefLength);
 
 #ifdef __cplusplus

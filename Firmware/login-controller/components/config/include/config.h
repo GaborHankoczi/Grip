@@ -8,6 +8,7 @@ typedef struct {
     char wifi_ssid[50];
     char wifi_password[50];
     char api_server[50];
+    char api_key[50];
 } network_config_t;
 
 typedef struct {

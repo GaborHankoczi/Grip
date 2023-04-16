@@ -1,5 +1,5 @@
 idf_component_register(SRCS "main.c"
                     INCLUDE_DIRS "."
-                    REQUIRES "nfc" "sd" "wifi" "esp_system" "config"
+                    REQUIRES "nfc" "sd" "wifi" "esp_system" "config" "rtc"
                     )
 

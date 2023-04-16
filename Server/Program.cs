@@ -4,8 +4,10 @@ using Grip.DAL;
 using Microsoft.AspNetCore.Identity;
 using Grip.DAL.Model;
 using Grip.Services;
+using Grip.Providers;
 using AutoMapper;
 using System.Security.Cryptography.X509Certificates;
+using Grip.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -49,6 +51,8 @@ builder.Services.AddIdentity<User, Role>(options => {
 builder.Services.AddAuthentication()
     .AddIdentityServerJwt();
 
+builder.Services.AddSingleton<IStationTokenProvider,HMACTokenProvider>();
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
@@ -67,12 +71,12 @@ var mapperConfig = new MapperConfiguration(mc =>
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
-//builder.Services.Add(new ServiceDescriptor(typeof(StartupService), new StartupService()));
 
 
 
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -84,6 +88,8 @@ else
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
+
+
 
 if(builder.Configuration.GetValue<bool>("UseSwagger")){
     app.UseSwagger();
@@ -98,6 +104,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseMiddleware<DeChunkingMiddleware>();
+app.UseMiddleware<ApiKeyValidationMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
@@ -129,6 +138,9 @@ if(!(await userManager.GetUsersInRoleAsync("Admin")).Any()){
     }
 }
 
+var hmacProvieder = new HMACTokenProvider();
+var hmacToken = hmacProvieder.GenerateToken("a","1_1681290689_1270216262");
+logger.LogInformation($"Generated token: {hmacToken}");
 
 
 app.Run();

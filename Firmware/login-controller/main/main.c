@@ -11,6 +11,7 @@
 #include "wifi.h"
 #include "config.h"
 #include "time.h"
+#include "rtc_local.h"
 
 void app_main(void)
 {
@@ -20,9 +21,10 @@ void app_main(void)
 
     sd_init();
     config_init();
+    wifi_init();
+    rtc_local_init();
     nfc_init();
-    //wifi_init();
-
+    
     ESP_LOGI("main","Setup complete");
     char free_heap[16];
     while(1){

@@ -15,7 +15,7 @@
 #include "pn532.h"
 
 #define PN532_DEBUG_EN
-#define MIFARE_DEBUG_EN
+//#define MIFARE_DEBUG_EN
 
 #ifdef PN532_DEBUG_EN
 #define PN532_DEBUG(fmt, ...) ESP_LOGI("NFC",fmt, ##__VA_ARGS__)
@@ -24,6 +24,7 @@
 #define DMSG_HEX(num) printf(" 0x%02X", num & 0xff);
 #else
 #define PN532_DEBUG(fmt, ...)
+#define PN532_DEBUG_HEX(buffer,len)
 #define DMSG(fmt, ...)
 #define DMSG_HEX(num)
 #endif
@@ -210,7 +211,7 @@ uint32_t pn532_getFirmwareVersion(pn532_t *obj)
         return 0;
     }
 
-    int offset = 6;
+    int offset = 7;
     response = pn532_packetbuffer[offset++];
     response <<= 8;
     response |= pn532_packetbuffer[offset++];
@@ -1456,14 +1457,6 @@ uint8_t target[] = {
 
         0x00, // length of general bytes
         0x00  // length of historical bytes
-        /*
-        0x01, 0xfe,       //NFCID2T MUST START WITH 01fe - FELICA PARAMS - POL_RES
-        0xa2, 0xa3, 0xa4, 0xa5, 0xa6, 0xa7,
-        0xc0, 0xc1, 0xc2, 0xc3, 0xc4, 0xc5, 0xc6, 0xc7,                                    //PAD
-        0xff, 0xff,                                                                        //SYSTEM CODE
-        0xaa, 0x99, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x01, 0x00,            //NFCID3t MAX 47 BYTES ATR_RES
-        0x0d, 0x52, 0x46, 0x49, 0x44, 0x49, 0x4f, 0x74, 0x20, 0x50, 0x4e, 0x35, 0x33, 0x32 //HISTORICAL BYTES
-        */
     };
 
 /**************************************************************************/
@@ -1476,12 +1469,12 @@ uint8_t target[] = {
     -setDataTarget
 */
 /**************************************************************************/
-uint8_t pn532_AsTarget(pn532_t *obj,uint32_t uid)
+uint8_t pn532_AsTarget(pn532_t *obj,uint32_t uid,uint16_t timeout)
 {
     if(uid!=0){
         memcpy(target+4,&uid,3);
     }
-    if (!pn532_sendCommandCheckAck(obj, target, sizeof(target), (uint16_t)1000000000))
+    if (!pn532_sendCommandCheckAck(obj, target, sizeof(target), (uint16_t)timeout))
         return false;
 
     // read data packet
@@ -1506,13 +1499,13 @@ void pn532_setNdefFile(const uint8_t *ndef, const int16_t ndefLength)
     memcpy(ndef_file + 2, ndef, ndefLength);
 }
 
-bool pn532_emulate(pn532_t *obj, uint32_t uid)
+bool pn532_emulate(pn532_t *obj, uint32_t uid, uint16_t timeout)
 {
     bool processingCommands = true;
     uint8_t rwbuf[128];
     uint8_t sendlen;
     tag_file currentFile = NONE;
-    if (pn532_AsTarget(obj,uid))
+    if (pn532_AsTarget(obj,uid,timeout))
     {
         // ESP_LOGI(TAG, "pn532_AsTarget success");
 

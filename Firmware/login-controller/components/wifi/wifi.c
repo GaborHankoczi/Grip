@@ -17,24 +17,22 @@
 #include "nvs_flash.h"
 
 #include "string.h"
+#include "io.h"
+
+#include "cJSON.h"
+#include "nfc.h"
 
 #define MAXIMUM_RETRY 5
 
 static char TAG[] = "wifi";
 static int s_retry_num = 0;
 
+static char api_key[100] = {0};
+
 #define WIFI_CONNECTED_BIT BIT0
 #define WIFI_FAIL_BIT      BIT1
 
 static EventGroupHandle_t s_wifi_event_group;
-
-static void base_http_event_handler(){
-    
-}
-
-static void time_request_event_handler(esp_http_client_event_t *evt){
-
-}
 
 static void event_handler(void* arg, esp_event_base_t event_base,
                                 int32_t event_id, void* event_data)
@@ -73,7 +71,9 @@ void wifi_enqueue_log(char* log)
 
 char rx_buffer[MAX_HTTP_RECV_BUFFER] = {0};
 
-esp_err_t _http_event_handler(esp_http_client_event_t *evt)
+
+
+esp_err_t _http_event_handler(esp_http_client_event_t *evt, void (*complete_handler)(char*))
 {
     static int output_len;       // Stores number of bytes read
     switch(evt->event_id) {
@@ -97,7 +97,7 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
                 char* output_response = (char*) malloc(output_len + 1);
                 memcpy(output_response, rx_buffer, output_len);
                 output_response[output_len] = '\0';
-                config_store_rule_json(output_response);
+                complete_handler(output_response);
                 memset(rx_buffer, 0, MAX_HTTP_RECV_BUFFER);
                 free(output_response);
             }
@@ -119,12 +119,30 @@ esp_err_t _http_event_handler(esp_http_client_event_t *evt)
     return ESP_OK;
 }
 
+void wifi_http_get_secret_key_complete_handler(char* response)
+{
+    ESP_LOGI(TAG, "wifi_http_get_secret_key_complete_handler");
+    ESP_LOGI(TAG, "Response: %s", response);
+    cJSON *root = cJSON_Parse(response);
+    cJSON * key = cJSON_GetObjectItem(root, "SecretKey");
+    ESP_LOGI(TAG, "SecretKey: %s", key->valuestring);
+    nfc_set_secret_key(key->valuestring);
+}
+
+esp_err_t wifi_http_get_secret_key_event_handler(esp_http_client_event_t *evt){
+    return _http_event_handler(evt,&wifi_http_get_secret_key_complete_handler);
+}
+
 void wifi_task(void *pvParameter)
 {
-    esp_http_client_config_t time_config = {
-        .url = "https://192.168.0.104:44494/api/time",
+    char get_key_url[100] = {};
+    network_config_t *network_config = config_get_network_config();
+    sprintf(get_key_url, "%sapi/Station/%d/SecretKey", network_config->api_server, io_get_station_number());
+
+   esp_http_client_config_t get_secret_key_config = {
+        .url = "https://192.168.0.104:44493/api/Station/1/SecretKey",
         .query = "",
-        .event_handler = time_request_event_handler,
+        .event_handler = wifi_http_get_secret_key_event_handler,
         .user_data = rx_buffer,        // Pass address of local buffer to get response
         .disable_auto_redirect = true,
     };
@@ -136,23 +154,34 @@ void wifi_task(void *pvParameter)
         .user_data = rx_buffer,        // Pass address of local buffer to get response
         .disable_auto_redirect = true,
     };
-    esp_http_client_handle_t client = esp_http_client_init(&config);
+    esp_http_client_handle_t client = esp_http_client_init(&get_secret_key_config);
+    esp_http_client_set_header(client, "ApiKey", network_config->api_key);
+    esp_err_t err = esp_http_client_perform(client);
+    if (err == ESP_OK) {
+        int status_code = esp_http_client_get_status_code(client);
+        int length = esp_http_client_get_content_length(client);
+        ESP_LOGI(TAG, "HTTP GET Status = %d, content_length = %d", status_code, length);
+    } else {
+        ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
+    }
     while(1) {        
-        ESP_LOGI(TAG,"Requesting rules from server");
+        /*ESP_LOGI(TAG,"Requesting rules from server");
         esp_err_t err = esp_http_client_perform(client);
         if (err == ESP_OK) {
-            /*int status_code = esp_http_client_get_status_code(client);
+            int status_code = esp_http_client_get_status_code(client);
             int length = esp_http_client_get_content_length(client);
-            esp_http_client_read(client, local_response_buffer, 5000);*/
+            esp_http_client_read(client, local_response_buffer, 5000);
             
         } else {
             ESP_LOGE(TAG, "HTTP GET request failed: %s", esp_err_to_name(err));
-        }
+        }*/
         vTaskDelay(2000 / portTICK_PERIOD_MS);
     }
 }
 
-
+void wifi_send_scan_results(void){
+    ESP_LOGI(TAG, "Sending passive tag scan results to server");
+}
 
 
 void wifi_init(void)

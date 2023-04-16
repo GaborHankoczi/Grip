@@ -39,6 +39,10 @@ void handle_wifi_config_line(string line){
         //api-server line
         strcpy(network_config.api_server, line.substr(11).c_str());
     }
+    else if(line.rfind("api-key=", 0) == 0){
+        //api-server line
+        strcpy(network_config.api_key, line.substr(8).c_str());
+    }
 }
 
 void config_read_file_line_by_line(char* filename, void (*line_handler)(string)){
@@ -72,7 +76,6 @@ void config_read_file_line_by_line(char* filename, void (*line_handler)(string))
 }
 
 #define WIFI_CONFIG_FILE "/sdcard/wifi.cfg" // TODO include MOUNTPOINT in path
-#define RULES_FILE "/sdcard/rules.txt" // TODO include MOUNTPOINT in path
 
 network_config_t* config_get_network_config(){
     return &network_config;
@@ -86,65 +89,9 @@ void config_write_default_configs(){
     }
     fprintf(file, "ssid=Legeleszo rackanyaj\n");
     fprintf(file, "password=Pleasewait4sometime\n");
-    fprintf(file, "api-server=https://192.168.0.104:44494/api/rule/1\n");
+    fprintf(file, "api-server=https://192.168.0.104:44494/\n");
+    fprintf(file, "api-key=9aaa84a2-c45e-46ec-b495-a9696ec2830a\n");
     fclose(file);
-}
-
-
-
-
-
-void config_load_rules(){
-    if(file_exists(RULES_FILE)){
-        FILE *file = fopen(RULES_FILE, "r");
-        fseek(file, 0, SEEK_END);
-        int file_size=ftell(file)+1;// filesize + terminating null character
-        fseek(file, 0, SEEK_SET);
-        char* config = (char*) malloc(file_size);
-        if(config == NULL){
-            ESP_LOGE(TAG,"Error allocating memory for config file");
-            return;
-        }
-        int read = fread(config,sizeof(char),file_size,file);
-        config[read] = '\0';
-        fclose(file);
-        cJSON* rulesArray = cJSON_Parse(config);
-        free(config);
-        if(rulesArray == NULL){
-            ESP_LOGI(TAG,"Json config file is not valid\r\n\t\t\t%s",config);
-            return;
-        }
-        int rule_count = cJSON_GetArraySize(rulesArray);
-        if(rules != NULL) // rules had already been loaded
-            free(rules);
-        rules = (rule_t*) calloc(sizeof(rule_t),rule_count);
-        for(int i = 0;i<rule_count;i++){
-            ESP_LOGI(TAG, "rule #%d", i);
-            cJSON* rule = cJSON_GetArrayItem(rulesArray, i);
-            cJSON* rule_id = cJSON_GetObjectItem(rule, "id");
-            cJSON* rule_card_serial_number = cJSON_GetObjectItem(rule, "cardSerialNumber");
-            cJSON* rule_fromTime = cJSON_GetObjectItem(rule, "fromTime");
-            cJSON* rule_toTime = cJSON_GetObjectItem(rule, "toTime");
-            cJSON* rule_days = cJSON_GetObjectItem(rule, "daysOfWeek");
-            rules[i].card_id = rule_card_serial_number->valueint;
-            rules[i].from_time = rule_fromTime->valueint;
-            rules[i].to_time = rule_toTime->valueint;
-            rules[i].days_of_week = (char) rule_days->valueint;
-
-            
-        }
-        rules_count = rule_count;
-        cJSON_Delete(rulesArray);
-        ESP_LOGI(TAG, "Loaded %d rules", rule_count);
-    }
-}
-void config_store_rule_json(char* json){
-    //TODO check if file needs writing
-    ESP_LOGI(TAG, "Storing rules to file: %s", json);
-    FILE * file = fopen(RULES_FILE, "w");
-    fwrite(json, sizeof(char), strlen(json), file);
-    fclose(file);
-    config_load_rules();
 }
 
 void config_load(void)
