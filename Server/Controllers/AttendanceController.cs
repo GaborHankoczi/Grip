@@ -28,7 +28,7 @@ public class AttendanceController : ControllerBase
         _context = context;
     }
 
-    /// <summary>1
+    /// <summary>
     /// This endpoint is used to authenticate a user when they are physically present at a station with their phone as identification method
     /// </summary>
     [HttpPost]
