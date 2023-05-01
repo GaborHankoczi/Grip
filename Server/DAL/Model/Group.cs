@@ -1,15 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Grip.DAL.Model
+namespace Grip.DAL.Model;
+
+
+[Table("Group")]
+public class Group
 {
-    public class Group
-    {
-        public int Id { get; set; }
-        public ICollection<User> User { get; set; } = null!;
-        public string Name { get; set; } = null!;
-        public ICollection<Class> Class { get; set; } = null!;
-    }
+    public int Id { get; set; }
+    [Column("User")]
+    public ICollection<User> Users { get; set; } = null!;
+    public string Name { get; set; } = null!;
+    [Column("Class")]
+    public ICollection<Class> Classes { get; set; } = null!;
 }

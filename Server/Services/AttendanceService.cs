@@ -28,7 +28,7 @@ public class AttendanceService
         int stationNumber = Convert.ToInt32(request.Message.Split("_")[0]);
 
         _logger.LogInformation($"Phone scan attendance request received for {user.UserName} at station {stationNumber}");
-        Station? station = _context.Station.FirstOrDefault(x => x.StationNumber == stationNumber);
+        Station? station = _context.Stations.FirstOrDefault(x => x.StationNumber == stationNumber);
         if(station == null)
             throw new Exception("Station not found");
         string? key = station.SecretKey;
@@ -65,4 +65,5 @@ public class AttendanceService
 
         return true;
     }
+
 }

@@ -7,6 +7,7 @@ using Grip.DAL.Model;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Grip.Services;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grip.Controllers;
 
@@ -15,7 +16,6 @@ namespace Grip.Controllers;
 [Route("api/[controller]")]
 public class UserController : ControllerBase
 {
-
     private readonly ILogger<User> _logger;
     private readonly ApplicationDbContext _context;
     private readonly UserManager<User> _userManager;
@@ -23,6 +23,8 @@ public class UserController : ControllerBase
     private readonly RoleManager<Role> _roleManager;
     private readonly IMapper _mapper;
     private readonly EmailService _emailService; // TODO add abstraction
+
+
 
     public UserController(ILogger<User> logger, ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager, IMapper mapper, EmailService emailService)
     {
@@ -304,5 +306,26 @@ public class UserController : ControllerBase
             ModelState.AddModelError(nameof(UserDTO.Id),result.Errors.First().Description);
             return BadRequest(ModelState);
         }
+    }
+
+    [HttpGet("Classes/{date}")]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<ClassDTO>))]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ModelStateDictionary))]
+    public async Task<ActionResult<IEnumerable<ClassDTO>>> GetClasses(DateOnly date)
+    {
+        var user =  await _userManager.GetUserAsync(User);
+        if(user == null){
+            return NotFound();
+        }
+        var classes = await _context.Classes
+            .Include(c => c.Teacher)
+            .Include(c => c.Group)
+            .ThenInclude(g => g.Users)
+            .Where(c => c.StartDateTime.Year == date.Year && c.StartDateTime.Month == date.Month && c.StartDateTime.Day == date.Day) // filter for searched day
+            .Where(c => c.Teacher.Id == user.Id || c.Group.Users.Any(u=>u.Id==user.Id)) // filter for classes where user is teacher or student
+            .ToListAsync();
+        return _mapper.Map<List<ClassDTO>>(classes);
     }
 }

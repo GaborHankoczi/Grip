@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Grip.DAL.Model;
 
 [Index(nameof(StationNumber), IsUnique = true)]
+[Table("Station")]
 public class Station
 {
     public int Id { get; set; }

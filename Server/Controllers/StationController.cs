@@ -33,7 +33,7 @@ public class StationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public ActionResult<StationSecretKeyDTO> GetKey([FromRoute] int StationNumber,[FromHeader] string ApiKey)
     {
-        var station = _context.Station.FirstOrDefault(s => s.StationNumber == StationNumber);
+        var station = _context.Stations.FirstOrDefault(s => s.StationNumber == StationNumber);
         if (station == null)
         {
             if(_configuration["Station:CreateDbEntryOnKeyRequest"]=="True"){
@@ -41,7 +41,7 @@ public class StationController : ControllerBase
                     StationNumber = StationNumber,
                     SecretKey = Guid.NewGuid().ToString()
                 };
-                _context.Station.Add(station);
+                _context.Stations.Add(station);
                 _context.SaveChanges();
             }else{
                 return BadRequest("Station not found");

@@ -137,10 +137,10 @@ if(!(await userManager.GetUsersInRoleAsync("Admin")).Any()){
         await userManager.UpdateAsync(user);
     }
 }
-
+/*
 var hmacProvieder = new HMACTokenProvider();
 var hmacToken = hmacProvieder.GenerateToken("a","1_1681290689_1270216262");
 logger.LogInformation($"Generated token: {hmacToken}");
-
+*/
 
 app.Run();
