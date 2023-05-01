@@ -12,6 +12,7 @@ public class ApplicationDbContext : IdentityDbContext<User,Role,int>
     public DbSet<Group> Groups { get; set; } = null!;
     public DbSet<Class> Classes { get; set; } = null!;
     public DbSet<Station> Stations { get; set; } = null!;
+    public DbSet<Station> Exempts { get; set; } = null!;
     
     IConfiguration _configuration;
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
@@ -34,5 +35,9 @@ public class ApplicationDbContext : IdentityDbContext<User,Role,int>
         builder.Entity<Attendance>().HasOne(a => a.Station).WithMany(s => s.Attendances);
         builder.Entity<Group>().HasMany(g => g.Users).WithMany(u => u.Groups);
         builder.Entity<Group>().HasMany(g => g.Classes).WithOne(c => c.Group);
+        builder.Entity<Exempt>().HasOne(e => e.IssuedBy).WithMany(u => u.IssuedExemptions);
+        builder.Entity<Exempt>().HasOne(e => e.IssuedTo).WithMany(u => u.Exemptions);
     }
+
+    public DbSet<Grip.DAL.Model.Exempt> Exempt { get; set; } = default!;
 }

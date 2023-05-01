@@ -15,6 +15,8 @@ namespace Grip.DAL
             CreateMap<DAL.DTO.PassiveTag.PassiveTagDTO, Model.PassiveTag>().ReverseMap();
             CreateMap<DAL.DTO.PassiveTag.PassiveTagCreationRequestDTO, Model.PassiveTag>();
             CreateMap<DAL.DTO.PassiveTag.PassiveTagUpdateRequestDTO, Model.PassiveTag>();
+            CreateMap<Model.Exempt, DAL.DTO.Exempt.ExemptDTO>().ForMember(dto=>dto.IssuedBy, opt=>opt.MapFrom(e=>e.IssuedBy)).ForMember(dto=>dto.IssuedTo, opt=>opt.MapFrom(e=>e.IssuedTo));
+            CreateMap<DAL.DTO.Exempt.ExemptCreateRequestDTO, Model.Exempt>();
         }
     }
 }
