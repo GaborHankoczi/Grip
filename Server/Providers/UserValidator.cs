@@ -10,9 +10,13 @@ public class UserValidator<T> : IUserValidator<T> where T : IdentityUser
 {
     public async Task<IdentityResult> ValidateAsync(UserManager<T> manager, T user)
     {
-        //TODO allow non unique usernames
-        return await Task.FromResult(IdentityResult.Success);
-        /*var userWithSameEmail = await manager.FindByEmailAsync(user.Email ?? throw new ArgumentNullException(nameof(user.Email)));
-        if(userWithSameEmail != null)*/
+        var userWithSameEmail = await manager.FindByEmailAsync(user.Email ?? throw new ArgumentNullException(nameof(user.Email)));
+        if(userWithSameEmail != null)
+            return IdentityResult.Failed(new IdentityError
+            {
+                Code = "EmailAlreadyExists",
+                Description = "Email is already taken"
+            });
+        return IdentityResult.Success;
     }
 }

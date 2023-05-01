@@ -63,7 +63,7 @@ namespace Grip.Controllers
                 return Unauthorized();
 
 
-            return _mapper.Map<ExemptDTO>(exempt); // TODO test user DTOS
+            return _mapper.Map<ExemptDTO>(exempt);
         }
 
         // POST: api/Exempt
