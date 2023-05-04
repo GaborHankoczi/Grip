@@ -17,17 +17,19 @@ builder.Services.AddDbContext<ApplicationDbContext>();
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Load certificate on deployed instances
-if(!builder.Environment.IsDevelopment()){
-    builder.WebHost.ConfigureKestrel(options=>{
-        options.ConfigureHttpsDefaults(o=>{
-            string pemPath = builder.Configuration.GetValue<string>("Certificate:FullChainPath") ?? throw new Exception("Certificate:FullChainPath not found in configuration");
-            string keyPath = builder.Configuration.GetValue<string>("Certificate:KeyPath")  ?? throw new Exception("Certificate:FullChainPath not found in configuration");
-            var pem = File.ReadAllText(pemPath);
-            var key = File.ReadAllText(keyPath);
-            var x509 = X509Certificate2.CreateFromPem(pem, key);
-            o.ServerCertificate = x509;
+if(builder.Configuration.GetValue<bool>("Certificate:LoadCertificate")){
+    if(!builder.Environment.IsDevelopment()){
+        builder.WebHost.ConfigureKestrel(options=>{
+            options.ConfigureHttpsDefaults(o=>{
+                string pemPath = builder.Configuration.GetValue<string>("Certificate:FullChainPath") ?? throw new Exception("Certificate:FullChainPath not found in configuration");
+                string keyPath = builder.Configuration.GetValue<string>("Certificate:KeyPath")  ?? throw new Exception("Certificate:FullChainPath not found in configuration");
+                var pem = File.ReadAllText(pemPath);
+                var key = File.ReadAllText(keyPath);
+                var x509 = X509Certificate2.CreateFromPem(pem, key);
+                o.ServerCertificate = x509;
+            });
         });
-    });
+    }
 }
 
 /// Add Identity
