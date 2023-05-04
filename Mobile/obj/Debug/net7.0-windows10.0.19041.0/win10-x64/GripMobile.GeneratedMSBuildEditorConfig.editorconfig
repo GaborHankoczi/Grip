@@ -1,0 +1,77 @@
+is_global = true
+build_property.TargetFramework = net7.0-windows10.0.19041.0
+build_property.TargetPlatformMinVersion = 10.0.17763.0
+build_property.UsingMicrosoftNETSdkWeb = 
+build_property.ProjectTypeGuids = 9A19103F-16F7-4668-BE54-9A1E7A4F7556
+build_property.InvariantGlobalization = 
+build_property.PlatformNeutralAssembly = 
+build_property.EnforceExtendedAnalyzerRules = 
+build_property._SupportedPlatformList = Linux,macOS,Windows
+build_property.RootNamespace = GripMobile
+build_property.ProjectDir = D:\Onallo laboratorium\Grip\Grip\Mobile\
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/App.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.App.xaml
+build_metadata.AdditionalFiles.TargetPath = App.xaml
+build_metadata.AdditionalFiles.RelativePath = App.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/AppShell.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.AppShell.xaml
+build_metadata.AdditionalFiles.TargetPath = AppShell.xaml
+build_metadata.AdditionalFiles.RelativePath = AppShell.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/Resources/Styles/Colors.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.Resources.Styles.Colors.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Colors.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Colors.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/Resources/Styles/Styles.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.Resources.Styles.Styles.xaml
+build_metadata.AdditionalFiles.TargetPath = Resources\Styles\Styles.xaml
+build_metadata.AdditionalFiles.RelativePath = Resources\Styles\Styles.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/View/FirstLoginPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.View.FirstLoginPage.xaml
+build_metadata.AdditionalFiles.TargetPath = View\FirstLoginPage.xaml
+build_metadata.AdditionalFiles.RelativePath = View\FirstLoginPage.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/View/ForgotPasswordPopup.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.View.ForgotPasswordPopup.xaml
+build_metadata.AdditionalFiles.TargetPath = View\ForgotPasswordPopup.xaml
+build_metadata.AdditionalFiles.RelativePath = View\ForgotPasswordPopup.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/View/LoginPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.View.LoginPage.xaml
+build_metadata.AdditionalFiles.TargetPath = View\LoginPage.xaml
+build_metadata.AdditionalFiles.RelativePath = View\LoginPage.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/View/MainPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.View.MainPage.xaml
+build_metadata.AdditionalFiles.TargetPath = View\MainPage.xaml
+build_metadata.AdditionalFiles.RelativePath = View\MainPage.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/View/NFCPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.View.NFCPage.xaml
+build_metadata.AdditionalFiles.TargetPath = View\NFCPage.xaml
+build_metadata.AdditionalFiles.RelativePath = View\NFCPage.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/View/ResetPasswordPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.View.ResetPasswordPage.xaml
+build_metadata.AdditionalFiles.TargetPath = View\ResetPasswordPage.xaml
+build_metadata.AdditionalFiles.RelativePath = View\ResetPasswordPage.xaml
+
+[D:/Onallo laboratorium/Grip/Grip/Mobile/View/UserDetailsPage.xaml]
+build_metadata.AdditionalFiles.GenKind = Xaml
+build_metadata.AdditionalFiles.ManifestResourceName = GripMobile.View.UserDetailsPage.xaml
+build_metadata.AdditionalFiles.TargetPath = View\UserDetailsPage.xaml
+build_metadata.AdditionalFiles.RelativePath = View\UserDetailsPage.xaml

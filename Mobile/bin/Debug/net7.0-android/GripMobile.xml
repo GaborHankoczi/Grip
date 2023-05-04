@@ -1,0 +1,798 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>GripMobile</name>
+    </assembly>
+    <members>
+        <member name="T:GripMobile.Model.ConfirmEmailDTO">
+            <summary>
+            Class <c>ConfirmEmailDTO</c> represents a Data Transfer Object and used when the user logs in for the first time.
+            </summary>
+        </member>
+        <member name="P:GripMobile.Model.ConfirmEmailDTO.Email">
+            <value>Property <c>Email</c> represents the user's e-mail address.</value>
+        </member>
+        <member name="P:GripMobile.Model.ConfirmEmailDTO.Token">
+            <value>Property <c>Token</c> is a 6 digit number. The user gets this from the server via email. Needed for authentication.</value>        
+        </member>
+        <member name="P:GripMobile.Model.ConfirmEmailDTO.Password">
+            <value>Property <c>Password</c> represents the desired new password. After a successful authentication this overwrites the old password.</value>
+        </member>
+        <member name="T:GripMobile.Model.ForgotPasswordDTO">
+            <summary>
+            Class <c>ForgotPasswordDTO</c> represents a Data Transfer Object and holds the e-mail address of the user where the server will send a token in order to change the password later.
+            </summary>
+        </member>
+        <member name="P:GripMobile.Model.ForgotPasswordDTO.Email">
+            <value>Property <c>Email</c> represents the user's e-mail address.</value>
+        </member>
+        <member name="T:GripMobile.Model.LoginResultDTO">
+            <summary>
+            Class <c>LoginResultDTO</c> represents a Data Transfer Object and gives back information about the user after a successful login.
+            </summary>
+        </member>
+        <member name="P:GripMobile.Model.LoginResultDTO.UserName">
+            <value>Property <c>UserName</c> represent the real name of the user.</value>
+        </member>
+        <member name="P:GripMobile.Model.LoginResultDTO.Email">
+            <value>Property <c>Email</c> represents the user's e-mail address.</value>
+        </member>
+        <member name="P:GripMobile.Model.LoginResultDTO.Roles">
+            <value>Property <c>Roles</c> stores every role that the actual user has.</value>
+        </member>
+        <member name="T:GripMobile.Model.LoginUserDTO">
+            <summary>
+            Class <c>LoginUserDTO</c> represents a Data Transfer Object and used when a user tries to login. This class holds the data necessary for the authentication.
+            </summary>
+        </member>
+        <member name="P:GripMobile.Model.LoginUserDTO.Email">
+            <value>Property <c>Email</c> represents the user's e-mail address.</value>
+        </member>
+        <member name="P:GripMobile.Model.LoginUserDTO.Password">
+            <value>Property <c>Password</c> represents the password the user has given during the login process.</value>
+        </member>
+        <member name="T:GripMobile.Model.RegisterUserDTO">
+            <summary>
+            Class <c>RegisterUserDTO</c> represents a Data Transfer Object and stores the necessary data from a user needed for registering.
+            </summary>
+        </member>
+        <member name="P:GripMobile.Model.RegisterUserDTO.Email">
+            <value>Property <c>Email</c> represents the user's e-mail address.</value>
+        </member>
+        <member name="P:GripMobile.Model.RegisterUserDTO.Name">
+            <value>Property <c>Name</c> represent the user's real name.</value>
+        </member>
+        <member name="T:GripMobile.Model.ResetPasswordDTO">
+            <summary>
+            Class <c>ResetPasswordDTO</c> represents a Data Transfer Object and used when a user forgot his/her password.
+            </summary>
+        </member>
+        <member name="P:GripMobile.Model.ResetPasswordDTO.Email">
+            <value>Property <c>Email</c> represents the user's e-mail address.</value>
+        </member>
+        <member name="P:GripMobile.Model.ResetPasswordDTO.Token">
+            <value>Property <c>Token</c> is a 6 digit number. The user gets this from the server via email. Needed for authentication.</value>
+        </member>
+        <member name="P:GripMobile.Model.ResetPasswordDTO.Password">
+            <value>Property <c>Password</c> represents the desired new password. After successful authentication this overwrites the old password.</value>
+        </member>
+        <member name="T:GripMobile.Model.UserDTO">
+            <summary>
+            Class <c>UserDTO</c> represents a Data Transfer Object and stores data which came from or needed for the database. Used for registering or querying/modifying a user by ID.
+            </summary>
+        </member>
+        <member name="P:GripMobile.Model.UserDTO.Id">
+            <value>Property <c>Id</c> represents the user ID in the database.</value>
+        </member>
+        <member name="P:GripMobile.Model.UserDTO.Email">
+            <value>Property <c>Email</c> represents the user's e-mail address.</value>
+        </member>
+        <member name="P:GripMobile.Model.UserDTO.UserName">
+            <value>Property <c>UserName</c> represents the user's real name.</value>
+        </member>
+        <member name="P:GripMobile.Model.UserDTO.EmailConfirmed">
+            <value>Property <c>EmailConfirmed</c> shows whether the user has previously confirmed his/her e-mail address or not.</value>
+        </member>
+        <member name="T:GripMobile.Service.FirstLoginService">
+            <summary>
+            Class <c>FirstLoginService</c> handles the first login process with the server.
+            </summary>
+        </member>
+        <member name="M:GripMobile.Service.FirstLoginService.ConfirmEmail(GripMobile.Model.ConfirmEmailDTO)">
+            <summary>
+            Method <c>ConfirmEmail</c> sends a POST request with the given user data to the server.
+            </summary>
+            <param name="userData">the given user data</param>
+            <returns>An HTTP status code representing the first login process' result.</returns>
+        </member>
+        <member name="T:GripMobile.Service.ForgotPasswordService">
+            <summary>
+            Class <c>ForgotPasswordService</c> handles the forgot password process with the server.
+            </summary>
+        </member>
+        <member name="M:GripMobile.Service.ForgotPasswordService.SendToken(GripMobile.Model.ForgotPasswordDTO)">
+            <summary>
+            Method <c>SendToken</c> sends a POST request with the given user data to the server.
+            </summary>
+            <param name="userData">the given user data</param>
+            <returns>An HTTP status code representing the result.</returns>
+        </member>
+        <member name="T:GripMobile.Service.LoginService">
+            <summary>
+            Class <c>LoginService</c> handles the standard login process with the server.
+            </summary>
+        </member>
+        <member name="F:GripMobile.Service.LoginService.user">
+            <value>Property <c>user</c> stores the server's response.</value>
+        </member>
+        <member name="M:GripMobile.Service.LoginService.CheckUserCredentials(GripMobile.Model.LoginUserDTO)">
+            <summary>
+            Method <c>CheckUserCredentials</c> sends a POST request with the given user data to the server.
+            </summary>
+            <param name="userData"> represents the data the user has given in the login Activity.</param>
+            <returns>An empty or a filled <c>LoginResultDTO</c> according to the connection's success.</returns>
+        </member>
+        <member name="T:GripMobile.Service.ResetPasswordService">
+            <summary>
+            Class <c>ResetPasswordService</c> handles the reset password process with the server.
+            </summary>
+        </member>
+        <member name="M:GripMobile.Service.ResetPasswordService.ResetPassword(GripMobile.Model.ResetPasswordDTO)">
+            <summary>
+            Method <c>ResetPassword</c> sends a POST request with the given user data to the server.
+            </summary>
+            <param name="userData">the given user data</param>
+            <returns>An HTTP status code representing the result.</returns>
+        </member>
+        <member name="T:GripMobile.ViewModel.FirstLoginPageViewModel">
+            <summary>
+            Class <c>FirstLoginPageViewModel</c> validates and forwards the <c>FirstLoginPage</c>'s inputs and implements the logic behind every view element.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="F:GripMobile.ViewModel.FirstLoginPageViewModel.userData">
+            <value>Property <c>userData</c> contains all <c>ObservableProperty</c>'s data (despite the <c>newPasswordAgain</c>).</value>
+        </member>
+        <member name="M:GripMobile.ViewModel.FirstLoginPageViewModel.EmailAddressRegex">
+            <remarks>
+            Pattern explanation:<br/>
+            <code>
+            ○ Match if at the beginning of the string.<br/>
+            ○ Match a character in the set [!#-&amp;*+--9=?A-Z^-~\u2019] atomically at least once.<br/>
+            ○ Match '@'.<br/>
+            ○ Match a character in the set [-0-9A-Za-z] greedily at least once.<br/>
+            ○ Loop greedily any number of times.<br/>
+                ○ Match '.'.<br/>
+                ○ Match a character in the set [-0-9A-Za-z] atomically at least once.<br/>
+            ○ Match if at the end of the string or if before an ending newline.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:GripMobile.ViewModel.FirstLoginPageViewModel.PasswordRegex">
+            <remarks>
+            Pattern explanation:<br/>
+            <code>
+            ○ Match if at the beginning of the string.<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a character in the set [A-Z].<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a character in the set [a-z].<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a Unicode digit.<br/>
+            ○ Match a character other than '\n' greedily at least 8 times.<br/>
+            ○ Match if at the end of the string or if before an ending newline.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="F:GripMobile.ViewModel.FirstLoginPageViewModel.cancellationTokenSource">
+            <value>Property <c>cancellationTokenSource</c> is needed for closing the toast messages.</value>
+        </member>
+        <member name="F:GripMobile.ViewModel.FirstLoginPageViewModel.toast">
+            <value>Property <c>toast</c> represents every toast message in <c>FirstLoginPage</c></value>
+        </member>
+        <member name="M:GripMobile.ViewModel.FirstLoginPageViewModel.ConfirmEmail">
+            <summary>
+            Method <c>ConfirmEmail</c> authenticates the view's input and communicates with an instance of the <c>FirstLoginService</c> class.
+            This method represents the logic behind the "Küldés" button.
+            </summary>
+        </member>
+        <member name="M:GripMobile.ViewModel.FirstLoginPageViewModel.BackToMainPage">
+            <summary>
+            Method <c>BackToMainPage</c> implements the logic behind the back button and changes the view from <c>FirstLoginPage</c> to <c>MainPage</c>.
+            </summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.FirstLoginPageViewModel.EmailAddress">
+            <inheritdoc cref="F:GripMobile.ViewModel.FirstLoginPageViewModel.emailAddress"/>
+        </member>
+        <member name="P:GripMobile.ViewModel.FirstLoginPageViewModel.Token">
+            <inheritdoc cref="F:GripMobile.ViewModel.FirstLoginPageViewModel.token"/>
+        </member>
+        <member name="P:GripMobile.ViewModel.FirstLoginPageViewModel.NewPassword">
+            <inheritdoc cref="F:GripMobile.ViewModel.FirstLoginPageViewModel.newPassword"/>
+        </member>
+        <member name="P:GripMobile.ViewModel.FirstLoginPageViewModel.NewPasswordAgain">
+            <inheritdoc cref="F:GripMobile.ViewModel.FirstLoginPageViewModel.newPasswordAgain"/>
+        </member>
+        <member name="F:GripMobile.ViewModel.FirstLoginPageViewModel.confirmEmailCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.FirstLoginPageViewModel.ConfirmEmailCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.FirstLoginPageViewModel.ConfirmEmailCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.FirstLoginPageViewModel.ConfirmEmail"/>.</summary>
+        </member>
+        <member name="F:GripMobile.ViewModel.FirstLoginPageViewModel.backToMainPageCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.FirstLoginPageViewModel.BackToMainPageCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.FirstLoginPageViewModel.BackToMainPageCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.FirstLoginPageViewModel.BackToMainPage"/>.</summary>
+        </member>
+        <member name="T:GripMobile.ViewModel.ForgotPasswordPopupViewModel">
+            <summary>
+            Class <c>ForgotPasswordPopupViewModel</c> implements the logic behind every element in <c>ForgotPasswordPopup</c>.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="F:GripMobile.ViewModel.ForgotPasswordPopupViewModel.userData">
+            <value>Property <c>userData</c> contains the validated user input.</value>
+        </member>
+        <member name="M:GripMobile.ViewModel.ForgotPasswordPopupViewModel.EmailAddressRegex">
+            <remarks>
+            Pattern explanation:<br/>
+            <code>
+            ○ Match if at the beginning of the string.<br/>
+            ○ Match a character in the set [!#-&amp;*+--9=?A-Z^-~\u2019] atomically at least once.<br/>
+            ○ Match '@'.<br/>
+            ○ Match a character in the set [-0-9A-Za-z] greedily at least once.<br/>
+            ○ Loop greedily any number of times.<br/>
+                ○ Match '.'.<br/>
+                ○ Match a character in the set [-0-9A-Za-z] atomically at least once.<br/>
+            ○ Match if at the end of the string or if before an ending newline.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="F:GripMobile.ViewModel.ForgotPasswordPopupViewModel.cancellationTokenSource">
+            <value>Property <c>cancellationTokenSource</c> is needed for closing the toast messages.</value>
+        </member>
+        <member name="F:GripMobile.ViewModel.ForgotPasswordPopupViewModel.toast">
+            <value>Property <c>toast</c> represents every toast message in <c>LoginPage</c></value>
+        </member>
+        <member name="M:GripMobile.ViewModel.ForgotPasswordPopupViewModel.GetToken">
+            <summary>
+            Method <c>GetToken</c> implements the logic behind the "Ok" button. Validatesthe user input, and gives them to the <c>ForgotPasswordService</c> to handle the forgot password process.
+            </summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.ForgotPasswordPopupViewModel.EmailAddress">
+            <inheritdoc cref="F:GripMobile.ViewModel.ForgotPasswordPopupViewModel.emailAddress"/>
+        </member>
+        <member name="F:GripMobile.ViewModel.ForgotPasswordPopupViewModel.getTokenCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.ForgotPasswordPopupViewModel.GetTokenCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.ForgotPasswordPopupViewModel.GetTokenCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.ForgotPasswordPopupViewModel.GetToken"/>.</summary>
+        </member>
+        <member name="T:GripMobile.ViewModel.LoginPageViewModel">
+            <summary>
+            Class <c>LoginPageViewModel</c> validates and forwards the <c>LoginPage</c>'s inputs and implements the logic behind every view element.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="F:GripMobile.ViewModel.LoginPageViewModel.userData">
+            <value>Property <c>userData</c> contains all <c>ObservableProperty</c>'s data.</value>
+        </member>
+        <member name="F:GripMobile.ViewModel.LoginPageViewModel.result">
+            <value>Property <c>result</c> contains the data got back from the server.</value>
+        </member>
+        <member name="M:GripMobile.ViewModel.LoginPageViewModel.EmailAddressRegex">
+            <remarks>
+            Pattern explanation:<br/>
+            <code>
+            ○ Match if at the beginning of the string.<br/>
+            ○ Match a character in the set [!#-&amp;*+--9=?A-Z^-~\u2019] atomically at least once.<br/>
+            ○ Match '@'.<br/>
+            ○ Match a character in the set [-0-9A-Za-z] greedily at least once.<br/>
+            ○ Loop greedily any number of times.<br/>
+                ○ Match '.'.<br/>
+                ○ Match a character in the set [-0-9A-Za-z] atomically at least once.<br/>
+            ○ Match if at the end of the string or if before an ending newline.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="M:GripMobile.ViewModel.LoginPageViewModel.PasswordRegex">
+            <remarks>
+            Pattern explanation:<br/>
+            <code>
+            ○ Match if at the beginning of the string.<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a character in the set [A-Z].<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a character in the set [a-z].<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a Unicode digit.<br/>
+            ○ Match a character other than '\n' greedily at least 8 times.<br/>
+            ○ Match if at the end of the string or if before an ending newline.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="F:GripMobile.ViewModel.LoginPageViewModel.cancellationTokenSource">
+            <value>Property <c>cancellationTokenSource</c> is needed for closing the toast messages.</value>
+        </member>
+        <member name="F:GripMobile.ViewModel.LoginPageViewModel.toast">
+            <value>Property <c>toast</c> represents every toast message in <c>LoginPage</c></value>
+        </member>
+        <member name="M:GripMobile.ViewModel.LoginPageViewModel.LogInUser">
+            <summary>
+            Logic behind the "Bejelentkezés" button. If the given data is valid and the communication with the server was successful,
+            the user is navigated to the next page according to his/her roles.
+            </summary>
+        </member>
+        <member name="M:GripMobile.ViewModel.LoginPageViewModel.DisplayForgotPasswordPopup">
+            <summary>
+            Method <c>DisplayForgotPasswordPopup</c> implements the logic behind the "Elfelejtettem a jelszavam" button.
+            Displays a popup window where the user can start the process to get a new password.
+            </summary>
+        </member>
+        <member name="M:GripMobile.ViewModel.LoginPageViewModel.BackToMainPage">
+            <summary>
+            Method <c>BackToMainPage</c> implements the logic behind the back button. Navigates back to the <c>MainPage</c>.
+            </summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.LoginPageViewModel.EmailAddress">
+            <inheritdoc cref="F:GripMobile.ViewModel.LoginPageViewModel.emailAddress"/>
+        </member>
+        <member name="P:GripMobile.ViewModel.LoginPageViewModel.Password">
+            <inheritdoc cref="F:GripMobile.ViewModel.LoginPageViewModel.password"/>
+        </member>
+        <member name="F:GripMobile.ViewModel.LoginPageViewModel.logInUserCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.LoginPageViewModel.LogInUserCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.LoginPageViewModel.LogInUserCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.LoginPageViewModel.LogInUser"/>.</summary>
+        </member>
+        <member name="F:GripMobile.ViewModel.LoginPageViewModel.displayForgotPasswordPopupCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.LoginPageViewModel.DisplayForgotPasswordPopupCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.LoginPageViewModel.DisplayForgotPasswordPopupCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.LoginPageViewModel.DisplayForgotPasswordPopup"/>.</summary>
+        </member>
+        <member name="F:GripMobile.ViewModel.LoginPageViewModel.backToMainPageCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.LoginPageViewModel.BackToMainPageCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.LoginPageViewModel.BackToMainPageCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.LoginPageViewModel.BackToMainPage"/>.</summary>
+        </member>
+        <member name="T:GripMobile.ViewModel.MainPageViewModel">
+            <summary>
+            Class <c>MainPageViewModel</c> implements the logic for the Main Page.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="M:GripMobile.ViewModel.MainPageViewModel.NavigateToLoginPage">
+            <summary>
+            Method <c>NavigateToLoginPage</c> implements the logic behind the "Bejelentkezés" button. Displays the <c>LoginPage</c>.
+            </summary>
+        </member>
+        <member name="M:GripMobile.ViewModel.MainPageViewModel.NavigateToFirstLoginPage">
+            <summary>
+            Method <c>NavigateToFirstLoginPage</c> implements the logic behind the "Először lépek be" button. Displays the <c>FirstLoginPage</c>.
+            </summary>
+        </member>
+        <member name="F:GripMobile.ViewModel.MainPageViewModel.navigateToLoginPageCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.MainPageViewModel.NavigateToLoginPageCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.MainPageViewModel.NavigateToLoginPageCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.MainPageViewModel.NavigateToLoginPage"/>.</summary>
+        </member>
+        <member name="F:GripMobile.ViewModel.MainPageViewModel.navigateToFirstLoginPageCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.MainPageViewModel.NavigateToFirstLoginPageCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.MainPageViewModel.NavigateToFirstLoginPageCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.MainPageViewModel.NavigateToFirstLoginPage"/>.</summary>
+        </member>
+        <member name="T:GripMobile.ViewModel.NFCPageViewModel">
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="P:GripMobile.ViewModel.NFCPageViewModel.DeviceIsListening">
+            <summary>
+            Property that tracks whether the Android device is still listening,
+            so it can indicate that to the user.
+            </summary>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.SubscribeEvents">
+            <summary>
+            Subscribe to the NFC events
+            </summary>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.UnsubscribeEvents">
+            <summary>
+            Unsubscribe from the NFC events
+            </summary>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.Current_OnTagListeningStatusChanged(System.Boolean)">
+            <summary>
+            Event raised when Listener Status has changed
+            </summary>
+            <param name="isListening"></param>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.Current_OnNfcStatusChanged(System.Boolean)">
+            <summary>
+            Event raised when NFC Status has changed
+            </summary>
+            <param name="isEnabled">NFC status</param>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.Current_OnMessageReceived(Plugin.NFC.ITagInfo)">
+            <summary>
+            Event raised when a NDEF message is received
+            </summary>
+            <param name="tagInfo">Received <see cref="T:Plugin.NFC.ITagInfo"/></param>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.Current_OniOSReadingSessionCancelled(System.Object,System.EventArgs)">
+            <summary>
+            Event raised when user cancelled NFC session on iOS 
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.Current_OnTagDiscovered(Plugin.NFC.ITagInfo,System.Boolean)">
+            <summary>
+            Event raised when a NFC Tag is discovered
+            </summary>
+            <param name="tagInfo"><see cref="T:Plugin.NFC.ITagInfo"/> to be published</param>
+            <param name="format">Format the tag</param>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.GetMessage(Plugin.NFC.NFCNdefRecord)">
+            <summary>
+            Returns the tag information from NDEF record
+            </summary>
+            <param name="record"><see cref="T:Plugin.NFC.NFCNdefRecord"/></param>
+            <returns>The tag information</returns>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.Debug(System.String)">
+            <summary>
+            Write a debug message in the debug console
+            </summary>
+            <param name="message">The message to be displayed</param>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.ShowAlert(System.String,System.String)">
+            <summary>
+            Display an alert
+            </summary>
+            <param name="message">Message to be displayed</param>
+            <param name="title">Alert title</param>
+            <returns>The task to be performed</returns>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.BeginListening">
+            <summary>
+            Task to safely start listening for NFC Tags
+            </summary>
+            <returns>The task to be performed</returns>
+        </member>
+        <member name="M:GripMobile.ViewModel.NFCPageViewModel.StopListening">
+            <summary>
+            Task to safely stop listening for NFC tags
+            </summary>
+            <returns>The task to be performed</returns>
+        </member>
+        <member name="P:GripMobile.ViewModel.NFCPageViewModel.LabelText">
+            <inheritdoc cref="F:GripMobile.ViewModel.NFCPageViewModel.labelText"/>
+        </member>
+        <member name="F:GripMobile.ViewModel.NFCPageViewModel.startListeningCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.NFCPageViewModel.StartListeningCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.NFCPageViewModel.StartListeningCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.NFCPageViewModel.StartListening"/>.</summary>
+        </member>
+        <member name="T:GripMobile.ViewModel.ResetPasswordPageViewModel">
+            <summary>
+            Class <c>ResetPasswordPageViewModel</c> implements the logic behind every component in <c>ResetPasswordPage</c>.
+            </summary>
+            <inheritdoc/>
+            <inheritdoc/>
+            <inheritdoc/>
+        </member>
+        <member name="F:GripMobile.ViewModel.ResetPasswordPageViewModel.userEmail">
+            <value>Property <c>userEmail</c> holds the data that has been sent from <c>ForgotPasswordPageViewModel</c> via <c>QueryProperty</c>.</value>
+        </member>
+        <member name="M:GripMobile.ViewModel.ResetPasswordPageViewModel.PasswordRegex">
+            <remarks>
+            Pattern explanation:<br/>
+            <code>
+            ○ Match if at the beginning of the string.<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a character in the set [A-Z].<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a character in the set [a-z].<br/>
+            ○ Zero-width positive lookahead.<br/>
+                ○ Match a character other than '\n' greedily any number of times.<br/>
+                ○ Match a Unicode digit.<br/>
+            ○ Match a character other than '\n' greedily at least 8 times.<br/>
+            ○ Match if at the end of the string or if before an ending newline.<br/>
+            </code>
+            </remarks>
+        </member>
+        <member name="F:GripMobile.ViewModel.ResetPasswordPageViewModel.userData">
+            <value>Property <c>userData</c> contains every <c>ObservableProperty</c>'s value (except <c>newPasswordAgain</c>) and the <c>QueryProperty</c>'s <c>Email</c> value.</value>
+        </member>
+        <member name="F:GripMobile.ViewModel.ResetPasswordPageViewModel.cancellationTokenSource">
+            <value>Property <c>cancellationTokenSource</c> is needed for closing the toast messages.</value>
+        </member>
+        <member name="F:GripMobile.ViewModel.ResetPasswordPageViewModel.toast">
+            <value>Property <c>toast</c> represents every toast message in <c>LoginPage</c></value>
+        </member>
+        <member name="M:GripMobile.ViewModel.ResetPasswordPageViewModel.ResetPassword">
+            <summary>
+            Method <c>ResetPassword</c> implements the logic behind the "Beállítás" button. If every user data is valid, then it handles the reset password process.
+            </summary>
+        </member>
+        <member name="M:GripMobile.ViewModel.ResetPasswordPageViewModel.NavigateToLoginPage">
+            <summary>
+            Method <c>NavigateToLoginPage</c> implements the logic behind the "Mégse" button. Navigates the user back to the <c>LoginPage</c>.
+            </summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.ResetPasswordPageViewModel.Token">
+            <inheritdoc cref="F:GripMobile.ViewModel.ResetPasswordPageViewModel.token"/>
+        </member>
+        <member name="P:GripMobile.ViewModel.ResetPasswordPageViewModel.NewPassword">
+            <inheritdoc cref="F:GripMobile.ViewModel.ResetPasswordPageViewModel.newPassword"/>
+        </member>
+        <member name="P:GripMobile.ViewModel.ResetPasswordPageViewModel.NewPasswordAgain">
+            <inheritdoc cref="F:GripMobile.ViewModel.ResetPasswordPageViewModel.newPasswordAgain"/>
+        </member>
+        <member name="F:GripMobile.ViewModel.ResetPasswordPageViewModel.resetPasswordCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.ResetPasswordPageViewModel.ResetPasswordCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.ResetPasswordPageViewModel.ResetPasswordCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.ResetPasswordPageViewModel.ResetPassword"/>.</summary>
+        </member>
+        <member name="F:GripMobile.ViewModel.ResetPasswordPageViewModel.navigateToLoginPageCommand">
+            <summary>The backing field for <see cref="P:GripMobile.ViewModel.ResetPasswordPageViewModel.NavigateToLoginPageCommand"/>.</summary>
+        </member>
+        <member name="P:GripMobile.ViewModel.ResetPasswordPageViewModel.NavigateToLoginPageCommand">
+            <summary>Gets an <see cref="T:CommunityToolkit.Mvvm.Input.IRelayCommand"/> instance wrapping <see cref="M:GripMobile.ViewModel.ResetPasswordPageViewModel.NavigateToLoginPage"/>.</summary>
+        </member>
+        <member name="M:GripMobile.View.ForgotPasswordPopup.ClosePopup(System.Object,System.EventArgs)">
+            <summary>
+            Method <c>ClosePopup</c> closes the active popup.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.EmailAddressRegex_0">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the EmailAddressRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.EmailAddressRegex_0.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.EmailAddressRegex_0.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.EmailAddressRegex_0.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.EmailAddressRegex_0.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.EmailAddressRegex_0.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.EmailAddressRegex_0.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.EmailAddressRegex_0.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.EmailAddressRegex_0.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.PasswordRegex_1">
+            <summary>Custom <see cref="T:System.Text.RegularExpressions.Regex"/>-derived type for the PasswordRegex method.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.PasswordRegex_1.Instance">
+            <summary>Cached, thread-safe singleton instance.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.PasswordRegex_1.#ctor">
+            <summary>Initializes the instance.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.PasswordRegex_1.RunnerFactory">
+            <summary>Provides a factory for creating <see cref="T:System.Text.RegularExpressions.RegexRunner"/> instances to be used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.PasswordRegex_1.RunnerFactory.CreateInstance">
+            <summary>Creates an instance of a <see cref="T:System.Text.RegularExpressions.RegexRunner"/> used by methods on <see cref="T:System.Text.RegularExpressions.Regex"/>.</summary>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.PasswordRegex_1.RunnerFactory.Runner">
+            <summary>Provides the runner that contains the custom logic implementing the specified regular expression.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.PasswordRegex_1.RunnerFactory.Runner.Scan(System.ReadOnlySpan{System.Char})">
+            <summary>Scan the <paramref name="inputSpan"/> starting from base.runtextstart for the next match.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.PasswordRegex_1.RunnerFactory.Runner.TryFindNextPossibleStartingPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Search <paramref name="inputSpan"/> starting from base.runtextpos for the next location a match could possibly start.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if a possible match was found; false if no more matches are possible.</returns>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.PasswordRegex_1.RunnerFactory.Runner.TryMatchAtCurrentPosition(System.ReadOnlySpan{System.Char})">
+            <summary>Determine whether <paramref name="inputSpan"/> at base.runtextpos is a match for the regular expression.</summary>
+            <param name="inputSpan">The text being scanned by the regular expression.</param>
+            <returns>true if the regular expression matches at the current position; otherwise, false.</returns>
+        </member>
+        <member name="T:System.Text.RegularExpressions.Generated.Utilities">
+            <summary>Helper methods used by generated <see cref="T:System.Text.RegularExpressions.Regex"/>-derived implementations.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout">
+            <summary>Default timeout value set in <see cref="T:System.AppContext"/>, or <see cref="F:System.Text.RegularExpressions.Regex.InfiniteMatchTimeout"/> if none was set.</summary>
+        </member>
+        <member name="F:System.Text.RegularExpressions.Generated.Utilities.s_hasTimeout">
+            <summary>Whether <see cref="F:System.Text.RegularExpressions.Generated.Utilities.s_defaultTimeout"/> is non-infinite.</summary>
+        </member>
+        <member name="M:System.Text.RegularExpressions.Generated.Utilities.StackPush(System.Int32[]@,System.Int32@,System.Int32)">
+            <summary>Pushes 1 value onto the backtracking stack.</summary>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Button.TextColorTo(Microsoft.Maui.Controls.Button,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_DatePicker.TextColorTo(Microsoft.Maui.Controls.DatePicker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Editor.TextColorTo(Microsoft.Maui.Controls.Editor,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Entry.TextColorTo(Microsoft.Maui.Controls.Entry,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Label.TextColorTo(Microsoft.Maui.Controls.Label,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_Picker.TextColorTo(Microsoft.Maui.Controls.Picker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_RadioButton.TextColorTo(Microsoft.Maui.Controls.RadioButton,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_SearchBar.TextColorTo(Microsoft.Maui.Controls.SearchBar,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="M:Microsoft.Maui.Controls.ColorAnimationExtensions_TimePicker.TextColorTo(Microsoft.Maui.Controls.TimePicker,Microsoft.Maui.Graphics.Color,System.UInt32,System.UInt32,Microsoft.Maui.Easing)">
+            <summary>
+            Animates the TextColor of an <see cref = "T:Microsoft.Maui.ITextStyle"/> to the given color
+            </summary>
+            <param name = "element"></param>
+            <param name = "color">The target color to animate the <see cref = "P:Microsoft.Maui.ITextStyle.TextColor"/> to</param>
+            <param name = "rate">The time, in milliseconds, between the frames of the animation</param>
+            <param name = "length">The duration, in milliseconds, of the animation</param>
+            <param name = "easing">The easing function to be used in the animation</param>
+            <returns>Value indicating if the animation completed successfully or not</returns>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.EmailAddress">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "EmailAddress" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Token">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Token" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.NewPassword">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "NewPassword" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.NewPasswordAgain">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "NewPasswordAgain" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.Password">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "Password" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangingArgs.LabelText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/> instance for all "LabelText" generated properties.</summary>
+        </member>
+        <member name="T:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs">
+            <summary>
+            A helper type providing cached, reusable <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instances
+            for all properties generated with <see cref="T:CommunityToolkit.Mvvm.ComponentModel.ObservablePropertyAttribute"/>.
+            </summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.EmailAddress">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "EmailAddress" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Token">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Token" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.NewPassword">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "NewPassword" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.NewPasswordAgain">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "NewPasswordAgain" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.Password">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "Password" generated properties.</summary>
+        </member>
+        <member name="F:CommunityToolkit.Mvvm.ComponentModel.__Internals.__KnownINotifyPropertyChangedArgs.LabelText">
+            <summary>The cached <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/> instance for all "LabelText" generated properties.</summary>
+        </member>
+    </members>
+</doc>

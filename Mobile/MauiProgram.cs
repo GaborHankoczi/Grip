@@ -41,6 +41,9 @@ public static class MauiProgram
         builder.Services.AddTransient<ResetPasswordPageViewModel>();
         builder.Services.AddTransient<ResetPasswordService>();
 
+        builder.Services.AddTransient<NFCPage>();
+        builder.Services.AddTransient<NFCPageViewModel>();
+
         return builder.Build();
     }
 }
