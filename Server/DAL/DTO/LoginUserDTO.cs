@@ -1,6 +1,0 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace Grip.DAL.DTO;
-
-public record LoginUserDTO([Required][EmailAddress]string Email, [Required]string Password);
-
