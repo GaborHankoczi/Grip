@@ -12,7 +12,9 @@ using System.Security.Claims;
 
 namespace Grip.Controllers;
 
-//[Authorize]
+/// <summary>
+/// API endpoints for managing user accounts.
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class UserController : ControllerBase
@@ -40,6 +42,10 @@ public class UserController : ControllerBase
         _userService = userService;
     }
 
+    /// <summary>
+    /// Gets a list of all users.
+    /// </summary>
+    /// <returns>The list of users.</returns>
     [Authorize(Roles = "Admin")]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -49,6 +55,11 @@ public class UserController : ControllerBase
         return _context.Users.Select(u => _mapper.Map<UserDTO>(u)).ToList();
     }
 
+    /// <summary>
+    /// Gets a specific user by ID.
+    /// </summary>
+    /// <param name="id">The ID of the user.</param>
+    /// <returns>The user.</returns>
     [Authorize]
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO))]
@@ -67,6 +78,11 @@ public class UserController : ControllerBase
         return user;
     }
 
+    /// <summary>
+    /// Registers a new user.
+    /// </summary>
+    /// <param name="user">The user registration data.</param>
+    /// <returns>The created user.</returns>
     [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UserDTO))]
@@ -79,6 +95,11 @@ public class UserController : ControllerBase
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
     }
 
+    /// <summary>
+    /// Authenticates a user and generates a login token.
+    /// </summary>
+    /// <param name="user">The user login data.</param>
+    /// <returns>The login result containing the authentication token.</returns>
     [HttpPost("Login")]
     [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(LoginResultDTO))]
@@ -89,6 +110,12 @@ public class UserController : ControllerBase
         return await _userService.Login(user);
     }
 
+
+    /// <summary>
+    /// Confirms a user's email address.
+    /// </summary>
+    /// <param name="confirmEmailDTO">The email confirmation data.</param>
+    /// <returns>Ok if the email is confirmed successfully.</returns>
     [AllowAnonymous]
     [HttpPost("ConfirmEmail")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -101,6 +128,11 @@ public class UserController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Sends a password reset email to the user.
+    /// </summary>
+    /// <param name="forgotPassword">The forgot password data.</param>
+    /// <returns>Ok if the password reset email is sent successfully.</returns>
     [AllowAnonymous]
     [HttpPost("ForgotPassword")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -112,6 +144,11 @@ public class UserController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Resets the user's password.
+    /// </summary>
+    /// <param name="resetPassword">The reset password data.</param>
+    /// <returns>Ok if the password is reset successfully.</returns>
     [AllowAnonymous]
     [HttpPost("ResetPassword")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -123,6 +160,11 @@ public class UserController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Deletes a user.
+    /// </summary>
+    /// <param name="id">The ID of the user to delete.</param>
+    /// <returns>Ok if the user is deleted successfully.</returns>
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -134,6 +176,13 @@ public class UserController : ControllerBase
         return Ok();
     }
 
+    /// <summary>
+    /// Updates a user's information.
+    /// </summary>
+    /// <param name="id">The ID of the user to update.</param>
+    /// <param name="user">The updated user data.</param>
+    /// <returns>No content if the user is updated successfully.</returns>
+    [Authorize]
     [Authorize]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]

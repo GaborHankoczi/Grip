@@ -14,6 +14,9 @@ using Grip.Bll.Services.Interfaces;
 
 namespace Grip.Controllers
 {
+    /// <summary>
+    /// API controller for managing passive tags.
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class PassiveTagController : ControllerBase
@@ -22,6 +25,12 @@ namespace Grip.Controllers
         private readonly IMapper _mapper;
         private readonly IPassiveTagService _passiveTagService;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PassiveTagController"/> class.
+        /// </summary>
+        /// <param name="context">The application database context.</param>
+        /// <param name="mapper">The mapper for DTO mapping.</param>
+        /// <param name="passiveTagService">The service for managing passive tags.</param>
         public PassiveTagController(ApplicationDbContext context, IMapper mapper, IPassiveTagService passiveTagService)
         {
             _context = context;
@@ -29,7 +38,15 @@ namespace Grip.Controllers
             _passiveTagService = passiveTagService;
         }
 
-        // GET: api/PassiveTag
+        /// <summary>
+        /// Retrieves all passive tags.
+        /// </summary>
+        /// <returns>A collection of <see cref="PassiveTagDTO"/> representing the passive tags.</returns>
+        /// <remarks>
+        /// This function is accessible via HTTP GET request.
+        /// The user must be authorized with the "Admin" role to access this endpoint.
+        /// Returns 200 OK if the operation is successful.
+        /// </remarks>
         [HttpGet]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -38,7 +55,18 @@ namespace Grip.Controllers
             return Ok(await _passiveTagService.GetAll());
         }
 
-        // GET: api/PassiveTag/5
+        /// <summary>
+        /// Retrieves a specific passive tag by its ID.
+        /// </summary>
+        /// <param name="id">The ID of the passive tag to retrieve.</param>
+        /// <returns>An <see cref="ActionResult"/> representing the passive tag.</returns>
+        /// <remarks>
+        /// This function is accessible via HTTP GET request.
+        /// The user must be authorized with the "Admin" role to access this endpoint.
+        /// Returns 400 Bad Request if the ID parameter is invalid.
+        /// Returns 404 Not Found if the passive tag with the specified ID is not found.
+        /// Returns 200 OK if the operation is successful.
+        /// </remarks>
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -49,8 +77,19 @@ namespace Grip.Controllers
             return await _passiveTagService.Get(id);
         }
 
-        // PUT: api/PassiveTag/5
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Updates a specific passive tag.
+        /// </summary>
+        /// <param name="id">The ID of the passive tag to update.</param>
+        /// <param name="passiveTag">The updated passive tag data.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        /// <remarks>
+        /// This function is accessible via HTTP PUT request.
+        /// The user must be authorized with the "Admin" role to access this endpoint.
+        /// Returns 400 Bad Request if the ID parameter or the passive tag data is invalid.
+        /// Returns 404 Not Found if the passive tag with the specified ID is not found.
+        /// Returns 204 No Content if the operation is successful.
+        /// </remarks>
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -68,8 +107,18 @@ namespace Grip.Controllers
             return NoContent();
         }
 
-        // POST: api/PassiveTag
-        // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
+        /// <summary>
+        /// Creates a new passive tag.
+        /// </summary>
+        /// <param name="passiveTag">The passive tag data to create.</param>
+        /// <returns>An <see cref="ActionResult"/> representing the created passive tag.</returns>
+        /// <remarks>
+        /// This function is accessible via HTTP POST request.
+        /// The user must be authorized with the "Admin" role to access this endpoint.
+        /// Returns 400 Bad Request if the passive tag data is invalid.
+        /// Returns 201 Created if the passive tag is created successfully.
+        /// Returns 404 Not Found if the referenced entities in the passive tag data are not found.
+        /// </remarks>
         [HttpPost]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -82,7 +131,18 @@ namespace Grip.Controllers
             return CreatedAtAction("GetPassiveTag", new { id = created.Id }, created);
         }
 
-        // DELETE: api/PassiveTag/5
+        /// <summary>
+        /// Deletes a specific passive tag.
+        /// </summary>
+        /// <param name="id">The ID of the passive tag to delete.</param>
+        /// <returns>An <see cref="IActionResult"/> indicating the result of the operation.</returns>
+        /// <remarks>
+        /// This function is accessible via HTTP DELETE request.
+        /// The user must be authorized with the "Admin" role to access this endpoint.
+        /// Returns 400 Bad Request if the ID parameter is invalid.
+        /// Returns 204 No Content if the operation is successful.
+        /// Returns 404 Not Found if the passive tag with the specified ID is not found.
+        /// </remarks>
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
