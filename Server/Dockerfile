@@ -13,6 +13,8 @@ RUN apt install -y nodejs
 # RUN dotnet restore
 
 # copy everything else and build app
+RUN ls
+RUN rm -rf /source
 COPY . .
 WORKDIR /source
 VOLUME /etc/cert
@@ -24,5 +26,5 @@ EXPOSE 443
 FROM mcr.microsoft.com/dotnet/aspnet:7.0
 WORKDIR /source/release
 COPY --from=build /source/release ./
-ENTRYPOINT ["dotnet", "Server.dll", "--environment", "TestEnvironment"]
+ENTRYPOINT ["dotnet", "Grip.dll", "--environment", "TestEnvironment"]
 # docker password: dckr_pat_i9IlNKaHdRdPQrOue0KmYYqLSV0
