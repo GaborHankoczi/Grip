@@ -25,7 +25,7 @@ namespace GripMobile.Service
                 string json = JsonSerializer.Serialize(userData);
                 StringContent content = new(json, Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync("https://grip.sytes.net/api/User/ConfirmEmail", content);
+                var response = await httpClient.PostAsync("https://nloc.duckdns.org:8025/api/User/ConfirmEmail", content);
 
                 return response.StatusCode;
             }

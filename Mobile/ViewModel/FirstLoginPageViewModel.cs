@@ -46,7 +46,6 @@ namespace GripMobile.ViewModel
         /// <value>Property <c>toast</c> represents every toast message in <c>FirstLoginPage</c></value>
         private IToast toast;
 
-
         /// <summary>
         /// Method <c>ConfirmEmail</c> authenticates the view's input and communicates with an instance of the <c>FirstLoginService</c> class.
         /// This method represents the logic behind the "Küldés" button.

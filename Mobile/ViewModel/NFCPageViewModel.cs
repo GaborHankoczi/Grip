@@ -1,17 +1,39 @@
-﻿using CommunityToolkit.Maui.Alerts;
-using CommunityToolkit.Maui.Core;
-using CommunityToolkit.Mvvm.ComponentModel;
+﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using GripMobile.Model;
+using GripMobile.Service;
 using Plugin.NFC;
-using System.Text;
-using System.Threading;
+using System.Net;
 
 namespace GripMobile.ViewModel
 {
     public partial class NFCPageViewModel: ObservableObject
     {
         [ObservableProperty]
-        private string labelText = "Kattints a gombra, majd tartsd a\nkészüléket közel a leolvasóhoz!";
+        private string labelText;
+
+        [ObservableProperty]
+        private Color backgroundColor;
+
+        private readonly NFCService nfcService;
+
+        public NFCPageViewModel(NFCService nfcService)
+        {
+            this.nfcService = nfcService;
+
+            BackgroundColor = Colors.Red;
+
+            if(CrossNFC.Current.IsEnabled)
+            {
+                LabelText = "Kattints a gombra, majd tartsd a\nkészüléket közel a leolvasóhoz!";
+            }
+            else
+            {
+                LabelText = "Az NFC nincs bekapcsolva!";
+            }
+
+            SubscribeEvents();
+        }
 
         public const string ALERT_TITLE = "NFC";
         public const string MIME_TYPE = "application/com.companyname.nfcsample";
@@ -60,7 +82,6 @@ namespace GripMobile.ViewModel
             _eventsAlreadySubscribed = true;
 
             CrossNFC.Current.OnMessageReceived += Current_OnMessageReceived;
-            CrossNFC.Current.OnTagDiscovered += Current_OnTagDiscovered;
             CrossNFC.Current.OnNfcStatusChanged += Current_OnNfcStatusChanged;
             CrossNFC.Current.OnTagListeningStatusChanged += Current_OnTagListeningStatusChanged;
 
@@ -74,7 +95,6 @@ namespace GripMobile.ViewModel
         void UnsubscribeEvents()
         {
             CrossNFC.Current.OnMessageReceived -= Current_OnMessageReceived;
-            CrossNFC.Current.OnTagDiscovered -= Current_OnTagDiscovered;
             CrossNFC.Current.OnNfcStatusChanged -= Current_OnNfcStatusChanged;
             CrossNFC.Current.OnTagListeningStatusChanged -= Current_OnTagListeningStatusChanged;
 
@@ -97,18 +117,26 @@ namespace GripMobile.ViewModel
         void Current_OnNfcStatusChanged(bool isEnabled)
         {
             NfcIsEnabled = isEnabled;
-            ShowAlert($"NFC has been {(isEnabled ? "enabled" : "disabled")}");
+
+            if (isEnabled == false)
+            {
+                LabelText = "Az NFC nincs bekapcsolva!";
+            }
+            else
+            {
+                LabelText = "Kattints a gombra, majd tartsd a\nkészüléket közel a leolvasóhoz!";
+            }
         }
 
         /// <summary>
         /// Event raised when a NDEF message is received
         /// </summary>
         /// <param name="tagInfo">Received <see cref="ITagInfo"/></param>
-        void Current_OnMessageReceived(ITagInfo tagInfo)
+        async void Current_OnMessageReceived(ITagInfo tagInfo)
         {
             if (tagInfo == null)
             {
-                ShowAlert("No tag found");
+                LabelText = "NFC tag nem található!";
                 return;
             }
 
@@ -119,16 +147,26 @@ namespace GripMobile.ViewModel
 
             if (!tagInfo.IsSupported)
             {
-                ShowAlert("Unsupported tag (app)", title);
+                LabelText = "Nem támogatott NFC tag!";
             }
             else if (tagInfo.IsEmpty)
             {
-                ShowAlert("Empty tag", title);
+                LabelText = "A beolvasott NFC tag üres!";
             }
             else
             {
-                var first = tagInfo.Records[0];
-                ShowAlert(GetMessage(first), title);
+                ActiveAttendanceDTO data = new()
+                {
+                    Message = tagInfo.Records[0].Message,
+                    Token = tagInfo.Records[1].Message
+                };
+
+                HttpStatusCode result = await nfcService.RegisterAttendance(data);
+
+                if (result == HttpStatusCode.OK) { LabelText = "Sikeres regisztrálás"; }
+                else { LabelText = "Sikertelen regisztrálás"; }
+
+                Task.Run(() => StopListening());
             }
         }
 
@@ -137,131 +175,14 @@ namespace GripMobile.ViewModel
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        void Current_OniOSReadingSessionCancelled(object sender, EventArgs e) => Debug("iOS NFC Session has been cancelled");
-
-        /// <summary>
-        /// Event raised when a NFC Tag is discovered
-        /// </summary>
-        /// <param name="tagInfo"><see cref="ITagInfo"/> to be published</param>
-        /// <param name="format">Format the tag</param>
-        void Current_OnTagDiscovered(ITagInfo tagInfo, bool format)
-        {
-            if (!CrossNFC.Current.IsWritingTagSupported)
-            {
-                ShowAlert("Writing tag is not supported on this device");
-                return;
-            }
-
-            try
-            {
-                NFCNdefRecord record = null;
-                switch (_type)
-                {
-                    case NFCNdefTypeFormat.WellKnown:
-                        record = new NFCNdefRecord
-                        {
-                            TypeFormat = NFCNdefTypeFormat.WellKnown,
-                            MimeType = MIME_TYPE,
-                            Payload = NFCUtils.EncodeToByteArray("Plugin.NFC is awesome!"),
-                            LanguageCode = "en"
-                        };
-                        break;
-                    case NFCNdefTypeFormat.Uri:
-                        record = new NFCNdefRecord
-                        {
-                            TypeFormat = NFCNdefTypeFormat.Uri,
-                            Payload = NFCUtils.EncodeToByteArray("https://github.com/franckbour/Plugin.NFC")
-                        };
-                        break;
-                    case NFCNdefTypeFormat.Mime:
-                        record = new NFCNdefRecord
-                        {
-                            TypeFormat = NFCNdefTypeFormat.Mime,
-                            MimeType = MIME_TYPE,
-                            Payload = NFCUtils.EncodeToByteArray("Plugin.NFC is awesome!")
-                        };
-                        break;
-                    default:
-                        break;
-                }
-
-                if (!format && record == null)
-                    throw new Exception("Record can't be null.");
-
-                tagInfo.Records = new[] { record };
-
-                if (format)
-                    CrossNFC.Current.ClearMessage(tagInfo);
-                else
-                {
-                    CrossNFC.Current.PublishMessage(tagInfo, _makeReadOnly);
-                }
-            }
-            catch (Exception ex)
-            {
-                ShowAlert(ex.Message);
-            }
-        }
-
-        private CancellationTokenSource cancellationTokenSource = new();
-        private IToast toast;
+        void Current_OniOSReadingSessionCancelled(object sender, EventArgs e) => System.Diagnostics.Debug.WriteLine("iOS NFC Session has been cancelled");
 
         [RelayCommand]
         async void StartListening()
         {
-            /*
-            if (NfcIsDisabled)
-            {
-                toast = Toast.Make("Az NFC ki van kapcsolva!", ToastDuration.Long, 14.0);
-
-                await toast.Show(cancellationTokenSource.Token);
-
-                return;
-            }
-            else
-            {
-                await BeginListening();
-            }
-            */
-
+            BackgroundColor = Colors.Green;
             await BeginListening();
         }
-
-        /// <summary>
-        /// Returns the tag information from NDEF record
-        /// </summary>
-        /// <param name="record"><see cref="NFCNdefRecord"/></param>
-        /// <returns>The tag information</returns>
-        string GetMessage(NFCNdefRecord record)
-        {
-            var message = $"Message: {record.Message}";
-            message += Environment.NewLine;
-            message += $"RawMessage: {Encoding.UTF8.GetString(record.Payload)}";
-            message += Environment.NewLine;
-            message += $"Type: {record.TypeFormat}";
-
-            if (!string.IsNullOrWhiteSpace(record.MimeType))
-            {
-                message += Environment.NewLine;
-                message += $"MimeType: {record.MimeType}";
-            }
-
-            return message;
-        }
-
-        /// <summary>
-        /// Write a debug message in the debug console
-        /// </summary>
-        /// <param name="message">The message to be displayed</param>
-        void Debug(string message) => System.Diagnostics.Debug.WriteLine(message);
-
-        /// <summary>
-        /// Display an alert
-        /// </summary>
-        /// <param name="message">Message to be displayed</param>
-        /// <param name="title">Alert title</param>
-        /// <returns>The task to be performed</returns>
-        void ShowAlert(string message, string title = null) => Console.WriteLine(message);
 
         /// <summary>
         /// Task to safely start listening for NFC Tags
@@ -273,13 +194,13 @@ namespace GripMobile.ViewModel
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    SubscribeEvents();
                     CrossNFC.Current.StartListening();
                 });
             }
             catch (Exception ex)
             {
-                ShowAlert(ex.Message);
+                LabelText = "Hiba lépett fel (BeginListening)";
+                System.Diagnostics.Debug.WriteLine(ex.Message);
             }
         }
 
@@ -295,11 +216,13 @@ namespace GripMobile.ViewModel
                 {
                     CrossNFC.Current.StopListening();
                     UnsubscribeEvents();
+                    BackgroundColor = Colors.Red;
                 });
             }
             catch (Exception ex)
             {
-                ShowAlert(ex.Message);
+                LabelText = "Hiba lépett fel (StopListening)";
+                System.Diagnostics.Debug.WriteLine(ex.Message);
             }
         }
     }

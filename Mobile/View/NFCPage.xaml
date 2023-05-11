@@ -13,15 +13,14 @@
             Text="{Binding LabelText}"
             FontSize="23"
             AbsoluteLayout.LayoutBounds="0.5, 0.5"
-            AbsoluteLayout.LayoutFlags="PositionProportional">
-        </Label>
+            AbsoluteLayout.LayoutFlags="PositionProportional" />
 
         <Button 
             Text="Beolvasás"
             TextColor="White"
             FontAttributes="Bold"
             FontSize="20"
-            BackgroundColor="Black"
+            BackgroundColor="{Binding BackgroundColor}"
             Command="{Binding StartListeningCommand}"
             AbsoluteLayout.LayoutBounds="0.5, 1, 1, 0.07"
             AbsoluteLayout.LayoutFlags="All" />

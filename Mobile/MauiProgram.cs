@@ -43,6 +43,7 @@ public static class MauiProgram
 
         builder.Services.AddTransient<NFCPage>();
         builder.Services.AddTransient<NFCPageViewModel>();
+        builder.Services.AddTransient<NFCService>();
 
         return builder.Build();
     }
