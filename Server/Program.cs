@@ -65,8 +65,7 @@ builder.Services.AddAuthentication()
 
 builder.Services.AddSingleton<IStationTokenProvider, HMACTokenProvider>();
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddRazorPages();
+builder.Services.AddControllers();
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
@@ -129,6 +128,7 @@ builder.Services.AddSingleton(mapper);
 
 var app = builder.Build();
 
+app.UseProblemDetails();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -165,9 +165,6 @@ app.UseMiddleware<ApiKeyValidationMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
-app.MapRazorPages();
-
-app.MapFallbackToFile("index.html");
 
 using var scope = app.Services.CreateScope();
 using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();

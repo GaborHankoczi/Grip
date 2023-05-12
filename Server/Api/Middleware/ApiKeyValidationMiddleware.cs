@@ -34,11 +34,11 @@ public class ApiKeyValidationMiddleware
                     return;
                 }
             }
+
         }
         catch (Exception e)
         {
             _logger.LogError(e, "Error in ApiKeyValidationMiddleware");
-            await _next(context);
         }
         await _next(context);
     }
