@@ -85,7 +85,7 @@ public class AttendanceService : IAttendanceService
             c =>
             new AttendanceDTO(
                 _mapper.Map<ClassDTO>(c),
-                false,
+                c.Group.Users.First(u => u.Id == user.Id).Exemptions.Any(e => e.ValidFrom <= c.StartDateTime && e.ValidTo >= c.StartDateTime),
                 c.Group.Users.First(u => u.Id == user.Id).Attendances.Any(a => a.Time >= c.StartDateTime.AddMinutes(-15) && a.Time <= c.StartDateTime.AddMinutes(15)),
                 c.Group.Users.First(u => u.Id == user.Id).Attendances.First(a => a.Time >= c.StartDateTime.AddMinutes(-15) && a.Time <= c.StartDateTime.AddMinutes(15)).Time
             )).ToListAsync();
