@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Grip.DAL;
 
-public class ApplicationDbContext : IdentityDbContext<User,Role,int>
+public class ApplicationDbContext : IdentityDbContext<User, Role, int>
 {
     public DbSet<PassiveTag> PassiveTags { get; set; } = null!;
     public DbSet<Attendance> Attendances { get; set; } = null!;
@@ -13,7 +13,7 @@ public class ApplicationDbContext : IdentityDbContext<User,Role,int>
     public DbSet<Class> Classes { get; set; } = null!;
     public DbSet<Station> Stations { get; set; } = null!;
     public DbSet<Station> Exempts { get; set; } = null!;
-    
+
     IConfiguration _configuration;
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IConfiguration configuration)
         : base(options)
@@ -25,6 +25,8 @@ public class ApplicationDbContext : IdentityDbContext<User,Role,int>
     {
         base.OnConfiguring(optionsBuilder);
         optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DatabaseConnection"));
+        //TODO remove
+        optionsBuilder.EnableSensitiveDataLogging();
     }
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -37,6 +39,7 @@ public class ApplicationDbContext : IdentityDbContext<User,Role,int>
         builder.Entity<Group>().HasMany(g => g.Classes).WithOne(c => c.Group);
         builder.Entity<Exempt>().HasOne(e => e.IssuedBy).WithMany(u => u.IssuedExemptions);
         builder.Entity<Exempt>().HasOne(e => e.IssuedTo).WithMany(u => u.Exemptions);
+        builder.Entity<Class>().HasOne(c => c.Station).WithMany(s => s.Classes);
     }
 
     public DbSet<Grip.DAL.Model.Exempt> Exempt { get; set; } = default!;

@@ -21,10 +21,13 @@ public class DeChunkingMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        try{
+
+        await _next(context);
+        try
+        {
             var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;
             var attribute = endpoint?.Metadata.GetMetadata<NotChunked>();
-            if(attribute != null)
+            if (attribute != null)
             {
                 var originalBodyStream = context.Response.Body;
                 using (var responseBody = new MemoryStream())
@@ -36,7 +39,6 @@ public class DeChunkingMiddleware
                         context.Response.Headers.ContentLength = length;
                         return Task.CompletedTask;
                     });
-                    await _next(context);
 
                     // If you want to read the body, uncomment these lines.
                     //context.Response.Body.Seek(0, SeekOrigin.Begin);
@@ -46,11 +48,15 @@ public class DeChunkingMiddleware
                     context.Response.Body.Seek(0, SeekOrigin.Begin);
                     await responseBody.CopyToAsync(originalBodyStream);
                 }
-            }else{
+            }
+            else
+            {
                 await _next(context);
             }
-        }catch(Exception e){
-            _logger.LogError(e,"Error in DeChunkingMiddleware");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error in DeChunkingMiddleware");
             await _next(context);
         }
     }

@@ -20,23 +20,27 @@ public class ApiKeyValidationMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
-        try{
+        try
+        {
             var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;
             var attribute = endpoint?.Metadata.GetMetadata<ValidateApiKey>();
-            if(attribute != null)
+            if (attribute != null)
             {
-                if(context.Request.Headers["ApiKey"] != _configuration["Station:ApiKey"]){
+                if (context.Request.Headers["ApiKey"] != _configuration["Station:ApiKey"])
+                {
                     context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     context.Response.ContentType = "text/plain";
                     await context.Response.WriteAsync("Please provide a valid api key");
                     return;
                 }
             }
-            await _next(context);
-        }catch(Exception e){
-            _logger.LogError(e,"Error in ApiKeyValidationMiddleware");
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Error in ApiKeyValidationMiddleware");
             await _next(context);
         }
+        await _next(context);
     }
-    
+
 }

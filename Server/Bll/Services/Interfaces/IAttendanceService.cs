@@ -17,4 +17,12 @@ public interface IAttendanceService
     /// </summary>
     /// <param name="request">The request</param>
     public Task<bool> VerifyPassiveScan(PassiveAttendanceDTO request);
+
+    /// <summary>
+    /// Get all attendances for a user on a specific day
+    /// </summary>
+    /// <param name="user">User used for querrying</param>
+    /// <param name="date">Date for querrying</param>
+    /// <returns>List of AttendanceDTO-s</returns>
+    public Task<IEnumerable<AttendanceDTO>> GetAttendanceForDay(User user, DateOnly date);
 }

@@ -96,7 +96,7 @@ namespace Grip.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ClassDTO>> PostClass([FromBody] CreateClassDTO @class)
         {
-            var created = _classService.Create(@class);
+            var created = await _classService.Create(@class);
             return CreatedAtAction("GetClass", new { id = created.Id }, _mapper.Map<ClassDTO>(created));
         }
 

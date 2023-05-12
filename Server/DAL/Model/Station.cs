@@ -26,4 +26,9 @@ public class Station
     public string SecretKey { get; set; } = null!;
 
     public ICollection<Attendance> Attendances { get; set; } = null!;
+
+    /// <summary>
+    /// Classes held at this station
+    /// </summary>
+    public ICollection<Class> Classes { get; set; } = null!;
 }

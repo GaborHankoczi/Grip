@@ -6,6 +6,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Grip.DAL;
 using Grip.Bll.Services;
+using Grip.Bll.Services.Interfaces;
 
 namespace Grip.Controllers;
 
@@ -17,9 +18,9 @@ public class AttendanceController : ControllerBase
     private readonly UserManager<DAL.Model.User> _userManager;
     private readonly IConfiguration _configuration;
     private readonly ApplicationDbContext _context;
-    private readonly AttendanceService _attendanceService;
+    private readonly IAttendanceService _attendanceService;
 
-    public AttendanceController(ILogger<AttendanceController> logger, UserManager<DAL.Model.User> userManager, IConfiguration configuration, ApplicationDbContext context, AttendanceService attendanceService)
+    public AttendanceController(ILogger<AttendanceController> logger, UserManager<DAL.Model.User> userManager, IConfiguration configuration, ApplicationDbContext context, IAttendanceService attendanceService)
     {
         _logger = logger;
         _userManager = userManager;
@@ -67,6 +68,20 @@ public class AttendanceController : ControllerBase
 
 
         return Ok();
+    }
+
+    /// <summary>
+    /// This endpoint is used to get the logged in users classes for given day and wetaher they are present or not
+    /// </summary>
+    [HttpGet("{date}")]
+    [Authorize]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
+    public async Task<IActionResult> GetAttendanceForDay(DateOnly date)
+    {
+        var User = await _userManager.FindByIdAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
+        var attendance = await _attendanceService.GetAttendanceForDay(User, date);
+        return Ok(attendance);
     }
 
 }
