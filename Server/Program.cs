@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Grip.DAL;
 using Microsoft.AspNetCore.Identity;
 using Grip.DAL.Model;
-using Grip.Providers;
 using AutoMapper;
 using System.Security.Cryptography.X509Certificates;
 using Grip.Middleware;
@@ -13,6 +12,9 @@ using Hellang.Middleware.ProblemDetails;
 using Grip.Bll.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
+using Grip.Bll.Providers;
+using Server.Bll.Services;
+using Server.Bll.Providers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -106,6 +108,8 @@ builder.Services.AddScoped<IExemptService, ExemptService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IPassiveTagService, PassiveTagService>();
 builder.Services.AddScoped<IStationService, StationService>();
+builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<ICurrentTimeProvider, CurrentTimeProvider>();
 
 
 builder.Services.AddSwaggerGen(o =>

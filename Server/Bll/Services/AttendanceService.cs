@@ -1,10 +1,10 @@
 using Grip.DAL;
 using Grip.Bll.DTO;
 using Grip.DAL.Model;
-using Grip.Providers;
 using Grip.Bll.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
+using Grip.Bll.Providers;
 
 namespace Grip.Bll.Services;
 
@@ -89,17 +89,8 @@ public class AttendanceService : IAttendanceService
                 c.Group.Users.First(u => u.Id == user.Id).Attendances.Any(a => a.Time >= c.StartDateTime.AddMinutes(-15) && a.Time <= c.StartDateTime.AddMinutes(15)),
                 c.Group.Users.First(u => u.Id == user.Id).Attendances.First(a => a.Time >= c.StartDateTime.AddMinutes(-15) && a.Time <= c.StartDateTime.AddMinutes(15)).Time
             )).ToListAsync();
-        /*var asd = from c in _context.Classes.Include(c => c.Group).ThenInclude(g => g.Users)
-                  where c.Group.Users.Contains(user) && c.StartDateTime.Date.Year == date.Year && c.StartDateTime.Date.Month == date.Month && c.StartDateTime.Date.Day == date.Day
-                  select new
-                  {
-                      Class = c,
-                      HasExempt = false,
-                      Present = c.Group.Users.First(u => u.Id == user.Id).Attendances.Any(a => a.Time >= c.StartDateTime.AddMinutes(-15) && a.Time <= c.StartDateTime.AddMinutes(15)),
-                      AuthenticationTime = (DateTime?)c.Group.Users.First(u => u.Id == user.Id).Attendances.First(a => a.Time >= c.StartDateTime.AddMinutes(-15) && a.Time <= c.StartDateTime.AddMinutes(15)).Time
-                  };
-        var asdRes = asd.ToList();*/
-        return attendanceDTOs;//attendanceDTOs;
+
+        return attendanceDTOs;
     }
 
 }

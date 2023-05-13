@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Grip.Providers;
+namespace Grip.Bll.Providers;
 
 public class HMACTokenProvider : IStationTokenProvider
 {
@@ -36,5 +36,5 @@ public class HMACTokenProvider : IStationTokenProvider
             return Convert.ToBase64String(hashmessage) == token;
         }
     }
-    
+
 }
