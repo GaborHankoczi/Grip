@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using Grip.Bll.Providers;
 using Server.Bll.Services;
 using Server.Bll.Providers;
+using Grip.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -100,6 +101,8 @@ builder.Services.AddProblemDetails(options =>
     options.MapToStatusCode<DbConcurrencyException>(StatusCodes.Status409Conflict);
 });
 
+builder.Services.AddSignalR();
+
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
@@ -169,6 +172,8 @@ app.UseMiddleware<ApiKeyValidationMiddleware>();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
+
+app.MapHub<StationHub>("/hubs/station");
 
 using var scope = app.Services.CreateScope();
 using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
