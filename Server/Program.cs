@@ -148,6 +148,13 @@ else
     app.UseHsts();
 }
 
+using var currentScope = app.Services.CreateScope();
+// Auto migrate database on developement and te
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "TestEnvironment")
+{
+    using var context = currentScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    context.Database.Migrate();
+}
 
 
 if (builder.Configuration.GetValue<bool>("UseSwagger"))

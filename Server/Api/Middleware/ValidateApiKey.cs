@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 
 namespace Grip.Middleware;
 
+/// <summary>
+/// Attribute for marking a controller method as requiring a valid API key.
+/// </summary>
 public class ValidateApiKey : Attribute
 {
-    
+
 }

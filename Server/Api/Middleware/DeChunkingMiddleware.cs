@@ -13,12 +13,22 @@ public class DeChunkingMiddleware
 {
     private readonly RequestDelegate _next;
     private readonly ILogger<DeChunkingMiddleware> _logger;
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeChunkingMiddleware"/> class.
+    /// </summary>
+    /// <param name="next">The next middleware delegate.</param>
+    /// <param name="logger">The logger.</param>
     public DeChunkingMiddleware(RequestDelegate next, ILogger<DeChunkingMiddleware> logger)
     {
         _next = next;
         _logger = logger;
     }
 
+    /// <summary>
+    /// Invokes the API key validation middleware.
+    /// </summary>
+    /// <param name="context">The HTTP context.</param>
+    /// <returns>A task representing the asynchronous middleware invocation.</returns>
     public async Task InvokeAsync(HttpContext context)
     {
         var endpoint = context.Features.Get<IEndpointFeature>()?.Endpoint;

@@ -12,6 +12,9 @@ using Server.Bll.Providers;
 
 namespace Grip.Bll.Services;
 
+/// <summary>
+/// Provides functionality related to attendance management.
+/// </summary>
 public class AttendanceService : IAttendanceService
 {
     private readonly ILogger<AttendanceService> _logger;
@@ -21,17 +24,31 @@ public class AttendanceService : IAttendanceService
     private readonly IHubContext<StationHub, IStationClient> _signalrHub;
     private readonly ICurrentTimeProvider _currentTimeProvider;
 
-    public AttendanceService(ILogger<AttendanceService> logger, ApplicationDbContext context, IStationTokenProvider stationTokenProvider, IMapper mapper, IHubContext<StationHub, IStationClient> signalrHub, ICurrentTimeProvider _currentTimeProvider) // TODO Remove dependency circle
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AttendanceService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="context">The application database context.</param>
+    /// <param name="stationTokenProvider">The station token provider.</param>
+    /// <param name="mapper">The mapper instance.</param>
+    /// <param name="signalrHub">The SignalR hub context.</param>
+    /// <param name="currentTimeProvider">The current time provider.</param>
+    public AttendanceService(ILogger<AttendanceService> logger, ApplicationDbContext context, IStationTokenProvider stationTokenProvider, IMapper mapper, IHubContext<StationHub, IStationClient> signalrHub, ICurrentTimeProvider currentTimeProvider) // TODO Remove dependency circle
     {
         _logger = logger;
         _context = context;
         _stationTokenProvider = stationTokenProvider;
         _mapper = mapper;
         _signalrHub = signalrHub;
-        _currentTimeProvider = _currentTimeProvider;
+        _currentTimeProvider = currentTimeProvider;
     }
 
-    public async Task<bool> VerifyPhoneScan(ActiveAttendanceDTO request, DAL.Model.User user)
+    /// <summary>
+    /// Verifies phone scan attendance for a user.
+    /// </summary>
+    /// <param name="request">The active attendance request data.</param>
+    /// <param name="user">The user associated with the attendance request.</param>
+    public async Task VerifyPhoneScan(ActiveAttendanceDTO request, DAL.Model.User user)
     {
         // Station number claimed in request 
         int stationNumber = Convert.ToInt32(request.Message.Split("_")[0]);
@@ -74,9 +91,12 @@ public class AttendanceService : IAttendanceService
         };
 
         await _signalrHub.Clients.Group(stationNumber.ToString()).ReceiveScan(StationScanDTO);
-        return true;
     }
-    public async Task<bool> VerifyPassiveScan(PassiveAttendanceDTO request)
+    /// <summary>
+    /// Verifies passive scan attendance for a user.
+    /// </summary>
+    /// <param name="request">The passive attendance request data.</param>
+    public async Task VerifyPassiveScan(PassiveAttendanceDTO request)
     {
         _logger.LogInformation($"Passive scan attendance request received for serial number {request.SerialNumber} at station {request.StationId}");
         var passiveTag = await _context.PassiveTags.Include(t => t.User).FirstOrDefaultAsync(t => t.SerialNumber == request.SerialNumber);
@@ -102,17 +122,14 @@ public class AttendanceService : IAttendanceService
         };
 
         await _signalrHub.Clients.Group(request.StationId.ToString()).ReceiveScan(StationScanDTO);
-        return true;
     }
 
-    private class AttendanceQueryResult
-    {
-        public Class Class { get; set; }
-        public bool Present { get; set; }
-        public bool HasExempt { get; set; }
-        public DateTime? AuthenticationTime { get; set; }
-    }
-
+    /// <summary>
+    /// Retrieves attendance information for a user on a specific day.
+    /// </summary>
+    /// <param name="user">The user to retrieve attendance information for.</param>
+    /// <param name="date">The date to retrieve attendance information for.</param>
+    /// <returns>A collection of attendance information for the user on the specified day.</returns>
     public async Task<IEnumerable<AttendanceDTO>> GetAttendanceForDay(User user, DateOnly date)
     {
         // Querry all classes for the given day for the user, wether they are present or not, or if thay have a valid exemption, and the time of identification if they were present

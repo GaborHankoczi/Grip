@@ -11,12 +11,12 @@ public interface IAttendanceService
     /// </summary>
     /// <param name="request">The request DTO</param>
     /// <param name="user">The user requesting verification</param>
-    public Task<bool> VerifyPhoneScan(ActiveAttendanceDTO request, User user);
+    public Task VerifyPhoneScan(ActiveAttendanceDTO request, User user);
     /// <summary>
     /// Verify the station scan
     /// </summary>
     /// <param name="request">The request</param>
-    public Task<bool> VerifyPassiveScan(PassiveAttendanceDTO request);
+    public Task VerifyPassiveScan(PassiveAttendanceDTO request);
 
     /// <summary>
     /// Get all attendances for a user on a specific day
