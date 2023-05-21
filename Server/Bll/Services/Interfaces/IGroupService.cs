@@ -7,7 +7,7 @@ namespace Grip.Bll.Services.Interfaces;
 /// </summary>
 public interface IGroupService : IRestInterface<GroupDTO, GroupDTO, GroupDTO>
 {
-    // <summary>
+    /// <summary>
     /// Adds a user to a group.
     /// </summary>
     /// <param name="groupId">The ID of the group.</param>

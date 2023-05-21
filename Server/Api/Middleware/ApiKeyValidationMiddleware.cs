@@ -13,7 +13,7 @@ namespace Grip.Middleware;
 public class ApiKeyValidationMiddleware
 {
     private readonly RequestDelegate _next;
-    private readonly ILogger<DeChunkingMiddleware> _logger;
+    private readonly ILogger<ApiKeyValidationMiddleware> _logger;
     private readonly IConfiguration _configuration;
 
     /// <summary>
@@ -22,7 +22,7 @@ public class ApiKeyValidationMiddleware
     /// <param name="next">The next middleware delegate.</param>
     /// <param name="logger">The logger.</param>
     /// <param name="configuration">The configuration.</param>
-    public ApiKeyValidationMiddleware(RequestDelegate next, ILogger<DeChunkingMiddleware> logger, IConfiguration configuration)
+    public ApiKeyValidationMiddleware(RequestDelegate next, ILogger<ApiKeyValidationMiddleware> logger, IConfiguration configuration)
     {
         _next = next;
         _logger = logger;

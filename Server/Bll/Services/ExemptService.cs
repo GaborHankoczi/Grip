@@ -37,7 +37,7 @@ namespace Grip.Bll.Services
         /// <summary> 
         /// Not used, because user check is requered for autorization, only here for interface implementation
         /// </summary>
-        public async Task<ExemptDTO> Create(CreateExemptDTO dto)
+        public Task<ExemptDTO> Create(CreateExemptDTO dto)
         {
             throw new NotImplementedException();
         }
@@ -53,7 +53,7 @@ namespace Grip.Bll.Services
             var exemptModel = _mapper.Map<Exempt>(dto);
             // TODO validate that issued to is a student
             exemptModel.IssuedBy = teacher;
-            _context.Exempt.Add(exemptModel);
+            _context.Exempts.Add(exemptModel);
             await _context.SaveChangesAsync();
             _context.Users.Where(u => u.Id == dto.IssuedToId).Load();
 
@@ -66,13 +66,13 @@ namespace Grip.Bll.Services
         /// <param name="id">The ID of the exempt to delete.</param>
         public async Task Delete(int id)
         {
-            var exempt = await _context.Exempt.FindAsync(id);
+            var exempt = await _context.Exempts.FindAsync(id);
             if (exempt == null)
             {
                 throw new NotFoundException();
             }
 
-            _context.Exempt.Remove(exempt);
+            _context.Exempts.Remove(exempt);
             await _context.SaveChangesAsync();
 
         }
@@ -95,7 +95,7 @@ namespace Grip.Bll.Services
         /// <returns>The exempt DTO.</returns>
         public async Task<ExemptDTO> GetByUser(int id, User user)
         {
-            var exempt = await _context.Exempt.Include(e => e.IssuedBy).Include(e => e.IssuedTo).Where(e => e.Id == id).FirstOrDefaultAsync();
+            var exempt = await _context.Exempts.Include(e => e.IssuedBy).Include(e => e.IssuedTo).Where(e => e.Id == id).FirstOrDefaultAsync();
 
             if (exempt == null)
             {
@@ -115,7 +115,7 @@ namespace Grip.Bll.Services
         /// <returns>A list of all exempt DTOs.</returns>
         public async Task<IEnumerable<ExemptDTO>> GetAll()
         {
-            return (await _context.Exempt.Include(e => e.IssuedBy).Include(e => e.IssuedTo).ToListAsync()).Select(e => _mapper.Map<ExemptDTO>(e)).ToList();
+            return (await _context.Exempts.Include(e => e.IssuedBy).Include(e => e.IssuedTo).ToListAsync()).Select(e => _mapper.Map<ExemptDTO>(e)).ToList();
         }
 
         /// <summary>
@@ -125,7 +125,7 @@ namespace Grip.Bll.Services
         /// <returns>A list of exempt DTOs for the user.</returns>
         public async Task<IEnumerable<ExemptDTO>> GetAllForUser(User user)
         {
-            IQueryable<Exempt> query = _context.Exempt.Include(e => e.IssuedBy).Include(e => e.IssuedTo);
+            IQueryable<Exempt> query = _context.Exempts.Include(e => e.IssuedBy).Include(e => e.IssuedTo);
             // if user is not admin or teacher, only return exempts issued to them
             if (!await _userManager.IsInRoleAsync(user, "Admin") && !await _userManager.IsInRoleAsync(user, "Teacher"))
                 query = query.Where(e => e.IssuedTo.Id == user.Id);

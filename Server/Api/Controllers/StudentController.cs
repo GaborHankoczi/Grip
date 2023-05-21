@@ -7,17 +7,32 @@ using Grip.Bll.Services.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Server.Api.Controllers
+namespace Grip.Api.Controllers
 {
+    /// <summary>
+    /// Controller for managing students.
+    /// </summary>
     [ApiController]
     [Route("api/[controller]")]
     public class StudentController : ControllerBase
     {
         private readonly IStudentService _studentService;
+
+        /// <summary>
+        /// Constructor for the student controller.
+        /// </summary>
+        /// <param name="studentService">Student service</param>
         public StudentController(IStudentService studentService)
         {
             _studentService = studentService;
         }
+
+        /// <summary>
+        /// Returns students matching the search criteria.
+        /// </summary>
+        /// <param name="name">The string the students name should contain</param>
+        /// <param name="groupId">Id of the student</param>
+        /// <returns>List of the users matchin the criteria</returns>
         [HttpGet("Search")]
         [Authorize(Roles = "Teacher, Admin")]
         [ProducesResponseType(typeof(IEnumerable<UserInfoDTO>), StatusCodes.Status200OK)]

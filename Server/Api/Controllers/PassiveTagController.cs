@@ -12,7 +12,7 @@ using Microsoft.AspNetCore.Authorization;
 using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
 
-namespace Grip.Controllers
+namespace Grip.Api.Controllers
 {
     /// <summary>
     /// API controller for managing passive tags.

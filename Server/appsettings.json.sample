@@ -1,6 +1,21 @@
 {
+  "Host": "grip.sytes.net",
+  "Certificate": {
+    "LoadCertificate": true
+  },
+  "Attendance": {
+    "ScanAllowedBeforeClassStart": 15,
+    "ScanAllowedAfterClassStart": 15
+  },
+  "ApiKey": "dwqGta2VjLFSithQO9o5Js9JaffeAjn1x7X2xNrnHoIWyYkE5J",
+  "SMTP": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "EmailAddress": "grip.services.live@gmail.com",
+    "EmailPassword": "lkhhwavypkebyyzv"
+  },
   "ConnectionStrings": {
-    "DefaultConnection": "Server=localhost;Port=5432;Database=grip;User Id=<username>;Password=<password>;"
+    "DatabaseConnection": "Server=localhost;Port=5432;Database=grip;User Id=<username>;Password=<password>;"
   },
   "Logging": {
       "LogLevel": {
@@ -16,5 +31,10 @@
       }
     }
   },
-"AllowedHosts": "*"
+  "UseSwagger": false,
+  "AllowedHosts": "*",
+  "Station": {
+    "ApiKey": "9aaa84a2-c45e-46ec-b495-a9696ec2830a",
+    "CreateDbEntryOnKeyRequest": true
+  }
 }

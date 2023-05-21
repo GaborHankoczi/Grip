@@ -1,11 +1,14 @@
 {
   "Urls": "https://*:443",
   "Host": "grip.sytes.net",
-  "Smtp": {
-    "Host": "host.docker.internal",
-    "Port": 25
+  "SMTP": {
+    "Host": "smtp.gmail.com",
+    "Port": 587,
+    "EmailAddress": "grip.services.live@gmail.com",
+    "EmailPassword": "FswAXLCrjL5vaHN"
   },
   "Certificate": {
+    "LoadCertificate": false,
     "FullChainPath": "/etc/cert/live/grip.sytes.net/fullchain.pem",
     "KeyPath": "/etc/cert/live/grip.sytes.net/privkey.pem"
   },

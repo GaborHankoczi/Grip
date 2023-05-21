@@ -13,8 +13,6 @@ using Grip.Bll.Exceptions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Grip.Bll.Providers;
-using Server.Bll.Services;
-using Server.Bll.Providers;
 using Grip.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);

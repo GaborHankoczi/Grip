@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Grip.Bll.Services
 {
+    /// <summary>
+    /// Represents a service for managing users.
+    /// </summary>
     public class UserService : IUserService
     {
         private readonly ILogger<UserService> _logger;
@@ -20,7 +23,16 @@ namespace Grip.Bll.Services
         private readonly IEmailService _emailService;
 
 
-
+        /// <summary>
+        /// Initializes a new instance of the UserService class.
+        /// </summary>
+        /// <param name="logger">The logger.</param>
+        /// <param name="context">The application database context.</param>
+        /// <param name="userManager">The user manager.</param>
+        /// <param name="signInManager">The sign-in manager.</param>
+        /// <param name="roleManager">The role manager.</param>
+        /// <param name="mapper">The AutoMapper instance.</param>
+        /// <param name="emailService">The email service.</param>
         public UserService(ILogger<UserService> logger, ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager, IMapper mapper, IEmailService emailService)
         {
             _logger = logger;
@@ -31,11 +43,26 @@ namespace Grip.Bll.Services
             _mapper = mapper;
             _emailService = emailService;
         }
-        public Task AddRole(int userId, string role)
+        /// <summary>
+        /// Adds a role to a user.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="role">The role to add.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
+        public async Task AddRole(int userId, string role)
         {
-            throw new NotImplementedException();
+            var user = await _userManager.FindByIdAsync(userId.ToString()) ?? throw new NotFoundException("User not found.");
+            if (!await _roleManager.RoleExistsAsync(role))
+                throw new NotFoundException("Role not found.");
+            await _userManager.AddToRoleAsync(user, role);
         }
 
+
+        /// <summary>
+        /// Confirms the email for a user.
+        /// </summary>
+        /// <param name="confirmEmailDTO">The confirm email DTO.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task ConfirmEmail(ConfirmEmailDTO confirmEmailDTO)
         {
             var user = await _userManager.FindByEmailAsync(confirmEmailDTO.Email);
@@ -65,6 +92,11 @@ namespace Grip.Bll.Services
             }
         }
 
+        /// <summary>
+        /// Creates a new user.
+        /// </summary>
+        /// <param name="user">The register user DTO.</param>
+        /// <returns>The created user DTO.</returns>
         public async Task<UserDTO> Create(RegisterUserDTO user)
         {
             var result = await _userManager.CreateAsync(new User { UserName = user.Name, Email = user.Email });
@@ -84,6 +116,11 @@ namespace Grip.Bll.Services
             }
         }
 
+        /// <summary>
+        /// Deletes a user.
+        /// </summary>
+        /// <param name="id">The ID of the user.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Delete(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
@@ -103,6 +140,11 @@ namespace Grip.Bll.Services
             }
         }
 
+        /// <summary>
+        /// Sends a password reset email to the user.
+        /// </summary>
+        /// <param name="forgotPassword">The forgot password DTO.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task ForgotPassword(ForgotPasswordDTO forgotPassword)
         {
             var user = await _userManager.FindByEmailAsync(forgotPassword.Email);
@@ -117,6 +159,11 @@ namespace Grip.Bll.Services
 
         }
 
+        /// <summary>
+        /// Retrieves a user by ID.
+        /// </summary>
+        /// <param name="id">The ID of the user.</param>
+        /// <returns>The user DTO.</returns>
         public async Task<UserDTO> Get(int id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
@@ -127,11 +174,20 @@ namespace Grip.Bll.Services
             return _mapper.Map<UserDTO>(user);
         }
 
+        /// <summary>
+        /// Retrieves all users.
+        /// </summary>
+        /// <returns>A collection of user DTOs.</returns>
         public async Task<IEnumerable<UserDTO>> GetAll()
         {
             return _context.Users.Select(u => _mapper.Map<UserDTO>(u)).ToList();
         }
 
+        /// <summary>
+        /// Logs in a user with the provided credentials.
+        /// </summary>
+        /// <param name="login">The login user DTO.</param>
+        /// <returns>The login result DTO.</returns>
         public async Task<LoginResultDTO> Login(LoginUserDTO login)
         {
             var dbUser = await _userManager.FindByEmailAsync(login.Email);
@@ -158,6 +214,12 @@ namespace Grip.Bll.Services
             throw new UnauthorizedException("Invalid email or password.");
         }
 
+        /// <summary>
+        /// Removes a role from a user.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <param name="roleId">The ID of the role.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task RemoveRole(int userId, string roleId)
         {
             var user = await _userManager.FindByIdAsync(userId.ToString());
@@ -176,6 +238,11 @@ namespace Grip.Bll.Services
             }
         }
 
+        /// <summary>
+        /// Resets the password for a user.
+        /// </summary>
+        /// <param name="dto">The reset password DTO.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task ResetPassword(ResetPasswordDTO dto)
         {
             var user = await _userManager.FindByEmailAsync(dto.Email);
@@ -194,6 +261,11 @@ namespace Grip.Bll.Services
             }
         }
 
+        /// <summary>
+        /// Updates a user.
+        /// </summary>
+        /// <param name="user">The user DTO.</param>
+        /// <returns>A task representing the asynchronous operation.</returns>
         public async Task Update(UserDTO user)
         {
             var dbUser = await _userManager.FindByIdAsync(user.Id.ToString());

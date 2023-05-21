@@ -4,8 +4,14 @@ using Grip.DAL.Model;
 
 namespace Grip.DAL
 {
+    /// <summary>
+    /// Mapping profile for AutoMapper.
+    /// </summary>
     public class MappingProfile : Profile
     {
+        /// <summary>
+        /// Initializes a new instance of the MappingProfile class.
+        /// </summary>
         public MappingProfile()
         {
             CreateMap<User, UserDTO>().ReverseMap();

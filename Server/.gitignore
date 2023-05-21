@@ -234,3 +234,6 @@ _Pvt_Extensions
 
 # AppSettings file
 appsettings.json
+
+# Doxygen files
+Doc/Doxygen/*

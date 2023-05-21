@@ -31,7 +31,7 @@ public class StationController : ControllerBase
     /// <summary>
     /// Gets the secret key for a specific station.
     /// </summary>
-    /// <param name="stationNumber">The number of the station.</param>
+    /// <param name="StationNumber">The number of the station.</param>
     /// <returns>An <see cref="ActionResult{T}"/> representing the result of the operation.</returns>
     /// <remarks>
     /// This function is accessible via HTTP GET request.

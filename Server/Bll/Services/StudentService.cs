@@ -6,18 +6,28 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Grip.Bll.DTO;
 using Grip.Bll.Exceptions;
+using Grip.Bll.Providers;
 using Grip.Bll.Services.Interfaces;
 using Grip.DAL;
 using Microsoft.EntityFrameworkCore;
-using Server.Bll.Providers;
 
-namespace Server.Bll.Services
+namespace Grip.Bll.Services
 {
+    /// <summary>
+    /// Service for managing students
+    /// </summary>
     public class StudentService : IStudentService
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly ICurrentTimeProvider _currentTimeProvider;
+
+        /// <summary>
+        /// Constructor for the student service
+        /// </summary>
+        /// <param name="context">Database context</param>
+        /// <param name="mapper">Auto mapper</param>
+        /// <param name="currentTimeProvider">Current time provider</param>
         public StudentService(ApplicationDbContext context, IMapper mapper, ICurrentTimeProvider currentTimeProvider)
         {
             _context = context;

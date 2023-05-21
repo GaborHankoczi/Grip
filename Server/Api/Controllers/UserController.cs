@@ -29,7 +29,17 @@ public class UserController : ControllerBase
     private readonly IUserService _userService;
 
 
-
+    /// <summary>
+    /// Constructor for the user controller.
+    /// </summary>
+    /// <param name="logger">Logger for logging</param>
+    /// <param name="context">Database context</param>
+    /// <param name="userManager">User manager</param>
+    /// <param name="signInManager">Sign in manager</param>
+    /// <param name="roleManager">Role manager</param>
+    /// <param name="mapper">Auto mapper</param>
+    /// <param name="emailService">Eamil service</param>
+    /// <param name="userService">User service</param>
     public UserController(ILogger<User> logger, ApplicationDbContext context, UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager, IMapper mapper, IEmailService emailService, IUserService userService)
     {
         _logger = logger;

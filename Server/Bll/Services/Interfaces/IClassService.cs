@@ -2,6 +2,10 @@ using Grip.Bll.DTO;
 using Grip.DAL.Model;
 
 namespace Grip.Bll.Services.Interfaces;
+
+/// <summary>
+/// Interface for the class service
+/// </summary>
 public interface IClassService : IRestInterface<CreateClassDTO, ClassDTO, ClassDTO>
 {
     /// <summary>

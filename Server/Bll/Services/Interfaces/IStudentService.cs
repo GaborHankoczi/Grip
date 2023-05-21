@@ -2,6 +2,9 @@ using Grip.Bll.DTO;
 
 namespace Grip.Bll.Services.Interfaces
 {
+    /// <summary>
+    /// Interface for the student service
+    /// </summary>
     public interface IStudentService
     {
         /// <summary>

@@ -19,13 +19,6 @@ namespace Grip.Bll.Services.Interfaces
         public Task<LoginResultDTO> Login(LoginUserDTO dto);
 
         /// <summary>
-        /// Deletes a user with the specified ID.
-        /// </summary>
-        /// <param name="id">The ID of the user to delete.</param>
-        /// <returns>A task representing the asynchronous deletion of the user.</returns>
-        public Task Delete(int id);
-
-        /// <summary>
         /// Confirms the email of a user with the specified data.
         /// </summary>
         /// <param name="dto">The data for confirming the email.</param>

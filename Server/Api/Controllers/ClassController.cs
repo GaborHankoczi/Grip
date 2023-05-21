@@ -13,8 +13,11 @@ using AutoMapper;
 using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
 
-namespace Grip.Controllers
+namespace Grip.Api.Controllers
 {
+    /// <summary>
+    /// Endpoint for managing classes
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ClassController : ControllerBase
@@ -24,6 +27,13 @@ namespace Grip.Controllers
         private readonly IMapper _mapper;
         private readonly IClassService _classService;
 
+        /// <summary>
+        /// Constructor for the class controller
+        /// </summary>
+        /// <param name="context">Database context</param>
+        /// <param name="userManager">User manager</param>
+        /// <param name="mapper">Auto mappre</param>
+        /// <param name="classService">Class service</param>
         public ClassController(ApplicationDbContext context, UserManager<User> userManager, IMapper mapper, IClassService classService)
         {
             _context = context;

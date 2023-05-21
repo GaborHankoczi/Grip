@@ -8,7 +8,6 @@ using Grip.Bll.Providers;
 using Microsoft.AspNetCore.SignalR;
 using Grip.Api.Hubs;
 using Grip.Bll.Exceptions;
-using Server.Bll.Providers;
 
 namespace Grip.Bll.Services;
 
@@ -74,7 +73,6 @@ public class AttendanceService : IAttendanceService
                 User = user
             };
             _context.Attendances.Add(attendance);
-            var signalRContext =
             await _context.SaveChangesAsync();
         }
         else
@@ -144,6 +142,7 @@ public class AttendanceService : IAttendanceService
                 c.Group.Users.First(u => u.Id == user.Id).Attendances.Any(a => a.Time >= c.StartDateTime.AddMinutes(-15) && a.Time <= c.StartDateTime.AddMinutes(15)),
                 c.Group.Users.First(u => u.Id == user.Id).Attendances.First(a => a.Time >= c.StartDateTime.AddMinutes(-15) && a.Time <= c.StartDateTime.AddMinutes(15)).Time
             )).ToListAsync();
+        // Todo check if attendance is at the same place as the class
 
         return attendanceDTOs;
     }

@@ -4,6 +4,8 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Grip.Pages;
 
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+
 [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
 public class ErrorModel : PageModel
 {
@@ -23,3 +25,4 @@ public class ErrorModel : PageModel
         RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
     }
 }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member

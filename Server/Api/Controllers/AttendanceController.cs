@@ -10,6 +10,10 @@ using Grip.Bll.Services.Interfaces;
 
 namespace Grip.Controllers;
 
+
+/// <summary>
+/// Controller for handling attendance
+/// </summary>
 [ApiController]
 [Route("api/[controller]")]
 public class AttendanceController : ControllerBase
@@ -20,6 +24,14 @@ public class AttendanceController : ControllerBase
     private readonly ApplicationDbContext _context;
     private readonly IAttendanceService _attendanceService;
 
+    /// <summary>
+    /// Constructor for AttendanceController
+    /// </summary>
+    /// <param name="logger">Logger for logging</param>
+    /// <param name="userManager">User manager</param>
+    /// <param name="configuration">Configuration</param>
+    /// <param name="context">Database context</param>
+    /// <param name="attendanceService">Attendance service</param>
     public AttendanceController(ILogger<AttendanceController> logger, UserManager<DAL.Model.User> userManager, IConfiguration configuration, ApplicationDbContext context, IAttendanceService attendanceService)
     {
         _logger = logger;

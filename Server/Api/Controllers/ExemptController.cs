@@ -9,8 +9,11 @@ using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
 using Grip.Bll.Exceptions;
 
-namespace Grip.Controllers
+namespace Grip.Api.Controllers
 {
+    /// <summary>
+    /// Endpoint for managing exempt items
+    /// </summary>
     [Route("api/[controller]")]
     [ApiController]
     public class ExemptController : ControllerBase
@@ -21,7 +24,14 @@ namespace Grip.Controllers
         private readonly RoleManager<Role> _roleManager;
         private readonly IExemptService _exemptService;
 
-
+        /// <summary>
+        /// Constructor for the exempt controller
+        /// </summary>
+        /// <param name="context">Database context</param>
+        /// <param name="mapper">Auto mapper</param>
+        /// <param name="userManager">User manager</param>
+        /// <param name="roleManager">Role manager</param>
+        /// <param name="exemptService">Exempt service</param>
         public ExemptController(ApplicationDbContext context, IMapper mapper, UserManager<User> userManager, RoleManager<Role> roleManager, IExemptService exemptService)
         {
             _context = context;
@@ -49,7 +59,7 @@ namespace Grip.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<ExemptDTO>>> GetExempt()
         {
-            IQueryable<Exempt> query = _context.Exempt.Include(e => e.IssuedBy).Include(e => e.IssuedTo);
+            IQueryable<Exempt> query = _context.Exempts.Include(e => e.IssuedBy).Include(e => e.IssuedTo);
             // if user is not admin or teacher, only return exempts issued to them
             User user = await _userManager.GetUserAsync(User) ?? throw new Exception("User not found");
             if (!await _userManager.IsInRoleAsync(user, "Admin") && !await _userManager.IsInRoleAsync(user, "Teacher"))
@@ -70,7 +80,7 @@ namespace Grip.Controllers
         public async Task<ActionResult<ExemptDTO>> GetExempt(int id)
         {
             var exempt = await _exemptService.Get(id);
-            var user = await _userManager.GetUserAsync(User); // get loggegd in user
+            var user = await _userManager.GetUserAsync(User) ?? throw new Exception("Logged in user not found"); // get loggegd in user
             // teachers and admins can read any exempts, students can only read their own
             if (!await _userManager.IsInRoleAsync(user, Role.Admin) && !await _userManager.IsInRoleAsync(user, Role.Teacher) && exempt.IssuedTo.Id != user.Id)
                 return Unauthorized();
@@ -109,16 +119,6 @@ namespace Grip.Controllers
             await _exemptService.Delete(id);
 
             return NoContent();
-        }
-
-        /// <summary>
-        /// Checks if a group exists by its ID.
-        /// </summary>
-        /// <param name="id">The ID of the group to check.</param>
-        /// <returns><c>true</c> if the group exists; otherwise, <c>false</c>.</returns>
-        private bool ExemptExists(int id)
-        {
-            return (_context.Exempt?.Any(e => e.Id == id)).GetValueOrDefault();
         }
     }
 }
