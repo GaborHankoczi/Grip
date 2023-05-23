@@ -69,7 +69,7 @@ namespace Grip.Bll.Services
         /// <param name="userId">The ID of the user to add.</param>
         public async Task AddUserToGroup(int groupId, int userId)
         {
-            var group = await _context.Groups.FindAsync(groupId);
+            var group = await _context.Groups.Include(g => g.Users).Where(g => g.Id == groupId).FirstOrDefaultAsync();
             if (group == null)
             {
                 throw new NotFoundException();

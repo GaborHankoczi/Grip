@@ -39,13 +39,15 @@ public class ClassService : IClassService
     {
         var group = await _context.Groups.FindAsync(dto.GroupId);
         var teacher = await _userManager.FindByIdAsync(dto.TeacherId.ToString());
-        if (group == null || teacher == null)
+        var station = await _context.Stations.FindAsync(dto.StationId);
+        if (group == null || teacher == null || station == null)
         {
             throw new BadRequestException();
         }
         Class newClass = _mapper.Map<Class>(dto);
         newClass.Group = group;
         newClass.Teacher = teacher;
+        newClass.Station = station;
         _context.Classes.Add(newClass);
         await _context.SaveChangesAsync();
         return _mapper.Map<ClassDTO>(newClass);

@@ -187,6 +187,17 @@ var logger = scope.ServiceProvider.GetRequiredService<ILogger<User>>();
 
 var hostName = builder.Configuration.GetValue<string>("Host") ?? throw new Exception("HostName not found in configuration");
 
+var roles = new[] { "Student", "Teacher", "Admin", "Doorman" };
+
+foreach (var role in roles)
+{
+    if ((await roleManager.FindByNameAsync(role)) == null)
+    {
+        logger.LogInformation($"No {role} role found, creating it");
+        await roleManager.CreateAsync(new Role { Name = role, NormalizedName = role.ToUpper() });
+    }
+}
+
 // Create admin user if not exists
 if (!(await userManager.GetUsersInRoleAsync("Admin")).Any())
 {
@@ -205,6 +216,7 @@ if (!(await userManager.GetUsersInRoleAsync("Admin")).Any())
         await userManager.UpdateAsync(user);
     }
 }
+
 /*
 var hmacProvieder = new HMACTokenProvider();
 var hmacToken = hmacProvieder.GenerateToken("a","1_1681290689_1270216262");
