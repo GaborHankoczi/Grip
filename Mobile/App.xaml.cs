@@ -1,5 +1,4 @@
-﻿using Plugin.NFC;
-using System.Diagnostics;
+﻿using GripMobile.View;
 
 namespace GripMobile;
 

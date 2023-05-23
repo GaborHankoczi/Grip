@@ -19,7 +19,7 @@ namespace GripMobile.ViewModel
         private string emailAddress = "";
 
         [ObservableProperty]
-        private string token = "";
+        private string givenToken = "";
 
         [ObservableProperty]
         private string newPassword = "";
@@ -54,7 +54,7 @@ namespace GripMobile.ViewModel
         async void ConfirmEmail()
         {
             //Check if the given data has the correct format.
-            if(!EmailAddressRegex().IsMatch(EmailAddress) || Token.Length != 6 || !PasswordRegex().IsMatch(NewPassword) || !PasswordRegex().IsMatch(NewPasswordAgain))
+            if(!EmailAddressRegex().IsMatch(EmailAddress) || GivenToken.Length != 6 || !PasswordRegex().IsMatch(NewPassword) || !PasswordRegex().IsMatch(NewPasswordAgain))
             {
                 toast = Toast.Make("A megadott adatok formátuma helytelen!", ToastDuration.Long, 14.0);
 
@@ -78,7 +78,7 @@ namespace GripMobile.ViewModel
                 userData = new()
                 {
                     Email = EmailAddress,
-                    Token = Token,
+                    Token = GivenToken,
                     Password = NewPassword
                 };
 
@@ -100,7 +100,7 @@ namespace GripMobile.ViewModel
                 }
                 else
                 {
-                    toast = Toast.Make("Az e-mail cím megerősítése sikertelen. Próbálja újra!", ToastDuration.Long, 14.0);
+                    toast = Toast.Make($"Az e-mail cím megerősítése sikertelen. Próbálja újra! {result}", ToastDuration.Long, 14.0);
 
                     await toast.Show(cancellationTokenSource.Token);
 

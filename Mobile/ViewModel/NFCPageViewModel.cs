@@ -38,8 +38,8 @@ namespace GripMobile.ViewModel
         public const string ALERT_TITLE = "NFC";
         public const string MIME_TYPE = "application/com.companyname.nfcsample";
 
-        NFCNdefTypeFormat _type;
-        bool _makeReadOnly = false;
+        //NFCNdefTypeFormat _type;
+        //bool _makeReadOnly = false;
         bool _eventsAlreadySubscribed = false;
         bool _isDeviceiOS = false;
 

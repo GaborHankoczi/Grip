@@ -5,9 +5,9 @@
              xmlns:viewmodel="clr-namespace:GripMobile.ViewModel"
              x:DataType="viewmodel:NFCPageViewModel"
              Title="Jelenlét regisztrálása"
-             BackgroundColor="White">
+             BackgroundColor="White" >
 
-    <AbsoluteLayout Margin="25">
+    <AbsoluteLayout Margin="25" >
 
         <Label
             Text="{Binding LabelText}"
@@ -26,4 +26,5 @@
             AbsoluteLayout.LayoutFlags="All" />
 
     </AbsoluteLayout>
+    
 </ContentPage>

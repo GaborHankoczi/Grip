@@ -15,7 +15,7 @@
 		<ApplicationTitle>GripMobile</ApplicationTitle>
 
 		<!-- App Identifier -->
-		<ApplicationId>com.companyname.1.gripmobile</ApplicationId>
+		<ApplicationId>com.companyname.gripmobile</ApplicationId>
 		<ApplicationIdGuid>9619c8ce-65ec-4ba8-885a-f51aaf1471cd</ApplicationIdGuid>
 
 		<!-- Versions -->
@@ -61,10 +61,19 @@
 	  <Compile Update="View\ForgotPasswordPopup.xaml.cs">
 	    <DependentUpon>ForgotPasswordPopup.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="View\CurrentClassesPage.xaml.cs">
+	    <DependentUpon>CurrentClassesPage.xaml</DependentUpon>
+	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="View\ExemptPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\ForgotPasswordPopup.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\GiveExemptPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\LoginPage.xaml">
@@ -73,13 +82,19 @@
 	  <MauiXaml Update="View\FirstLoginPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
+	  <MauiXaml Update="View\CurrentClassesPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\NFCPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\RegisterUserPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\ResetPasswordPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
-	  <MauiXaml Update="View\UserDetailsPage.xaml">
+	  <MauiXaml Update="View\UserListPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	</ItemGroup>

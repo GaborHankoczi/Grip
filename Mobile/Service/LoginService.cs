@@ -10,12 +10,8 @@ namespace GripMobile.Service
     /// </summary>
     public class LoginService
     {
-        private readonly HttpClient httpClient;
-
         /// <value>Property <c>user</c> stores the server's response.</value>
         private LoginResultDTO user = new();
-
-        public LoginService() => httpClient = new HttpClient();
 
         /// <summary>
         /// Method <c>CheckUserCredentials</c> sends a POST request with the given user data to the server.
@@ -29,7 +25,7 @@ namespace GripMobile.Service
                 string json = JsonSerializer.Serialize(userData);
                 StringContent content = new(json, Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync("https://nloc.duckdns.org:8025/api/User/Login", content);
+                var response = await HttpClientSingleton.httpClient.PostAsync("https://nloc.duckdns.org:8025/api/User/Login", content);
 
                 if (response.IsSuccessStatusCode)
                 {

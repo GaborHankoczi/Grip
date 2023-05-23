@@ -81,8 +81,15 @@ namespace GripMobile.ViewModel
                     return;
                 }
 
-                //TODO: a role-oknak megfelelő oldalra kell továbbítani a felhasználót.
-                await Shell.Current.GoToAsync(nameof(UserDetailsPage));
+                if (result.Roles.Contains("Student"))
+                {
+                    await Shell.Current.GoToAsync("//StudentInterface");
+                }
+                else if (result.Roles.Contains("Admin"))
+                {
+                    await Shell.Current.GoToAsync("//AdminInterface");
+                }
+                else { await Shell.Current.GoToAsync("//TeacherInterface"); }
             }
             catch (Exception exception)
             {
