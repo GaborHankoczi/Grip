@@ -25,7 +25,7 @@
             AbsoluteLayout.LayoutFlags="All"/>
 
         <Entry
-            Text="{Binding Token}"
+            Text="{Binding GivenToken}"
             Keyboard="Numeric"
             ReturnType="Next"
             Placeholder="Token"

@@ -30,9 +30,6 @@ public static class MauiProgram
         builder.Services.AddTransient<ForgotPasswordPopupViewModel>();
         builder.Services.AddTransient<ForgotPasswordService>();
 
-        builder.Services.AddTransient<UserDetailsPage>();
-        builder.Services.AddTransient<UserDetailsPageViewModel>();
-
         builder.Services.AddTransient<FirstLoginPage>();
         builder.Services.AddTransient<FirstLoginPageViewModel>();
         builder.Services.AddTransient<FirstLoginService>();
@@ -44,6 +41,22 @@ public static class MauiProgram
         builder.Services.AddTransient<NFCPage>();
         builder.Services.AddTransient<NFCPageViewModel>();
         builder.Services.AddTransient<NFCService>();
+
+        builder.Services.AddTransient<CurrentClassesPage>();
+        builder.Services.AddTransient<CurrentClassesPageViewModel>();
+        builder.Services.AddTransient<CurrentClassesService>();
+
+        builder.Services.AddTransient<ExemptPage>();
+        builder.Services.AddTransient<ExemptPageViewModel>();
+        builder.Services.AddTransient<ExemptGetService>();
+
+        builder.Services.AddTransient<UserListPage>();
+        builder.Services.AddTransient<UserListPageViewModel>();
+        builder.Services.AddTransient<UserListService>();
+
+        builder.Services.AddTransient<RegisterUserPage>();
+        builder.Services.AddTransient<RegisterUserPageViewModel>();
+        builder.Services.AddTransient<RegisterUserService>();
 
         return builder.Build();
     }

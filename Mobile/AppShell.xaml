@@ -4,11 +4,51 @@
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:GripMobile.View"
-    Shell.FlyoutBehavior="Disabled">
+    Shell.FlyoutBehavior="Disabled" >
 
     <ShellContent
         Title="Home"
-        ContentTemplate="{DataTemplate local:NFCPage}"
+        ContentTemplate="{DataTemplate local:MainPage}"
         Route="MainPage" />
+
+    <TabBar Route="StudentInterface" Shell.TabBarUnselectedColor="Black" >
+
+        <Tab Title="NFC"
+             Icon="nfc_icon.png">
+            <ShellContent ContentTemplate="{DataTemplate local:NFCPage}" />
+        </Tab>
+
+        <Tab Title="Órarend"
+             Icon="time.png">
+            <ShellContent ContentTemplate="{DataTemplate local:CurrentClassesPage}" />
+        </Tab>
+
+        <Tab Title="Kikérők">
+            <ShellContent ContentTemplate="{DataTemplate local:ExemptPage}" />
+        </Tab>
+
+    </TabBar>
+
+    <TabBar Route="AdminInterface" Shell.TabBarUnselectedColor="Black" >
+
+        <Tab Title="Felhasználók">
+            <ShellContent ContentTemplate="{DataTemplate local:UserListPage}" />
+        </Tab>
+
+        <Tab Title="Hozzáadás">
+            <ShellContent ContentTemplate="{DataTemplate local:RegisterUserPage}" />
+        </Tab>
+
+    </TabBar>
+
+    <TabBar Route="TeacherInterface" Shell.TabBarUnselectedColor="Black" >
+
+        <Tab Title="Felhasználók">
+            <ShellContent ContentTemplate="{DataTemplate local:UserListPage}" />
+        </Tab>
+
+       
+
+    </TabBar>
 
 </Shell>

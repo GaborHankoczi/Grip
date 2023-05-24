@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GripMobile.View.CurrentClassesPage"
+             xmlns:viewmodel="clr-namespace:GripMobile.ViewModel"
+             xmlns:model="clr-namespace:GripMobile.Model"
+             x:DataType="viewmodel:CurrentClassesPageViewModel"
+             Title="Órarend">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding UpdateClassesCommand}">
+        
+        <ListView SeparatorVisibility="None" ItemsSource="{Binding CurrentObservableClasses}">
+            <ListView.ItemTemplate>
+                <DataTemplate x:DataType="model:ClassDTO">
+                    <ViewCell>
+                        <Grid Padding="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Text="{Binding Name}"
+                               FontAttributes="Bold"/>
+                            <Label Grid.Row="1"
+                               Text="{Binding StartDateTime}"/>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+        
+    </RefreshView>
+
+</ContentPage>

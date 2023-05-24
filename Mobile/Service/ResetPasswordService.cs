@@ -10,10 +10,6 @@ namespace GripMobile.Service
     /// </summary>
     public class ResetPasswordService
     {
-        private readonly HttpClient httpClient;
-        
-        public ResetPasswordService() => httpClient = new HttpClient();
-
         /// <summary>
         /// Method <c>ResetPassword</c> sends a POST request with the given user data to the server.
         /// </summary>
@@ -26,7 +22,7 @@ namespace GripMobile.Service
                 string json = JsonSerializer.Serialize(userData);
                 StringContent content = new(json, Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync("https://nloc.duckdns.org:8025/api/User/ResetPassword", content);
+                var response = await HttpClientSingleton.httpClient.PostAsync("https://nloc.duckdns.org:8025/api/User/ResetPassword", content);
 
                 return response.StatusCode;
             }

@@ -10,10 +10,6 @@ namespace GripMobile.Service
     /// </summary>
     public class NFCService
     {
-        private readonly HttpClient httpClient;
-
-        public NFCService() => httpClient = new HttpClient();
-
         public async Task<HttpStatusCode> RegisterAttendance(ActiveAttendanceDTO data)
         {
             try
@@ -21,7 +17,7 @@ namespace GripMobile.Service
                 string json = JsonSerializer.Serialize(data);
                 StringContent content = new(json, Encoding.UTF8, "application/json");
 
-                var response = await httpClient.PostAsync("https://nloc.duckdns.org:8025/api/Attendance", content);
+                var response = await HttpClientSingleton.httpClient.PostAsync("https://nloc.duckdns.org:8025/api/Attendance", content);
 
                 return response.StatusCode;
             }
