@@ -1,2 +1,4 @@
 Server/appsettings.TestEnvironment.json
 /Mobile/.vs
+/Mobile/bin/Debug
+/Mobile/obj
