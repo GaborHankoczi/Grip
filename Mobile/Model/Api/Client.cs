@@ -60,9 +60,9 @@ namespace GripMobile.Model.Api
         /// </summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AttendancePOSTAsync(ActiveAttendanceDTO body)
+        public virtual System.Threading.Tasks.Task AttendanceAsync(ActiveAttendanceDTO body)
         {
-            return AttendancePOSTAsync(body, System.Threading.CancellationToken.None);
+            return AttendanceAsync(body, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -71,7 +71,7 @@ namespace GripMobile.Model.Api
         /// </summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AttendancePOSTAsync(ActiveAttendanceDTO body, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task AttendanceAsync(ActiveAttendanceDTO body, System.Threading.CancellationToken cancellationToken)
         {
             var urlBuilder_ = new System.Text.StringBuilder();
             urlBuilder_.Append(BaseUrl != null ? BaseUrl.TrimEnd('/') : "").Append("/api/Attendance");
@@ -259,9 +259,9 @@ namespace GripMobile.Model.Api
         /// </summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual System.Threading.Tasks.Task AttendanceGETAsync(System.DateTimeOffset date)
+        public virtual System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AttendanceDTO>> AttendanceAllAsync(System.DateTimeOffset date)
         {
-            return AttendanceGETAsync(date, System.Threading.CancellationToken.None);
+            return AttendanceAllAsync(date, System.Threading.CancellationToken.None);
         }
 
         /// <param name="cancellationToken">A cancellation token that can be used by other objects or threads to receive notice of cancellation.</param>
@@ -270,7 +270,7 @@ namespace GripMobile.Model.Api
         /// </summary>
         /// <returns>Success</returns>
         /// <exception cref="ApiException">A server side error occurred.</exception>
-        public virtual async System.Threading.Tasks.Task AttendanceGETAsync(System.DateTimeOffset date, System.Threading.CancellationToken cancellationToken)
+        public virtual async System.Threading.Tasks.Task<System.Collections.Generic.ICollection<AttendanceDTO>> AttendanceAllAsync(System.DateTimeOffset date, System.Threading.CancellationToken cancellationToken)
         {
             if (date == null)
                 throw new System.ArgumentNullException("date");
@@ -286,6 +286,7 @@ namespace GripMobile.Model.Api
                 using (var request_ = new System.Net.Http.HttpRequestMessage())
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
+                    request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
 
                     PrepareRequest(client_, request_, urlBuilder_);
 
@@ -310,7 +311,12 @@ namespace GripMobile.Model.Api
                         var status_ = (int)response_.StatusCode;
                         if (status_ == 200)
                         {
-                            return;
+                            var objectResponse_ = await ReadObjectResponseAsync<System.Collections.Generic.ICollection<AttendanceDTO>>(response_, headers_, cancellationToken).ConfigureAwait(false);
+                            if (objectResponse_.Object == null)
+                            {
+                                throw new ApiException("Response was null which was not expected.", status_, objectResponse_.Text, headers_, null);
+                            }
+                            return objectResponse_.Object;
                         }
                         else
                         if (status_ == 400)
@@ -4445,6 +4451,47 @@ namespace GripMobile.Model.Api
 
         [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
         public string Token { get; set; }
+
+    }
+
+    /// <summary>
+    /// A record that represents a users attendance at a class, or lack thereof
+    /// </summary>
+    [System.CodeDom.Compiler.GeneratedCode("NJsonSchema", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
+    public partial class AttendanceDTO
+    {
+
+        [System.Text.Json.Serialization.JsonPropertyName("class")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public ClassDTO Class { get; set; }
+
+        /// <summary>
+        /// Whether the user has an exempt for the class
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("hasExempt")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public bool HasExempt { get; set; }
+
+        /// <summary>
+        /// Whether the user was present at the class
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("present")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public bool Present { get; set; }
+
+        /// <summary>
+        /// Scan time if Present is true, null otherwise
+        /// </summary>
+
+        [System.Text.Json.Serialization.JsonPropertyName("authenticationTime")]
+
+        [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+        public System.DateTimeOffset? AuthenticationTime { get; set; }
 
     }
 

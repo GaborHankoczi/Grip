@@ -19,7 +19,11 @@ namespace GripMobile.ViewModel
 
         private readonly ExemptGetService exemptGetService;
 
-        public ExemptPageViewModel(ExemptGetService exemptGetService) => this.exemptGetService = exemptGetService;
+        public ExemptPageViewModel(ExemptGetService exemptGetService) 
+        { 
+            this.exemptGetService = exemptGetService;
+            UpdateExempts();
+        }
 
         /// <value>Property <c>cancellationTokenSource</c> is needed for closing the toast messages.</value>
         private CancellationTokenSource cancellationTokenSource = new();
