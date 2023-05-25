@@ -3,6 +3,7 @@ using GripMobile.ViewModel;
 using GripMobile.View;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
+using GripMobile.Model.Api;
 
 namespace GripMobile;
 public static class MauiProgram
@@ -57,6 +58,8 @@ public static class MauiProgram
         builder.Services.AddTransient<RegisterUserPage>();
         builder.Services.AddTransient<RegisterUserPageViewModel>();
         builder.Services.AddTransient<RegisterUserService>();
+
+        builder.Services.AddTransient<Client>();
 
         return builder.Build();
     }

@@ -2,7 +2,7 @@
 using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using GripMobile.Model;
+using GripMobile.Model.Api;
 using GripMobile.Service;
 using System.Collections.ObjectModel;
 
@@ -14,11 +14,18 @@ namespace GripMobile.ViewModel
         private bool isRefreshing;
 
         [ObservableProperty]
-        public ObservableCollection<UserDTO> currentObservableUsers;
+        public ObservableCollection<UserInfoDTO> currentObservableUsers;
 
         private readonly UserListService userListService;
 
-        public UserListPageViewModel(UserListService userListService) => this.userListService = userListService;
+        private Client api;
+
+        public UserListPageViewModel(UserListService userListService, Client client)
+        {
+            this.userListService = userListService;
+            api = client;
+            GetUsers();
+        }
 
         [RelayCommand]
         public async void GetUsers()
@@ -27,9 +34,9 @@ namespace GripMobile.ViewModel
 
             try
             {
-                List<UserDTO> users = await userListService.GetUsers();
+                ICollection<UserInfoDTO> users = await api.SearchAsync("",null);
 
-                CurrentObservableUsers = new ObservableCollection<UserDTO>(users);
+                CurrentObservableUsers = new ObservableCollection<UserInfoDTO>(users);
             }
             catch (Exception exception)
             {
