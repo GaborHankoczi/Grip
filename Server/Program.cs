@@ -17,6 +17,11 @@ using Grip.Api.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if (builder.Configuration["Proxy:UseProxy"] == "true")
+{
+    System.Net.WebRequest.DefaultWebProxy = new System.Net.WebProxy(builder.Configuration["Proxy:ProxyUrl"]);
+}
+
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection");
 builder.Services.AddDbContext<ApplicationDbContext>();
@@ -183,6 +188,7 @@ app.MapHub<StationHub>("/hubs/station");
 using var scope = app.Services.CreateScope();
 using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 using var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 var logger = scope.ServiceProvider.GetRequiredService<ILogger<User>>();
 
 var hostName = builder.Configuration.GetValue<string>("Host") ?? throw new Exception("HostName not found in configuration");
@@ -217,10 +223,10 @@ if (!(await userManager.GetUsersInRoleAsync("Admin")).Any())
     }
 }
 
-/*
+
+string key = "6a9a7384-a972-4520-bbcd-68a1350cabac";//dbContext.Stations.Find(1).SecretKey;
 var hmacProvieder = new HMACTokenProvider();
-var hmacToken = hmacProvieder.GenerateToken("a","1_1681290689_1270216262");
+var hmacToken = hmacProvieder.GenerateToken(key, "1_1685086218_1270216262");
 logger.LogInformation($"Generated token: {hmacToken}");
-*/
 
 app.Run();

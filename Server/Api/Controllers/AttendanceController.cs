@@ -87,9 +87,9 @@ public class AttendanceController : ControllerBase
     /// </summary>
     [HttpGet("{date}")]
     [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AttendanceDTO>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> GetAttendanceForDay(DateOnly date)
+    public async Task<ActionResult<IEnumerable<AttendanceDTO>>> GetAttendanceForDay(DateOnly date)
     {
         var User = await _userManager.FindByIdAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
         var attendance = await _attendanceService.GetAttendanceForDay(User, date);

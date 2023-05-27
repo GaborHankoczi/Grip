@@ -72,13 +72,13 @@ namespace Grip.Bll.Services
             var group = await _context.Groups.Include(g => g.Users).Where(g => g.Id == groupId).FirstOrDefaultAsync();
             if (group == null)
             {
-                throw new NotFoundException();
+                throw new NotFoundException("Group was not found");
             }
 
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
-                throw new NotFoundException();
+                throw new NotFoundException("User was not found");
             }
 
             group.Users.Add(user);
