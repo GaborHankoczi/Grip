@@ -67,6 +67,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="View\AssignToGroupPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\CreateClassPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\CreateExemptPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\CreateGroupPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\ExemptPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

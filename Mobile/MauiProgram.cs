@@ -59,6 +59,20 @@ public static class MauiProgram
         builder.Services.AddTransient<RegisterUserPageViewModel>();
         builder.Services.AddTransient<RegisterUserService>();
 
+        builder.Services.AddTransient<CreateClassPage>();
+        builder.Services.AddTransient<CreateClassViewModel>();
+
+
+        builder.Services.AddTransient<CreateExemptPage>();
+        builder.Services.AddTransient<CreateExemptViewModel>();
+
+
+        builder.Services.AddTransient<CreateGroupPage>();
+        builder.Services.AddTransient<CreateGroupViewModel>();
+
+        builder.Services.AddTransient<AssignToGroupPage>();
+        builder.Services.AddTransient<AssignToGroupViewModel>();
+
         builder.Services.AddTransient<Client>();
 
         return builder.Build();
