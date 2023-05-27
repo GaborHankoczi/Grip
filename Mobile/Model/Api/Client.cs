@@ -2873,7 +2873,7 @@ namespace GripMobile.Model.Api
                 {
                     request_.Method = new System.Net.Http.HttpMethod("GET");
                     request_.Headers.Accept.Add(System.Net.Http.Headers.MediaTypeWithQualityHeaderValue.Parse("text/plain"));
-
+                    request_.Headers.Add("ApiKey", "9aaa84a2-c45e-46ec-b495-a9696ec2830a");
                     PrepareRequest(client_, request_, urlBuilder_);
 
                     var url_ = urlBuilder_.ToString();
@@ -4318,7 +4318,7 @@ namespace GripMobile.Model.Api
             public string Text { get; }
         }
 
-        public bool ReadResponseAsString { get; set; }
+        public bool ReadResponseAsString { get; set; } = true;
 
         protected virtual async System.Threading.Tasks.Task<ObjectResponseResult<T>> ReadObjectResponseAsync<T>(System.Net.Http.HttpResponseMessage response, System.Collections.Generic.IReadOnlyDictionary<string, System.Collections.Generic.IEnumerable<string>> headers, System.Threading.CancellationToken cancellationToken)
         {

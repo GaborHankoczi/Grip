@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GripMobile.View.CreateExemptPage"
+             Title="Igazolás létrehozása">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Diák" />
+            <Picker ItemsSource="{Binding Students}" SelectedItem="{Binding SelectedStudent}" />
+            <Label Text="Mettől"/>
+            <DatePicker Date="{Binding FromDate, Mode=OneWayToSource}" />
+            <TimePicker Time="{Binding FromTime, Mode=OneWayToSource}" />
+            <Label Text="Meddig"/>
+            <DatePicker Date="{Binding ValidToDate, Mode=OneWayToSource}" />
+            <TimePicker Time="{Binding ValidToTime, Mode=OneWayToSource}" />
+            <Button Text="Létrehozás" Command="{Binding CreateExemptCommand}" />
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

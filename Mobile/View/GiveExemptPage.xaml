@@ -24,10 +24,9 @@
             ClearButtonVisibility="WhileEditing"
             AbsoluteLayout.LayoutBounds="0.5, 0.45, 1, 0.07"
             AbsoluteLayout.LayoutFlags="All"/>
-
         <Entry
             Text="{Binding ValidFrom}"
-            Keyboard="Text"
+            Keyboard="Text"            
             ReturnType="Next"
             Placeholder="Érvényesség kezdete"
             ClearButtonVisibility="WhileEditing"
