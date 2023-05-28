@@ -9,7 +9,7 @@
 
     <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding GetUsersCommand}">
 
-        <ListView ItemsSource="{Binding CurrentObservableUsers}">
+        <ListView ItemsSource="{Binding CurrentObservableUsers}" SelectedItem="{Binding SelectedUser}">
             <ListView.ItemTemplate>
                 <DataTemplate x:DataType="model:UserDTO">
                     <ViewCell>

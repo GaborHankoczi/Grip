@@ -58,6 +58,9 @@
 	  <Compile Update="View\FirstLoginPage.xaml.cs">
 	    <DependentUpon>FirstLoginPage.xaml</DependentUpon>
 	  </Compile>
+	  <Compile Update="View\StudentInfoPopup.xaml.cs">
+	    <DependentUpon>StudentInfoPopup.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="View\ForgotPasswordPopup.xaml.cs">
 	    <DependentUpon>ForgotPasswordPopup.xaml</DependentUpon>
 	  </Compile>
@@ -80,6 +83,9 @@
 	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\ExemptPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\StudentInfoPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\ForgotPasswordPopup.xaml">

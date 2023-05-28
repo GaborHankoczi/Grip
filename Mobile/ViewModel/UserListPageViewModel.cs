@@ -1,9 +1,11 @@
 ﻿using CommunityToolkit.Maui.Alerts;
 using CommunityToolkit.Maui.Core;
+using CommunityToolkit.Maui.Views;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GripMobile.Model.Api;
 using GripMobile.Service;
+using GripMobile.View;
 using System.Collections.ObjectModel;
 
 namespace GripMobile.ViewModel
@@ -16,6 +18,9 @@ namespace GripMobile.ViewModel
         [ObservableProperty]
         public ObservableCollection<UserInfoDTO> currentObservableUsers;
 
+        [ObservableProperty]
+        private UserInfoDTO selectedUser;
+
         private readonly UserListService userListService;
 
         private Client api;
@@ -26,6 +31,18 @@ namespace GripMobile.ViewModel
             api = client;
             GetUsers();
         }
+
+        partial void OnSelectedUserChanged(UserInfoDTO value)
+        {
+            ShowDetails(value);
+        }
+        
+        private async void ShowDetails(UserInfoDTO value)
+        {
+            var details = await api.StudentAsync(value.Id);
+            await Shell.Current.ShowPopupAsync(new StudentInfoPopup(new StudentInfoViewModel(details)));
+        }
+        
 
         [RelayCommand]
         public async void GetUsers()

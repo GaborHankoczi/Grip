@@ -28,4 +28,12 @@ namespace GripMobile.Model.Api
             return this.UserName;
         }
     }
+
+    public partial class AbsenceDTO
+    {
+        public override string ToString()
+        {
+            return this.Class.Name + " - " + Class.StartDateTime.ToString("s") + (HasExempt ?  " - Igazolva" : "");
+        }
+    }
 }
