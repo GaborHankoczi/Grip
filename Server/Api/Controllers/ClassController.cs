@@ -42,6 +42,17 @@ namespace Grip.Api.Controllers
             _classService = classService;
         }
 
+
+        /// <summary>
+        /// Options for the controller
+        /// Only used for routing
+        /// </summary>
+        [HttpOptions]
+        public IActionResult Options()
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Get all classes
         /// </summary>

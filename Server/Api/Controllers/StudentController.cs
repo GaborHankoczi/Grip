@@ -28,6 +28,16 @@ namespace Grip.Api.Controllers
         }
 
         /// <summary>
+        /// Options for the controller
+        /// Only used for routing
+        /// </summary>
+        [HttpOptions]
+        public IActionResult Options()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Returns students matching the search criteria.
         /// </summary>
         /// <param name="name">The string the students name should contain</param>

@@ -39,6 +39,16 @@ namespace Grip.Api.Controllers
         }
 
         /// <summary>
+        /// Options for the controller
+        /// Only used for routing
+        /// </summary>
+        [HttpOptions]
+        public IActionResult Options()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
         /// Retrieves all passive tags.
         /// </summary>
         /// <returns>A collection of <see cref="PassiveTagDTO"/> representing the passive tags.</returns>

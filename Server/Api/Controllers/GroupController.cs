@@ -39,6 +39,16 @@ public class GroupController : ControllerBase
     }
 
     /// <summary>
+    /// Options for the controller
+    /// Only used for routing
+    /// </summary>
+    [HttpOptions]
+    public IActionResult Options()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// Retrieves all groups.
     /// </summary>
     /// <returns>An <see cref="ActionResult"/> containing the list of <see cref="GroupDTO"/> items.</returns>

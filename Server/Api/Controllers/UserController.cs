@@ -53,6 +53,16 @@ public class UserController : ControllerBase
     }
 
     /// <summary>
+    /// Options for the controller
+    /// Only used for routing
+    /// </summary>
+    [HttpOptions]
+    public IActionResult Options()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// Gets a list of all users.
     /// </summary>
     /// <returns>The list of users.</returns>

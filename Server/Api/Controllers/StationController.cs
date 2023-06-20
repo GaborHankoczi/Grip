@@ -29,6 +29,16 @@ public class StationController : ControllerBase
     }
 
     /// <summary>
+    /// Options for the controller
+    /// Only used for routing
+    /// </summary>
+    [HttpOptions]
+    public IActionResult Options()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// Gets the secret key for a specific station.
     /// </summary>
     /// <param name="StationNumber">The number of the station.</param>

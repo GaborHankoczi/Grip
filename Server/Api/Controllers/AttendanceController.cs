@@ -42,6 +42,16 @@ public class AttendanceController : ControllerBase
     }
 
     /// <summary>
+    /// Options for the controller
+    /// Only used for routing
+    /// </summary>
+    [HttpOptions]
+    public IActionResult Options()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// This endpoint is used to authenticate a user when they are physically present at a station with their phone as identification method
     /// </summary>
     [HttpPost]
@@ -91,7 +101,7 @@ public class AttendanceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     public async Task<ActionResult<IEnumerable<AttendanceDTO>>> GetAttendanceForDay(DateOnly date)
     {
-        var User = await _userManager.FindByIdAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
+        var User = await _userManager.FindByEmailAsync(HttpContext.User.FindFirstValue("email") ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
         var attendance = await _attendanceService.GetAttendanceForDay(User, date);
         return Ok(attendance);
     }
