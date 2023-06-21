@@ -15,3 +15,14 @@ Example:
 
 ### Token format
 Token is the HMAC-SHA256 hash of the message in base64 format (https://en.wikipedia.org/wiki/HMAC)
+
+### Nagy HF pontok
+OPTIONS ige az erőforrás által támogatott igék lekérdezéséhez 7 ✓
+SignalR Core alkalmazása valós idejű, szerver felől érkező push jellegű kommunikációra [7] |
+teljes szerveroldal hosztolása külső szolgáltatónál 5 ✓
+Publikálás docker konténerbe és futtatás konténerből [7] ✓
+OpenAPI leíró (swagger) alapú dokumentáció 3 ✓
+MS SQL/Azure SQL/LocalDB-től eltérő adatbáziskiszolgáló használata EF Core-ral (egyéb, EF Core v6 támogatott adatbázis) 5 ✓
+automatizált (unit vagy integrációs) tesztek készítése ~14
+külső komponens használata DTO-k inicializálására [3] ✓
+az EF Core működőképességét, az adatbázis elérhetőségét jelző health check végpont publikálása a Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore NuGet csomag használatával [3] ✓

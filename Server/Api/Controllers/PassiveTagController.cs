@@ -11,6 +11,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grip.Api.Controllers
 {
@@ -58,7 +59,7 @@ namespace Grip.Api.Controllers
         /// Returns 200 OK if the operation is successful.
         /// </remarks>
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         public async Task<ActionResult<IEnumerable<PassiveTagDTO>>> GetPassiveTags()
         {
@@ -78,7 +79,7 @@ namespace Grip.Api.Controllers
         /// Returns 200 OK if the operation is successful.
         /// </remarks>
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -101,7 +102,7 @@ namespace Grip.Api.Controllers
         /// Returns 204 No Content if the operation is successful.
         /// </remarks>
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -130,7 +131,7 @@ namespace Grip.Api.Controllers
         /// Returns 404 Not Found if the referenced entities in the passive tag data are not found.
         /// </remarks>
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -154,7 +155,7 @@ namespace Grip.Api.Controllers
         /// Returns 404 Not Found if the passive tag with the specified ID is not found.
         /// </remarks>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

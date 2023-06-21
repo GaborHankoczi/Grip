@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
 using Grip.Bll.Exceptions;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grip.Api.Controllers
 {
@@ -64,7 +65,7 @@ namespace Grip.Api.Controllers
         /// Returns 401 Unauthorized if the user is not authorized to access the endpoint.
         /// </remarks>
         [HttpGet]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<ExemptDTO>>> GetExempt()
@@ -83,7 +84,7 @@ namespace Grip.Api.Controllers
         /// <param name="id">Identifyer of the exempt</param>
         /// <returns>A single exempt</returns>
         [HttpGet("{id}")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -104,7 +105,7 @@ namespace Grip.Api.Controllers
         /// <param name="exempt">Exempt to create</param>
         /// <returns>Created exempt</returns>
         [HttpPost]
-        [Authorize(Roles = "Admin,Teacher")]
+        [Authorize(Roles = "Admin,Teacher", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -120,7 +121,7 @@ namespace Grip.Api.Controllers
         /// </summary>
         /// <param name="id">Id of exempt to delete</param>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]

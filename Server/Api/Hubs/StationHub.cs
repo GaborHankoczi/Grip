@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 
@@ -6,7 +7,7 @@ namespace Grip.Api.Hubs
     /// <summary>
     /// SignalR Hub for station related events
     /// </summary>
-    [Authorize("Admin, Teacher, Doorman")]
+    [Authorize("Admin, Teacher, Doorman", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class StationHub : Hub<IStationClient>
     {
         /// <summary>

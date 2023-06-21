@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grip.Api.Controllers
 {
@@ -58,7 +59,7 @@ namespace Grip.Api.Controllers
         /// </summary>
         /// <returns>Classes</returns>
         [HttpGet]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<ClassDTO>>> GetClass()
@@ -72,7 +73,7 @@ namespace Grip.Api.Controllers
         /// <param name="id">Identifyer of the class</param>
         /// <returns>A single class</returns>
         [HttpGet("{id}")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -88,7 +89,7 @@ namespace Grip.Api.Controllers
         /// <param name="id">Identifyer of the class</param>
         /// <param name="class">The class object</param>
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -111,7 +112,7 @@ namespace Grip.Api.Controllers
         /// <param name="class">The class object</param>
         /// <returns>A newly created class</returns>
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -126,7 +127,7 @@ namespace Grip.Api.Controllers
         /// </summary>
         /// <param name="id">Identifyer of the class</param>
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -144,7 +145,7 @@ namespace Grip.Api.Controllers
         /// <param name="date">The date to get classes for</param>
         /// <returns>Classes for the user on the given day</returns>
         [HttpGet("OnDay/{date}")]
-        [Authorize]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<ClassDTO>>> GetClassOnDay(DateOnly date)

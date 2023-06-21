@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grip.Controllers;
 
@@ -66,7 +67,7 @@ public class UserController : ControllerBase
     /// Gets a list of all users.
     /// </summary>
     /// <returns>The list of users.</returns>
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -80,7 +81,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="id">The ID of the user.</param>
     /// <returns>The user.</returns>
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(UserDTO))]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -103,7 +104,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="user">The user registration data.</param>
     /// <returns>The created user.</returns>
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status201Created, Type = typeof(UserDTO))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
@@ -185,7 +186,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="id">The ID of the user to delete.</param>
     /// <returns>Ok if the user is deleted successfully.</returns>
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -202,8 +203,7 @@ public class UserController : ControllerBase
     /// <param name="id">The ID of the user to update.</param>
     /// <param name="user">The updated user data.</param>
     /// <returns>No content if the user is updated successfully.</returns>
-    [Authorize]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -223,7 +223,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="userId">User id</param>
     /// <param name="roleId">Role id</param>    
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost("AddRole/{userId}/{roleId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -240,7 +240,7 @@ public class UserController : ControllerBase
     /// </summary>
     /// <param name="userId">User id</param>
     /// <param name="roleId">Role id</param>    
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [HttpPost("RemoveRole/{userId}/{roleId}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

@@ -1,5 +1,4 @@
 using AutoMapper;
-using Castle.Core.Smtp;
 using Grip.Bll.DTO;
 using Grip.Bll.Exceptions;
 using Grip.Bll.Services.Interfaces;

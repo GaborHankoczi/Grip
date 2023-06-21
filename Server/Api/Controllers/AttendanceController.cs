@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Grip.DAL;
 using Grip.Bll.Services;
 using Grip.Bll.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grip.Controllers;
 
@@ -55,7 +56,7 @@ public class AttendanceController : ControllerBase
     /// This endpoint is used to authenticate a user when they are physically present at a station with their phone as identification method
     /// </summary>
     [HttpPost]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
@@ -96,12 +97,12 @@ public class AttendanceController : ControllerBase
     /// This endpoint is used to get the logged in users classes for given day and wetaher they are present or not
     /// </summary>
     [HttpGet("{date}")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AttendanceDTO>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     public async Task<ActionResult<IEnumerable<AttendanceDTO>>> GetAttendanceForDay(DateOnly date)
     {
-        var User = await _userManager.FindByEmailAsync(HttpContext.User.FindFirstValue("email") ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
+        var User = await _userManager.FindByEmailAsync(HttpContext.User.FindFirstValue(ClaimTypes.Email) ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
         var attendance = await _attendanceService.GetAttendanceForDay(User, date);
         return Ok(attendance);
     }

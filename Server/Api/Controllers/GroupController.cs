@@ -8,6 +8,7 @@ using AutoMapper;
 using Grip.Bll.DTO;
 using Grip.Bll.Services;
 using Grip.Bll.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace Grip.Controllers;
 
@@ -59,7 +60,7 @@ public class GroupController : ControllerBase
     /// Returns 401 Unauthorized if the user is not authorized to access the endpoint.
     /// </remarks>
     [HttpGet]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<IEnumerable<GroupDTO>>> GetGroup()
@@ -81,7 +82,7 @@ public class GroupController : ControllerBase
     /// Returns 400 Bad Request if the ID parameter is invalid.
     /// </remarks>
     [HttpGet("{id}")]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -106,7 +107,7 @@ public class GroupController : ControllerBase
     /// Returns 401 Unauthorized if the user is not authorized to access the endpoint
     /// </remarks>
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -134,7 +135,7 @@ public class GroupController : ControllerBase
     /// Returns 401 Unauthorized if the user is not authorized to access the endpoint.
     /// </remarks>
     [HttpPost]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -158,7 +159,7 @@ public class GroupController : ControllerBase
     /// Returns 401 Unauthorized if the user is not authorized to access the endpoint.
     /// </remarks>
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -184,7 +185,7 @@ public class GroupController : ControllerBase
     /// Returns 400 Bad Request if the ID parameters are invalid.
     /// </remarks>
     [HttpPatch("{groupId}/AddUser/{userId}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -211,7 +212,7 @@ public class GroupController : ControllerBase
     /// Returns 400 Bad Request if the ID parameters are invalid.
     /// </remarks>
     [HttpPatch("{groupId}/RemoveUser/{userId}")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
