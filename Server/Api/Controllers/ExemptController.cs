@@ -9,6 +9,7 @@ using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
 using Grip.Bll.Exceptions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
 
 namespace Grip.Api.Controllers
 {
@@ -72,7 +73,8 @@ namespace Grip.Api.Controllers
         {
             IQueryable<Exempt> query = _context.Exempts.Include(e => e.IssuedBy).Include(e => e.IssuedTo);
             // if user is not admin or teacher, only return exempts issued to them
-            User user = await _userManager.GetUserAsync(User) ?? throw new Exception("User not found");
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User identifier claim missing");
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new Exception("User logged in, but not found");
             if (!await _userManager.IsInRoleAsync(user, "Admin") && !await _userManager.IsInRoleAsync(user, "Teacher"))
                 query = query.Where(e => e.IssuedTo.Id == user.Id);
             return (await query.ToListAsync()).Select(e => _mapper.Map<ExemptDTO>(e)).ToList();
@@ -90,8 +92,10 @@ namespace Grip.Api.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<ExemptDTO>> GetExempt(int id)
         {
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User identifier claim missing");
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new Exception("User logged in, but not found");
+
             var exempt = await _exemptService.Get(id);
-            var user = await _userManager.GetUserAsync(User) ?? throw new Exception("Logged in user not found"); // get loggegd in user
             // teachers and admins can read any exempts, students can only read their own
             if (!await _userManager.IsInRoleAsync(user, Role.Admin) && !await _userManager.IsInRoleAsync(user, Role.Teacher) && exempt.IssuedTo.Id != user.Id)
                 return Unauthorized();
@@ -111,7 +115,9 @@ namespace Grip.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<ExemptDTO>> PostExempt(CreateExemptDTO exempt)
         {
-            var CreatedExempt = await _exemptService.Create(exempt, await _userManager.GetUserAsync(User) ?? throw new NotFoundException("User not found"));
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User identifier claim missing");
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new Exception("User logged in, but not found");
+            var CreatedExempt = await _exemptService.Create(exempt, user);
 
             return CreatedAtAction("GetExempt", new { id = CreatedExempt.Id }, CreatedExempt);
         }

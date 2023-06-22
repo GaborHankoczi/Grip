@@ -88,9 +88,8 @@ public class UserController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserDTO>> Get(int id)
     {
-        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get user id from token
-
-        var requester = await _userManager.GetUserAsync(User);
+        string userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User identifier claim missing");
+        var requester = await _userManager.FindByIdAsync(userId) ?? throw new Exception("User logged in, but not found");
         var user = await _userService.Get(id);
         if (requester == null || (requester.Id != id && !await _userManager.IsInRoleAsync(requester, Role.Admin)))
         { // Only admins can get other users

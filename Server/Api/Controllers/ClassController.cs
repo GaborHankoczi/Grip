@@ -13,6 +13,7 @@ using AutoMapper;
 using Grip.Bll.DTO;
 using Grip.Bll.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
 
 namespace Grip.Api.Controllers
 {
@@ -150,7 +151,9 @@ namespace Grip.Api.Controllers
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<ActionResult<IEnumerable<ClassDTO>>> GetClassOnDay(DateOnly date)
         {
-            var user = await _userManager.GetUserAsync(User) ?? throw new Exception("User logged in, but not found");
+            //var user = await _userManager.GetUserAsync(User) ?? throw new Exception("User logged in, but not found");
+            string userId = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User identifier claim missing");
+            var user = await _userManager.FindByIdAsync(userId) ?? throw new Exception("User logged in, but not found");
             return Ok(await _classService.GetClassesForUserOnDay(user, date));
         }
         private bool ClassExists(int id)
