@@ -82,6 +82,8 @@ builder.Services.AddIdentity<User, Role>(options =>
     //.AddDefaultTokenProviders()
     .AddTokenProvider<EmailTokenProvider<User>>(TokenOptions.DefaultProvider);
 
+
+var identityServerConfig = new IdentityServerConfig(builder.Configuration);
 // IdentityServer
 builder.Services.AddIdentityServer(
     options =>
@@ -99,9 +101,9 @@ builder.Services.AddIdentityServer(
     })
     /*.AddConfigurationStore<ApplicationDbContext>()
     .AddOperationalStore<ApplicationDbContext>();*/
-    .AddInMemoryIdentityResources(IdentityServerConfig.IdentityResources)
-    .AddInMemoryApiScopes(IdentityServerConfig.ApiScopes)
-    .AddInMemoryClients(IdentityServerConfig.Clients)
+    .AddInMemoryIdentityResources(identityServerConfig.IdentityResources)
+    .AddInMemoryApiScopes(identityServerConfig.ApiScopes)
+    .AddInMemoryClients(identityServerConfig.Clients)
     .AddAspNetIdentity<User>()
     .AddProfileService<ProfileService>();
 
@@ -334,7 +336,7 @@ using var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Rol
 using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
 logger = scope.ServiceProvider.GetRequiredService<ILogger<User>>();
 
-var hostName = builder.Configuration.GetValue<string>("Host") ?? throw new Exception("HostName not found in configuration");
+var hostName = builder.Configuration.GetValue<string>("HostName") ?? throw new Exception("HostName not found in configuration");
 
 var roles = new[] { "Student", "Teacher", "Admin", "Doorman" };
 

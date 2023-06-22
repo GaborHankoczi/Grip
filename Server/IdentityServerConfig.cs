@@ -5,7 +5,14 @@ namespace Grip;
 
 public class IdentityServerConfig
 {
-    public static IEnumerable<IdentityResource> IdentityResources =>
+    private readonly IConfiguration Configuration;
+    public IdentityServerConfig(IConfiguration configuration)
+    {
+        Configuration = configuration;
+    }
+    public IEnumerable<IdentityResource> IdentityResources
+    {
+        get =>
         new IdentityResource[]
         {
             new IdentityResources.OpenId(),
@@ -13,43 +20,61 @@ public class IdentityServerConfig
             new IdentityResources.Email(),
             new IdentityResource("roles", "Your role(s)", new List<string> { JwtClaimTypes.Role })
         };
-
-    public static IEnumerable<ApiScope> ApiScopes =>
+    }
+    public IEnumerable<ApiScope> ApiScopes
+    {
+        get =>
         new ApiScope[]
         {
             new ApiScope("scope1"),
             new ApiScope("scope2"),
         };
+    }
 
-    public static IEnumerable<Client> Clients =>
-        new Client[]
+    public IEnumerable<Client> Clients
+    {
+        get
         {
-            // m2m client credentials flow client
-            new Client
+            var host = Configuration.GetValue<string>("Host");
+            var clients = new List<Client>();
+            var redurectURIs = new List<string>();
+            if (Configuration.GetValue<bool>("UseSwagger"))
+                redurectURIs.Add(host + "/swagger/oauth2-redirect.html");
+            if (Configuration.GetValue<bool>("AllowPostmanOauth2RedirectUrl"))
+                redurectURIs.Add("https://oauth.pstmn.io/v1/callback");
+
+            redurectURIs.Add(host + "/signin-oidc");
+
+            return new Client[]
             {
-                ClientId = "m2m.client",
-                ClientName = "Client Credentials Client",
+                // m2m client credentials flow client
+                /*new Client
+                {
+                    ClientId = "m2m.client",
+                    ClientName = "Client Credentials Client",
 
-                AllowedGrantTypes = GrantTypes.ClientCredentials,
-                ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
+                    AllowedGrantTypes = GrantTypes.ClientCredentials,
+                    ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
 
-                AllowedScopes = { "scope1" }
-            },
+                    AllowedScopes = { "scope1" }
+                },*/
 
-            // interactive client using code flow + pkce
-            new Client
-            {
-                ClientId = "interactive",
-                ClientSecrets = { new Secret("49C1A7E1-0C79-4A89-A3D6-A37998FB86B0".Sha256()) },
+                // interactive client using code flow + pkce
+                new Client
+                {
+                    ClientId = "interactive",
+                    ClientSecrets = { new Secret("49C1A7E1-0C79-4A89-A3D6-A37998FB86B0".Sha256()) },
 
-                AllowedGrantTypes = GrantTypes.Code,
+                    AllowedGrantTypes = GrantTypes.Code,
 
-                RedirectUris = { "https://localhost:44300/signin-oidc", "https://oauth.pstmn.io/v1/callback", "https://localhost:7258/swagger/oauth2-redirect.html" },
-                FrontChannelLogoutUri = "https://localhost:44300/signout-oidc",
-                PostLogoutRedirectUris = { "https://localhost:44300/signout-callback-oidc" },
+                    RedirectUris = redurectURIs,
+                    FrontChannelLogoutUri = host+"/signout-oidc",
+                    PostLogoutRedirectUris = { host + "/signout-callback-oidc" },
 
-                AllowOfflineAccess = true,
-                AllowedScopes = { "openid", "profile", "scope2", "roles" }
-            },
-        };
+                    AllowOfflineAccess = true,
+                    AllowedScopes = { "openid", "profile", "scope2", "roles" }
+                },
+            };
+        }
+    }
 }

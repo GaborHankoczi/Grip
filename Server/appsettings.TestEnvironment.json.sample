@@ -1,6 +1,7 @@
 {
   "Urls": "https://*:443",
-  "Host": "grip.sytes.net",
+  "Host": "https://nloc.duckdns.org:8025",
+  "HostName": "grip.sytes.net",
   "SMTP": {
     "Host": "smtp.gmail.com",
     "Port": 587,
@@ -13,6 +14,7 @@
     "KeyPath": "/etc/cert/live/grip.sytes.net/privkey.pem"
   },
   "UseSwagger": true,
+  "AllowPostmanOauth2RedirectUrl": true,
   "ConnectionStrings": {
     "DatabaseConnection": "Server=host.docker.internal;Port=5432;Database=grip;User Id=grip;Password=<Password>;"
   },
