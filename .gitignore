@@ -3,3 +3,4 @@ Server/appsettings.TestEnvironment.json
 /Mobile/bin/Debug
 /Mobile/obj
 Server/keys/is-signing-key-1F62B08AD10089AF66CF6CB3F892CD6F.json
+Firmware/pcb/login-controller/export/3d.png
