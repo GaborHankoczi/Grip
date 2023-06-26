@@ -126,7 +126,7 @@ public class ClassService : IClassService
     public async Task Update(ClassDTO dto)
     {
         Class updatedClass = _context.Classes.Find(dto.Id) ?? throw new NotFoundException();
-
+        // Does not work
         _mapper.Map(dto, updatedClass);
 
         try

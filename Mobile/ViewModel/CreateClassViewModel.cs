@@ -36,9 +36,9 @@ namespace GripMobile.ViewModel
         [ObservableProperty]
         private string stationId;
 
-        private readonly Client api;
+        private readonly ApiClient api;
 
-        public CreateClassViewModel(Client api)
+        public CreateClassViewModel(ApiClient api)
         {
             this.api = api;
             LoadPickers();

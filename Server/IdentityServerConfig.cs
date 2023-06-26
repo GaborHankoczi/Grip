@@ -44,6 +44,7 @@ public class IdentityServerConfig
                 redurectURIs.Add("https://oauth.pstmn.io/v1/callback");
 
             redurectURIs.Add(host + "/signin-oidc");
+            redurectURIs.Add("grip://"); // Android mobile client
 
             return new Client[]
             {
@@ -69,7 +70,7 @@ public class IdentityServerConfig
 
                     RedirectUris = redurectURIs,
                     FrontChannelLogoutUri = host+"/signout-oidc",
-                    PostLogoutRedirectUris = { host + "/signout-callback-oidc" },
+                    PostLogoutRedirectUris = { host + "/signout-callback-oidc", "grip://signout" },
 
                     AllowOfflineAccess = true,
                     AllowedScopes = { "openid", "profile", "scope2", "roles" }

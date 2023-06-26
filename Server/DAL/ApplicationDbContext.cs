@@ -62,6 +62,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
+        if (optionsBuilder.IsConfigured) return;
         optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DatabaseConnection"));
         //TODO remove
         optionsBuilder.EnableSensitiveDataLogging();

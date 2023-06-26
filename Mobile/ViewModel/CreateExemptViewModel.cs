@@ -31,9 +31,9 @@ namespace GripMobile.ViewModel
         [ObservableProperty]
         private TimeSpan validToTime;
 
-        private readonly Client api;
+        private readonly ApiClient api;
 
-        public CreateExemptViewModel(Client api)
+        public CreateExemptViewModel(ApiClient api)
         {
             this.api = api;
             LoadPickers();

@@ -4,6 +4,8 @@ using GripMobile.View;
 using Microsoft.Extensions.Logging;
 using CommunityToolkit.Maui;
 using GripMobile.Model.Api;
+using IdentityModel.OidcClient;
+using GripMobile.Service.Auth;
 
 namespace GripMobile;
 public static class MauiProgram
@@ -73,7 +75,32 @@ public static class MauiProgram
         builder.Services.AddTransient<AssignToGroupPage>();
         builder.Services.AddTransient<AssignToGroupViewModel>();
 
-        builder.Services.AddTransient<Client>();
+        builder.Services.AddTransient<StationWatchPage>();
+        builder.Services.AddTransient<StationWatchViewModel>();
+
+        builder.Services.AddTransient<WebAuthenticatorBrowser>();
+        builder.Services.AddTransient<OidcClient>(sp =>
+            new OidcClient(new OidcClientOptions
+            {
+                // Use your own ngrok url:
+                //Authority = "https://nloc.duckdns.org:8025",
+                Authority = "https://nloc.duckdns.org:8025",
+                ClientId = "interactive",
+                RedirectUri = "grip://",
+                Scope = "openid profile roles offline_access",
+                ClientSecret = "49C1A7E1-0C79-4A89-A3D6-A37998FB86B0",
+                PostLogoutRedirectUri = "grip://signout",
+                Browser = sp.GetRequiredService<WebAuthenticatorBrowser>(),
+            })
+        );
+
+        builder.Services.AddSingleton<AccessTokenHttpMessageHandler>();
+        builder.Services.AddTransient<HttpClient>(sp =>
+            new HttpClient(sp.GetRequiredService<AccessTokenHttpMessageHandler>())
+            {
+                BaseAddress = new Uri("https://nloc.duckdns.org:8025")
+            });
+        builder.Services.AddTransient<ApiClient>();
 
         return builder.Build();
     }

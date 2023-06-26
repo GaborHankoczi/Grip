@@ -23,9 +23,9 @@ namespace GripMobile.ViewModel
 
         private readonly UserListService userListService;
 
-        private Client api;
+        private ApiClient api;
 
-        public UserListPageViewModel(UserListService userListService, Client client)
+        public UserListPageViewModel(UserListService userListService, ApiClient client)
         {
             this.userListService = userListService;
             api = client;

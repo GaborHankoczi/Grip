@@ -24,9 +24,9 @@ namespace GripMobile.ViewModel
         [ObservableProperty]
         private GroupDTO selectedGroup;
 
-        private readonly Client api;
+        private readonly ApiClient api;
 
-        public AssignToGroupViewModel(Client api)
+        public AssignToGroupViewModel(ApiClient api)
         {
             this.api = api;
             LoadPickers();

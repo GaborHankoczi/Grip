@@ -17,7 +17,7 @@ namespace GripMobile.ViewModel
         [ObservableProperty]
         public ObservableCollection<AttendanceDTO> currentObservableClasses;
 
-        private readonly Client api;
+        private readonly ApiClient api;
 
         /// <value>Property <c>cancellationTokenSource</c> is needed for closing the toast messages.</value>
         private CancellationTokenSource cancellationTokenSource = new();
@@ -25,7 +25,7 @@ namespace GripMobile.ViewModel
         /// <value>Property <c>toast</c> represents every toast message in <c>LoginPage</c></value>
         private IToast toast;
         
-        public CurrentClassesPageViewModel(Client api) 
+        public CurrentClassesPageViewModel(ApiClient api) 
         {
             this.api = api;
             UpdateClasses();

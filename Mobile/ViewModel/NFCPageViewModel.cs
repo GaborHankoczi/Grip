@@ -17,9 +17,9 @@ namespace GripMobile.ViewModel
         private Color backgroundColor;
 
         private readonly NFCService nfcService;
-        private readonly Client api;
+        private readonly ApiClient api;
 
-        public NFCPageViewModel(NFCService nfcService, Client api)
+        public NFCPageViewModel(NFCService nfcService, ApiClient api)
         {
             this.nfcService = nfcService;
             this.api = api;

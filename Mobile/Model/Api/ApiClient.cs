@@ -20,17 +20,15 @@ namespace GripMobile.Model.Api
     using System = global::System;
 
     [System.CodeDom.Compiler.GeneratedCode("NSwag", "13.19.0.0 (NJsonSchema v10.9.0.0 (Newtonsoft.Json v13.0.0.0))")]
-    public partial class Client
+    public partial class ApiClient
     {
         private string _baseUrl = "https://nloc.duckdns.org:8025";
         private System.Net.Http.HttpClient _httpClient;
         private System.Lazy<System.Text.Json.JsonSerializerOptions> _settings;
 
-        public Client()
-        {
-            /*BaseUrl = baseUrl;
-            _httpClient = httpClient;*/
-            _httpClient = HttpClientSingleton.httpClient;
+        public ApiClient(HttpClient httpClient)
+        {            
+            _httpClient = httpClient;
             _settings = new System.Lazy<System.Text.Json.JsonSerializerOptions>(CreateSerializerSettings);
         }
 

@@ -1,4 +1,6 @@
-﻿using GripMobile.View;
+﻿using GripMobile.Service.Auth;
+using GripMobile.View;
+using IdentityModel.OidcClient;
 
 namespace GripMobile;
 
@@ -18,5 +20,25 @@ public partial class AppShell : Shell
         Routing.RegisterRoute(nameof(ExemptPage), typeof(ExemptPage));
         Routing.RegisterRoute(nameof(UserListPage), typeof(UserListPage));
         Routing.RegisterRoute(nameof(RegisterUserPage), typeof(RegisterUserPage));
+    }
+
+    private async void Button_Clicked(object sender, EventArgs e)
+    {
+        var oidcClient = this.Handler.MauiContext.Services.GetService<OidcClient>();
+
+        Preferences.Remove(OidcConsts.AccessTokenKeyName);
+        var idToken = Preferences.Get(OidcConsts.IdTokenKeyName, null);
+        Preferences.Remove(OidcConsts.IdTokenKeyName);
+        Preferences.Remove(OidcConsts.RefreshTokenKeyName);
+        LogoutResult logoutResult = await oidcClient.LogoutAsync(new LogoutRequest() { IdTokenHint = idToken });
+        if (logoutResult.IsError)
+        {
+            await DisplayAlert("Logout",$"Error: {logoutResult.Error}","Ok");
+        }
+        else
+        {
+            await DisplayAlert("Logout", $"Sikeresen kijelentkezett", "Ok");
+        }
+        await Shell.Current.GoToAsync($"//MainPage");
     }
 }

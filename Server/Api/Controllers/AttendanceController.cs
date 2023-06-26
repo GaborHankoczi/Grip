@@ -8,6 +8,7 @@ using Grip.DAL;
 using Grip.Bll.Services;
 using Grip.Bll.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Grip.Middleware;
 
 namespace Grip.Controllers;
 
@@ -83,11 +84,10 @@ public class AttendanceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
-    public async Task<IActionResult> PassiveAuthentication([FromBody] PassiveAttendanceDTO request, [FromHeader] string apiKey)
+    [ValidateApiKey]
+    public async Task<IActionResult> PassiveAuthentication([FromBody] PassiveAttendanceDTO request, [FromHeader] string ApiKey /* For swagger documentation only*/)
     {
-        if (apiKey != _configuration["ApiKey"])
-            return BadRequest("Invalid API Key");
-        var User = await _userManager.FindByIdAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
+        await _attendanceService.VerifyPassiveScan(request);
 
 
         return Ok();

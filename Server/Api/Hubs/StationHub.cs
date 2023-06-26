@@ -12,7 +12,7 @@ namespace Grip.Api.Hubs
     /// <summary>
     /// SignalR Hub for station related events
     /// </summary>
-    [Authorize("Admin, Teacher, Doorman", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = "Admin,Teacher", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class StationHub : Hub<IStationClient>
     {
         /// <summary>
@@ -24,12 +24,12 @@ namespace Grip.Api.Hubs
 
         private readonly IMapper _mapper;
 
-        private readonly CurrentTimeProvider _currentTimeProvider;
+        private readonly ICurrentTimeProvider _currentTimeProvider;
 
         /// <summary>
         /// Constructor for the station hub
         /// </summary>
-        public StationHub(ApplicationDbContext context, ILogger<StationHub> logger, IMapper mapper, CurrentTimeProvider currentTimeProvider)
+        public StationHub(ApplicationDbContext context, ILogger<StationHub> logger, IMapper mapper, ICurrentTimeProvider currentTimeProvider)
         {
             _context = context;
             _logger = logger;
@@ -56,7 +56,7 @@ namespace Grip.Api.Hubs
             .OrderBy(a => a.Time).ToList().ForEach(async a =>
             {
                 var dto = new StationScanDTO() { UserInfo = _mapper.Map<UserInfoDTO>(a.User), ScanTime = a.Time, StationId = a.Station.Id };
-                await Clients.Caller.ReceiveScan(_mapper.Map<StationScanDTO>(a));
+                await Clients.Caller.ReceiveScan(dto);
             });
 
             await Clients.Caller.ReceiveScan(null);

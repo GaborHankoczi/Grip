@@ -15,9 +15,9 @@ namespace GripMobile.ViewModel
         [ObservableProperty]
         private string name;
 
-        private readonly Client api;
+        private readonly ApiClient api;
 
-        public CreateGroupViewModel(Client api)
+        public CreateGroupViewModel(ApiClient api)
         {
             this.api = api;
         }

@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GripMobile.View.StationWatchPage"
+             xmlns:viewmodel="clr-namespace:GripMobile.ViewModel"
+             xmlns:hubdto="clr-namespace:GripMobile.Model.Api.HubDTO"
+             x:DataType="viewmodel:StationWatchViewModel"
+             Title="Felhasználók">
+
+
+        <ListView ItemsSource="{Binding Scans}" SelectedItem="{Binding SelectedScan}">
+            <ListView.ItemTemplate>
+            <DataTemplate x:DataType="hubdto:StationScanDTO">
+                    <ViewCell>
+                        <Grid Padding="10">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Label Text="{Binding UserInfo.UserName}"
+                               FontAttributes="Bold"/>
+                            <Label Grid.Row="1"
+                               Text="{Binding ScanTime}"/>
+                        </Grid>
+                    </ViewCell>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+
+</ContentPage>

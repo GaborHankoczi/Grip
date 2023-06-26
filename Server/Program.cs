@@ -97,7 +97,7 @@ builder.Services.AddIdentityServer(
         options.UserInteraction.LoginUrl = "/Account/Login";
         options.UserInteraction.LoginReturnUrlParameter = "returnUrl";
         options.UserInteraction.AllowOriginInReturnUrl = true;
-        options.Logging.UnhandledExceptionLoggingFilter = (category, level) => false;
+        options.Logging.UnhandledExceptionLoggingFilter = (category, level) => true;
     })
     /*.AddConfigurationStore<ApplicationDbContext>()
     .AddOperationalStore<ApplicationDbContext>();*/
@@ -106,6 +106,13 @@ builder.Services.AddIdentityServer(
     .AddInMemoryClients(identityServerConfig.Clients)
     .AddAspNetIdentity<User>()
     .AddProfileService<ProfileService>();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
 
 var issuer = builder.Configuration.GetValue<string>("Jwt:Issuer");
 
@@ -135,7 +142,7 @@ builder.Services.AddAuthentication(options =>
             options.ClientId = "172827484077-ek42qph1murp98dq15j6sepeq0tutp2n.apps.googleusercontent.com";
             options.ClientSecret = "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";
         })
-    .AddPolicyScheme("JWT_OR_COOKIE", "JWT_OR_COOKIE", options =>
+    /*.AddPolicyScheme("JWT_OR_COOKIE", "JWT_OR_COOKIE", options =>
     {
         // runs on each request
         options.ForwardDefaultSelector = context =>
@@ -148,7 +155,7 @@ builder.Services.AddAuthentication(options =>
             // otherwise always check for cookie auth
             return "Identity.Application";
         };
-    });
+    })*/;
 
 
 builder.Services.AddAuthorization(options =>
@@ -169,7 +176,7 @@ builder.Logging.AddConsole();
 
 builder.Services.AddProblemDetails(options =>
 {
-    options.IncludeExceptionDetails = (ctx, ex) => builder.Environment.IsDevelopment();
+    options.IncludeExceptionDetails = (ctx, ex) => true;//builder.Environment.IsDevelopment() || builder.Environment.ToString() == "TestEnvironment";
     options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);
     options.Map<NotFoundException>(ex =>
         new ProblemDetails
@@ -218,13 +225,14 @@ builder.Services.AddSwaggerGen(o =>
             AuthorizationCode = new OpenApiOAuthFlow()
             {
 
-                AuthorizationUrl = new Uri("https://localhost:7258/connect/authorize"),
-                TokenUrl = new Uri("https://localhost:7258/connect/token"),
+                AuthorizationUrl = new Uri(builder.Configuration.GetValue<string>("Host") + "/connect/authorize"),
+                TokenUrl = new Uri(builder.Configuration.GetValue<string>("Host") + "/connect/token"),
                 Scopes = new Dictionary<string, string>
             {
                 { "openid", "Identity" },
                 { "profile", "Profile" },
                 { "roles", "Roles" },
+                { "offline_access", "Refresh token" },
             }
             }
         }
@@ -273,6 +281,9 @@ app.UseCookiePolicy(new CookiePolicyOptions
     MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None,
     Secure = CookieSecurePolicy.Always
 });
+
+//Forwarding headers for external login
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -374,7 +385,5 @@ if (!(await userManager.GetUsersInRoleAsync("Admin")).Any())
 var hmacProvieder = new HMACTokenProvider();
 var hmacToken = hmacProvieder.GenerateToken(key, "1_1685086218_1270216262");
 logger.LogInformation($"Generated token: {hmacToken}");*/
-
-
 
 app.Run();

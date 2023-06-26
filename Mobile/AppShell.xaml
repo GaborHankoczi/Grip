@@ -5,7 +5,12 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:local="clr-namespace:GripMobile.View"
     Shell.FlyoutBehavior="Disabled" >
-
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="9*,1*">
+            <Label x:Name="title" HorizontalOptions="Start" Grid.Column="0" VerticalTextAlignment="Center"/>
+            <Button Text="Logout" Grid.Column="1" Clicked="Button_Clicked" BackgroundColor="Red" HorizontalOptions="Start"/>
+        </Grid>
+    </Shell.TitleView>
     <ShellContent
         Title="Home"
         ContentTemplate="{DataTemplate local:MainPage}"
@@ -33,6 +38,9 @@
 
         <Tab Title="Felhasználók">
             <ShellContent ContentTemplate="{DataTemplate local:UserListPage}" />
+        </Tab>
+        <Tab Title="Állomás figyelés">
+            <ShellContent ContentTemplate="{DataTemplate local:StationWatchPage}" />
         </Tab>
 
         <Tab Title="Hozzáadás">
