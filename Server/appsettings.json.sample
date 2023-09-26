@@ -1,5 +1,5 @@
 {
-  "Host": "grip.sytes.net",
+  "AllowPostmanOauth2RedirectUrl": false,
   "Certificate": {
     "LoadCertificate": true
   },

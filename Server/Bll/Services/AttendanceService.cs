@@ -55,13 +55,13 @@ public class AttendanceService : IAttendanceService
         _logger.LogInformation($"Phone scan attendance request received for {user.UserName} at station {stationNumber}");
         Station? station = _context.Stations.FirstOrDefault(x => x.StationNumber == stationNumber);
         if (station == null)
-            throw new Exception("Station not found");
+            throw new NotFoundException("Station not found");
         string? key = station.SecretKey;
         if (key == null)
-            throw new Exception("Station does not have a secret key");
+            throw new NotFoundException("Station does not have a secret key");
         // Calculate local time claimed in request
         DateTime attendanceTime = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-        attendanceTime = attendanceTime.AddSeconds(Convert.ToInt32(request.Message.Split("_")[1])).ToLocalTime();
+        attendanceTime = attendanceTime.AddSeconds(Convert.ToInt32(request.Message.Split("_")[1])).ToUniversalTime();
         // Check if the token is valid
         if (_stationTokenProvider.ValidateToken(key, request.Message, request.Token))
         {
@@ -78,7 +78,7 @@ public class AttendanceService : IAttendanceService
         else
         {
             _logger.LogInformation($"Invalid token for {user.UserName} at station {stationNumber}");
-            throw new Exception("Invalid token");
+            throw new BadRequestException("Invalid token");
         }
 
         var StationScanDTO = new StationScanDTO()

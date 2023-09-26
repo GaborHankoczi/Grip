@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="GripMobile.View.CreateGroupPage"
+             Title="Csoport létrehozása">
+    <ContentPage.Content>
+        <StackLayout>
+            <Label Text="Új csoport neve"/>
+            <Entry Text="{Binding Name}"/>
+            <Button Text="Létrehozás" Command="{Binding CreateGroupCommand}"/>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>

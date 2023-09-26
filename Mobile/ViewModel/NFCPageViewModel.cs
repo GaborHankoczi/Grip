@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GripMobile.Model;
+using GripMobile.Model.Api;
 using GripMobile.Service;
 using Plugin.NFC;
 using System.Net;
@@ -16,10 +17,12 @@ namespace GripMobile.ViewModel
         private Color backgroundColor;
 
         private readonly NFCService nfcService;
+        private readonly ApiClient api;
 
-        public NFCPageViewModel(NFCService nfcService)
+        public NFCPageViewModel(NFCService nfcService, ApiClient api)
         {
             this.nfcService = nfcService;
+            this.api = api;
 
             BackgroundColor = Colors.Red;
 
@@ -155,7 +158,7 @@ namespace GripMobile.ViewModel
             }
             else
             {
-                ActiveAttendanceDTO data = new()
+                Model.ActiveAttendanceDTO data = new()
                 {
                     Message = tagInfo.Records[0].Message,
                     Token = tagInfo.Records[1].Message
@@ -177,10 +180,27 @@ namespace GripMobile.ViewModel
         /// <param name="e"></param>
         void Current_OniOSReadingSessionCancelled(object sender, EventArgs e) => System.Diagnostics.Debug.WriteLine("iOS NFC Session has been cancelled");
 
-        [RelayCommand]
+        public string GenerateToken(string key, string message)
+        {
+            var encoding = new System.Text.ASCIIEncoding();
+            byte[] keyByte = encoding.GetBytes(key);
+            byte[] messageBytes = encoding.GetBytes(message);
+            using (var hmacsha256 = new System.Security.Cryptography.HMACSHA256(keyByte))
+            {
+                byte[] hashmessage = hmacsha256.ComputeHash(messageBytes);
+                return Convert.ToBase64String(hashmessage);
+            }
+        }
+
+            [RelayCommand]
         async void StartListening()
         {
+            var key = await api.SecretKeyAsync(1);
+            string message = $"1_{((DateTimeOffset)DateTime.UtcNow).ToUnixTimeSeconds()}_123456";
+            string token = GenerateToken(key.SecretKey, message);
+            await api.AttendanceAsync(new Model.Api.ActiveAttendanceDTO() { Message = message, Token = token });
             BackgroundColor = Colors.Green;
+            return;
             await BeginListening();
         }
 

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFrameworks>net7.0-android;net7.0-ios;net7.0-maccatalyst</TargetFrameworks>
+		<TargetFrameworks>net7.0-android</TargetFrameworks>
 		<TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net7.0-windows10.0.19041.0</TargetFrameworks>
 		<!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
 		<!-- <TargetFrameworks>$(TargetFrameworks);net7.0-tizen</TargetFrameworks> -->
@@ -50,13 +50,22 @@
 	<ItemGroup>
 		<PackageReference Include="CommunityToolkit.Maui" Version="5.1.0" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
+		<PackageReference Include="IdentityModel.OidcClient" Version="5.2.1" />
+		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="7.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="7.0.0" />
 		<PackageReference Include="Plugin.NFC" Version="0.1.26" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.31.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 	  <Compile Update="View\FirstLoginPage.xaml.cs">
 	    <DependentUpon>FirstLoginPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="View\StationWatchPage.xaml.cs">
+	    <DependentUpon>StationWatchPage.xaml</DependentUpon>
+	  </Compile>
+	  <Compile Update="View\StudentInfoPopup.xaml.cs">
+	    <DependentUpon>StudentInfoPopup.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="View\ForgotPasswordPopup.xaml.cs">
 	    <DependentUpon>ForgotPasswordPopup.xaml</DependentUpon>
@@ -67,7 +76,25 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="View\AssignToGroupPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\CreateClassPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\CreateExemptPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\CreateGroupPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="View\ExemptPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\StationWatchPage.xaml">
+	    <Generator>MSBuild:UpdateDesignTimeXaml</Generator>
+	  </MauiXaml>
+	  <MauiXaml Update="View\StudentInfoPopup.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="View\ForgotPasswordPopup.xaml">

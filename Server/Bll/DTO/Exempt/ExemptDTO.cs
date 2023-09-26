@@ -6,6 +6,22 @@ namespace Grip.Bll.DTO
     public record ExemptDTO
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="ExemptDTO"/> class.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="issuedBy"></param>
+        /// <param name="issuedTo"></param>
+        /// <param name="validFrom"></param>
+        /// <param name="validTo"></param>
+        public ExemptDTO(int id, UserInfoDTO issuedBy, UserInfoDTO issuedTo, DateTime validFrom, DateTime validTo)
+        {
+            Id = id;
+            IssuedBy = issuedBy;
+            IssuedTo = issuedTo;
+            ValidFrom = validFrom;
+            ValidTo = validTo;
+        }
+        /// <summary>
         /// Gets or sets the ID of the exemption.
         /// </summary>
         public int Id { get; init; }

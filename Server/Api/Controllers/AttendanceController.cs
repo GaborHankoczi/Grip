@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Identity;
 using Grip.DAL;
 using Grip.Bll.Services;
 using Grip.Bll.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Grip.Middleware;
 
 namespace Grip.Controllers;
 
@@ -42,10 +44,20 @@ public class AttendanceController : ControllerBase
     }
 
     /// <summary>
+    /// Options for the controller
+    /// Only used for routing
+    /// </summary>
+    [HttpOptions]
+    public IActionResult Options()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// This endpoint is used to authenticate a user when they are physically present at a station with their phone as identification method
     /// </summary>
     [HttpPost]
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
@@ -72,11 +84,10 @@ public class AttendanceController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
     [ProducesResponseType(StatusCodes.Status406NotAcceptable)]
-    public async Task<IActionResult> PassiveAuthentication([FromBody] PassiveAttendanceDTO request, [FromHeader] string apiKey)
+    [ValidateApiKey]
+    public async Task<IActionResult> PassiveAuthentication([FromBody] PassiveAttendanceDTO request, [FromHeader] string ApiKey /* For swagger documentation only*/)
     {
-        if (apiKey != _configuration["ApiKey"])
-            return BadRequest("Invalid API Key");
-        var User = await _userManager.FindByIdAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
+        await _attendanceService.VerifyPassiveScan(request);
 
 
         return Ok();
@@ -86,12 +97,12 @@ public class AttendanceController : ControllerBase
     /// This endpoint is used to get the logged in users classes for given day and wetaher they are present or not
     /// </summary>
     [HttpGet("{date}")]
-    [Authorize]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<AttendanceDTO>))]
     [ProducesResponseType(StatusCodes.Status400BadRequest, Type = typeof(ProblemDetails))]
-    public async Task<IActionResult> GetAttendanceForDay(DateOnly date)
+    public async Task<ActionResult<IEnumerable<AttendanceDTO>>> GetAttendanceForDay(DateOnly date)
     {
-        var User = await _userManager.FindByIdAsync(HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier) ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
+        var User = await _userManager.FindByEmailAsync(HttpContext.User.FindFirstValue(ClaimTypes.Email) ?? throw new Exception("User not found")) ?? throw new Exception("User not found");
         var attendance = await _attendanceService.GetAttendanceForDay(User, date);
         return Ok(attendance);
     }

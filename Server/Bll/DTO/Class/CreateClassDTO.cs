@@ -9,6 +9,17 @@ namespace Grip.Bll.DTO
     public record CreateClassDTO
     {
         /// <summary>
+        /// Initializes a new instance of the <see cref="CreateClassDTO"/> class.
+        /// </summary>
+        public CreateClassDTO(string name, DateTime startDateTime, int groupId, int teacherId, int stationId)
+        {
+            Name = name;
+            StartDateTime = startDateTime;
+            GroupId = groupId;
+            TeacherId = teacherId;
+            StationId = stationId;
+        }
+        /// <summary>
         /// Gets or sets the name of the class.
         /// </summary>
         [Required]

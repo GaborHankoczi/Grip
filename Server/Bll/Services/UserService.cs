@@ -1,5 +1,4 @@
 using AutoMapper;
-using Castle.Core.Smtp;
 using Grip.Bll.DTO;
 using Grip.Bll.Exceptions;
 using Grip.Bll.Services.Interfaces;
@@ -153,9 +152,9 @@ namespace Grip.Bll.Services
                 throw new NotFoundException("User not found.");
             }
             string result = await _userManager.GeneratePasswordResetTokenAsync(user);
+            _logger.LogInformation($"User {user.Email} forgot password, token generated: {result}");
             await _emailService.SendEmailAsync(user.Email, "Reset your password", $"Your authentication token is: {result}");
 
-            _logger.LogInformation($"User {user.Email} forgot password, token generated: {result}");
 
         }
 

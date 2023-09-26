@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<toolkit:Popup   xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+                 xmlns:toolkit="http://schemas.microsoft.com/dotnet/2022/maui/toolkit"
+                 x:Class="GripMobile.View.StudentInfoPopup"
+                 CanBeDismissedByTappingOutsideOfPopup="True"
+                 HorizontalOptions="Fill">
+
+    <VerticalStackLayout HorizontalOptions="FillAndExpand" Padding="15" Spacing="20" BackgroundColor="White" WidthRequest="1000">
+        
+        <Label 
+            Text="Név"/>
+
+        <Label 
+            Text="{Binding Student.UserName}"/>
+
+        <Label 
+            Text="Email"/>
+
+        <Label 
+            Text="{Binding Student.Email}" HorizontalOptions="FillAndExpand"/>
+
+        <Label 
+            Text="Hiányzások"/>
+
+        <ListView ItemsSource="{Binding Student.Absences}" HorizontalOptions="FillAndExpand">
+        </ListView>
+        
+        <Button 
+            Text="Ok"
+            TextColor="Black"
+            FontAttributes="Bold"
+            FontSize="13"
+            BackgroundColor="White"
+            BorderColor="Black"
+            BorderWidth="2"
+            VerticalOptions="Fill"
+            HorizontalOptions="Fill"
+            WidthRequest="100"
+            Clicked="ClosePopup" />            
+            
+    </VerticalStackLayout>
+
+</toolkit:Popup>

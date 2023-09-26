@@ -1,4 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using Duende.IdentityServer.EntityFramework.Entities;
+using Duende.IdentityServer.EntityFramework.Interfaces;
 using Grip.DAL.Model;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -60,6 +62,7 @@ public class ApplicationDbContext : IdentityDbContext<User, Role, int>
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         base.OnConfiguring(optionsBuilder);
+        if (optionsBuilder.IsConfigured) return;
         optionsBuilder.UseNpgsql(_configuration.GetConnectionString("DatabaseConnection"));
         //TODO remove
         optionsBuilder.EnableSensitiveDataLogging();

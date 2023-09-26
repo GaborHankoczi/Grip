@@ -14,6 +14,7 @@ namespace Grip.DAL
         /// </summary>
         public MappingProfile()
         {
+            CreateMap<DateTime, DateTime>().ConvertUsing(d => DateTime.SpecifyKind(d, DateTimeKind.Utc));
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<User, LoginResultDTO>().ReverseMap();
             CreateMap<Class, ClassDTO>().ReverseMap();

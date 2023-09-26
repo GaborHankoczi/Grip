@@ -4,6 +4,7 @@
              x:Class="GripMobile.View.CurrentClassesPage"
              xmlns:viewmodel="clr-namespace:GripMobile.ViewModel"
              xmlns:model="clr-namespace:GripMobile.Model"
+             xmlns:api="clr-namespace:GripMobile.Model.Api"
              x:DataType="viewmodel:CurrentClassesPageViewModel"
              Title="Órarend">
 
@@ -11,7 +12,7 @@
         
         <ListView SeparatorVisibility="None" ItemsSource="{Binding CurrentObservableClasses}">
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="model:ClassDTO">
+                <DataTemplate x:DataType="api:AttendanceDTO">
                     <ViewCell>
                         <Grid Padding="10">
                             <Grid.RowDefinitions>
@@ -20,11 +21,18 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-                            <Label Text="{Binding Name}"
+                            <Label Text="{Binding Class.Name}"
                                FontAttributes="Bold"/>
                             <Label Grid.Row="1"
-                               Text="{Binding StartDateTime}"/>
+                                   Grid.Column="0"
+                               Text="{Binding Class.StartDateTime}"/>
+                            <Label Text="Jelen volt:" Grid.Row="0" Grid.Column="1"/>
+                            <Label Text="Van igazolása:" Grid.Row="1" Grid.Column="1"/>
+                            <Label Text="{Binding Present}" Grid.Row="0" Grid.Column="2"/>
+                            <Label Text="{Binding HasExempt}" Grid.Row="1" Grid.Column="2"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>

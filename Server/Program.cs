@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Grip.DAL;
 using Microsoft.AspNetCore.Identity;
@@ -14,8 +13,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.OpenApi.Models;
 using Grip.Bll.Providers;
 using Grip.Api.Hubs;
+using Grip;
+using Duende.IdentityServer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Grip.Api.Middleware;
+using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.Net.Http.Headers;
+using Duende.IdentityServer.AspNetIdentity;
+
+ILogger<User> logger = null;
 
 var builder = WebApplication.CreateBuilder(args);
+
+if (builder.Configuration["Proxy:UseProxy"] == "true")
+{
+    System.Net.WebRequest.DefaultWebProxy = new System.Net.WebProxy(builder.Configuration["Proxy:ProxyUrl"]);
+}
+
+builder.Services.AddRazorPages();
 
 // Add services to the container.
 var connectionString = builder.Configuration.GetConnectionString("DatabaseConnection");
@@ -41,7 +58,10 @@ if (builder.Configuration.GetValue<bool>("Certificate:LoadCertificate"))
         });
     }
 }
-
+builder.Services.Configure<SecurityStampValidatorOptions>(opts =>
+{
+    opts.OnRefreshingPrincipal = SecurityStampValidatorCallback.UpdatePrincipal;
+});
 /// Add Identity
 builder.Services.AddIdentity<User, Role>(options =>
 {
@@ -59,11 +79,92 @@ builder.Services.AddIdentity<User, Role>(options =>
 })
     .AddRoles<Role>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
+    //.AddDefaultTokenProviders()
     .AddTokenProvider<EmailTokenProvider<User>>(TokenOptions.DefaultProvider);
 
-builder.Services.AddAuthentication()
-    .AddIdentityServerJwt();
 
+var identityServerConfig = new IdentityServerConfig(builder.Configuration);
+// IdentityServer
+builder.Services.AddIdentityServer(
+    options =>
+    {
+        options.IssuerUri = builder.Configuration.GetValue<string>("Jwt:Issuer");
+        options.Events.RaiseErrorEvents = true;
+        options.Events.RaiseInformationEvents = true;
+        options.Events.RaiseFailureEvents = true;
+        options.Events.RaiseSuccessEvents = true;
+        options.EmitStaticAudienceClaim = true;
+        options.UserInteraction.LoginUrl = "/Account/Login";
+        options.UserInteraction.LoginReturnUrlParameter = "returnUrl";
+        options.UserInteraction.AllowOriginInReturnUrl = true;
+        options.Logging.UnhandledExceptionLoggingFilter = (category, level) => true;
+    })
+    /*.AddConfigurationStore<ApplicationDbContext>()
+    .AddOperationalStore<ApplicationDbContext>();*/
+    .AddInMemoryIdentityResources(identityServerConfig.IdentityResources)
+    .AddInMemoryApiScopes(identityServerConfig.ApiScopes)
+    .AddInMemoryClients(identityServerConfig.Clients)
+    .AddAspNetIdentity<User>()
+    .AddProfileService<ProfileService>();
+
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedFor | Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
+var issuer = builder.Configuration.GetValue<string>("Jwt:Issuer");
+
+builder.Services.AddAuthentication(options =>
+{
+    /*options.DefaultAuthenticateScheme = "JWT_OR_COOKIE";
+    options.DefaultChallengeScheme = "JWT_OR_COOKIE";
+    options.DefaultScheme = "JWT_OR_COOKIE";*/
+})
+    .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, o =>
+    {
+        o.IncludeErrorDetails = true;
+        o.RequireHttpsMetadata = false;
+        // TODO don't use this in production
+        o.BackchannelHttpHandler = new HttpClientHandler { ServerCertificateCustomValidationCallback = delegate { return true; } };
+        o.Authority = builder.Configuration.GetValue<string>("Jwt:Issuer");
+        o.TokenValidationParameters = new TokenValidationParameters
+        {
+
+            ValidateAudience = false,
+            ValidateIssuerSigningKey = false
+        };
+    })
+.AddGoogle(options =>
+        {
+            options.SignInScheme = IdentityServerConstants.ExternalCookieAuthenticationScheme;
+            options.ClientId = "172827484077-ek42qph1murp98dq15j6sepeq0tutp2n.apps.googleusercontent.com";
+            options.ClientSecret = "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";
+        })
+    /*.AddPolicyScheme("JWT_OR_COOKIE", "JWT_OR_COOKIE", options =>
+    {
+        // runs on each request
+        options.ForwardDefaultSelector = context =>
+        {
+            // filter by auth type
+            string authorization = context.Request.Headers[HeaderNames.Authorization];
+            if (!string.IsNullOrEmpty(authorization) && authorization.StartsWith("Bearer "))
+                return "Bearer";
+
+            // otherwise always check for cookie auth
+            return "Identity.Application";
+        };
+    })*/;
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("Admin", policy =>
+    {
+        policy.RequireRole("Admin");
+    });
+});
 builder.Services.AddSingleton<IStationTokenProvider, HMACTokenProvider>();
 
 builder.Services.AddControllers();
@@ -71,9 +172,11 @@ builder.Services.AddControllers();
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+
+
 builder.Services.AddProblemDetails(options =>
 {
-    options.IncludeExceptionDetails = (ctx, ex) => builder.Environment.IsDevelopment();
+    options.IncludeExceptionDetails = (ctx, ex) => true;//builder.Environment.IsDevelopment() || builder.Environment.ToString() == "TestEnvironment";
     options.MapToStatusCode<NotImplementedException>(StatusCodes.Status501NotImplemented);
     options.Map<NotFoundException>(ex =>
         new ProblemDetails
@@ -98,7 +201,6 @@ builder.Services.AddProblemDetails(options =>
     });
     options.MapToStatusCode<DbConcurrencyException>(StatusCodes.Status409Conflict);
 });
-
 builder.Services.AddSignalR();
 
 builder.Services.AddSingleton<IEmailService, EmailService>();
@@ -112,11 +214,47 @@ builder.Services.AddScoped<IStationService, StationService>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<ICurrentTimeProvider, CurrentTimeProvider>();
 
-
 builder.Services.AddSwaggerGen(o =>
 {
     o.SwaggerDoc("v1", new OpenApiInfo { Title = "Grip API", Version = "v1", Description = "Api for Grip attendance system" });
+    o.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Type = SecuritySchemeType.OAuth2,
+        Flows = new OpenApiOAuthFlows()
+        {
+            AuthorizationCode = new OpenApiOAuthFlow()
+            {
+
+                AuthorizationUrl = new Uri(builder.Configuration.GetValue<string>("Host") + "/connect/authorize"),
+                TokenUrl = new Uri(builder.Configuration.GetValue<string>("Host") + "/connect/token"),
+                Scopes = new Dictionary<string, string>
+            {
+                { "openid", "Identity" },
+                { "profile", "Profile" },
+                { "roles", "Roles" },
+                { "offline_access", "Refresh token" },
+            }
+            }
+        }
+    });
     o.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Grip.xml"));
+    o.AddSecurityRequirement(new OpenApiSecurityRequirement()
+            {
+                {
+                    new OpenApiSecurityScheme()
+                    {
+                        Reference = new OpenApiReference()
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        },
+                        Scheme = "Bearer",
+                        Type = SecuritySchemeType.Http,
+                        Name = "Bearer",
+                        In = ParameterLocation.Header
+                    }, new List<string>()
+                }
+            });
 });
 
 var mapperConfig = new MapperConfiguration(mc =>
@@ -127,13 +265,25 @@ var mapperConfig = new MapperConfiguration(mc =>
 IMapper mapper = mapperConfig.CreateMapper();
 builder.Services.AddSingleton(mapper);
 
+builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>();
 
 
 
+#region Pipeline
 
 var app = builder.Build();
 
 app.UseProblemDetails();
+
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    HttpOnly = HttpOnlyPolicy.None,
+    MinimumSameSitePolicy = Microsoft.AspNetCore.Http.SameSiteMode.None,
+    Secure = CookieSecurePolicy.Always
+});
+
+//Forwarding headers for external login
+app.UseForwardedHeaders();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -162,30 +312,42 @@ if (builder.Configuration.GetValue<bool>("UseSwagger"))
     {
         o.RoutePrefix = "swagger";
         o.ConfigObject.AdditionalItems.Add("syntaxHighlight", false);
+        o.OAuthConfigObject.ClientId = "interactive";
+        o.OAuthConfigObject.ClientSecret = "49C1A7E1-0C79-4A89-A3D6-A37998FB86B0";
+        o.OAuthUseBasicAuthenticationWithAccessCodeGrant();
+        o.OAuthUsePkce();
     });
 }
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
+
+
 app.UseAuthentication();
+app.UseIdentityServer();
 app.UseAuthorization();
+
+app.MapRazorPages()
+    .RequireAuthorization();
 
 app.UseMiddleware<DeChunkingMiddleware>();
 app.UseMiddleware<ApiKeyValidationMiddleware>();
+app.UseMiddleware<OptionsMiddleware>();
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller}/{action=Index}/{id?}");
-
+app.MapHealthChecks("/healthz");
 app.MapHub<StationHub>("/hubs/station");
 
 using var scope = app.Services.CreateScope();
 using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
 using var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
-var logger = scope.ServiceProvider.GetRequiredService<ILogger<User>>();
+using var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+logger = scope.ServiceProvider.GetRequiredService<ILogger<User>>();
 
-var hostName = builder.Configuration.GetValue<string>("Host") ?? throw new Exception("HostName not found in configuration");
+var hostName = builder.Configuration.GetValue<string>("HostName") ?? throw new Exception("HostName not found in configuration");
 
 var roles = new[] { "Student", "Teacher", "Admin", "Doorman" };
 
@@ -217,10 +379,11 @@ if (!(await userManager.GetUsersInRoleAsync("Admin")).Any())
     }
 }
 
-/*
+#endregion
+
+/*string key = "6a9a7384-a972-4520-bbcd-68a1350cabac";//dbContext.Stations.Find(1).SecretKey;
 var hmacProvieder = new HMACTokenProvider();
-var hmacToken = hmacProvieder.GenerateToken("a","1_1681290689_1270216262");
-logger.LogInformation($"Generated token: {hmacToken}");
-*/
+var hmacToken = hmacProvieder.GenerateToken(key, "1_1685086218_1270216262");
+logger.LogInformation($"Generated token: {hmacToken}");*/
 
 app.Run();

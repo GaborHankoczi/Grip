@@ -4,6 +4,7 @@
              x:Class="GripMobile.View.ExemptPage"
              xmlns:viewmodel="clr-namespace:GripMobile.ViewModel"
              xmlns:model="clr-namespace:GripMobile.Model"
+             xmlns:api="clr-namespace:GripMobile.Model.Api"
              x:DataType="viewmodel:ExemptPageViewModel"
              Title="Kikérők">
 
@@ -11,7 +12,7 @@
 
         <ListView ItemsSource="{Binding CurrentObservableExempts}">
             <ListView.ItemTemplate>
-                <DataTemplate x:DataType="model:ExemptDTO">
+                <DataTemplate x:DataType="api:ExemptDTO">
                     <ViewCell>
                         <Grid Padding="10">
                             <Grid.RowDefinitions>
@@ -20,11 +21,18 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <Label Text="{Binding ValidFrom}"
                                FontAttributes="Bold"/>
                             <Label Grid.Row="1"
                                Text="{Binding ValidTo}"/>
+                            <Label Grid.Row="0"
+                                   Grid.Column="1"
+                               Text="Kibocsájtó:"/>
+                            <Label Grid.Row="1"
+                                   Grid.Column="1"
+                               Text="{Binding IssuedBy.UserName}"/>
                         </Grid>
                     </ViewCell>
                 </DataTemplate>

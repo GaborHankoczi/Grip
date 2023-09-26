@@ -29,6 +29,16 @@ public class StationController : ControllerBase
     }
 
     /// <summary>
+    /// Options for the controller
+    /// Only used for routing
+    /// </summary>
+    [HttpOptions]
+    public IActionResult Options()
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
     /// Gets the secret key for a specific station.
     /// </summary>
     /// <param name="StationNumber">The number of the station.</param>
@@ -48,7 +58,7 @@ public class StationController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<StationSecretKeyDTO>> GetKey([FromRoute] int StationNumber)
+    public async Task<ActionResult<StationSecretKeyDTO>> GetKey([FromRoute] int StationNumber, [FromHeader] string ApiKey /* For swagger documentation only*/)
     {
         return Ok(await _stationService.GetSecretKey(StationNumber));
     }

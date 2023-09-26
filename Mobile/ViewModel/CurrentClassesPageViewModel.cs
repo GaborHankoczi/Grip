@@ -3,6 +3,7 @@ using CommunityToolkit.Maui.Core;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GripMobile.Model;
+using GripMobile.Model.Api;
 using GripMobile.Service;
 using System.Collections.ObjectModel;
 
@@ -14,17 +15,21 @@ namespace GripMobile.ViewModel
         private bool isRefreshing;
 
         [ObservableProperty]
-        public ObservableCollection<ClassDTO> currentObservableClasses;
+        public ObservableCollection<AttendanceDTO> currentObservableClasses;
 
-        private readonly CurrentClassesService currentClassesService;
+        private readonly ApiClient api;
 
         /// <value>Property <c>cancellationTokenSource</c> is needed for closing the toast messages.</value>
         private CancellationTokenSource cancellationTokenSource = new();
 
         /// <value>Property <c>toast</c> represents every toast message in <c>LoginPage</c></value>
         private IToast toast;
-
-        public CurrentClassesPageViewModel(CurrentClassesService currentClassesService) => this.currentClassesService = currentClassesService;
+        
+        public CurrentClassesPageViewModel(ApiClient api) 
+        {
+            this.api = api;
+            UpdateClasses();
+        }
 
         [RelayCommand]
         public async void UpdateClasses()
@@ -33,7 +38,7 @@ namespace GripMobile.ViewModel
             
             try
             {
-                List<ClassDTO> currentClasses = await currentClassesService.GetCurrentClasses(DateTime.Now.ToString("yyyy-MM-dd"));
+                ICollection<AttendanceDTO> currentClasses = await api.AttendanceAllAsync(DateTime.Now);
 
                 if (currentClasses == null || currentClasses.Count == 0)
                 {
@@ -46,7 +51,7 @@ namespace GripMobile.ViewModel
                     return;
                 }
 
-                CurrentObservableClasses = new ObservableCollection<ClassDTO>(currentClasses);
+                CurrentObservableClasses = new ObservableCollection<AttendanceDTO>(currentClasses);
             }
             catch (Exception exception)
             {
