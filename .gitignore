@@ -4,3 +4,12 @@ Server/appsettings.TestEnvironment.json
 /Mobile/obj
 Server/keys/is-signing-key-1F62B08AD10089AF66CF6CB3F892CD6F.json
 Firmware/pcb/login-controller/export/3d.png
+EverlinkAdapter/Adapter/bin/*
+EverlinkAdapter/Adapter/obj/*
+EverlinkAdapter/Adapter/Messages/*
+EverlinkAdapter/Adapter/Decoded Messages/*
+EverlinkAdapter/Decoded Messages/*
+EverlinkAdapter/ServerSimulator/bin/*
+EverlinkAdapter/ServerSimulator/obj/*
+EverlinkAdapter/ServerSimulator/message/*
+EverlinkAdapter/ServerSimulator/message.zip

@@ -40,18 +40,6 @@
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach"
-        },
-        {
-            "type": "codexm-debug",
-            "request": "launch",
-            "name": "Sample CodeXM Checker Configuration",
-            "targetedSourceFiles": [
-                "/home/gabor/.synopsys/desktop/cxm/sample/SampleSourceFile.js"
-            ],
-            "cxmFiles": [
-                "/home/gabor/.synopsys/desktop/cxm/sample/SampleChecker.cxm"
-            ],
-            "buildCommand": ""
         }
     ]
 }

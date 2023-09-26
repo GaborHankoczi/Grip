@@ -166,6 +166,7 @@ builder.Services.AddAuthorization(options =>
     });
 });
 builder.Services.AddSingleton<IStationTokenProvider, HMACTokenProvider>();
+builder.Services.AddSingleton<IEverlinkAdapterService, EverlinkAdapterService>();
 
 builder.Services.AddControllers();
 
@@ -340,6 +341,7 @@ app.MapControllerRoute(
     pattern: "{controller}/{action=Index}/{id?}");
 app.MapHealthChecks("/healthz");
 app.MapHub<StationHub>("/hubs/station");
+app.MapHub<EverlinkAdapterHub>("/hubs/everlink");
 
 using var scope = app.Services.CreateScope();
 using var userManager = scope.ServiceProvider.GetRequiredService<UserManager<User>>();
