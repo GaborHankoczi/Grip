@@ -20,7 +20,7 @@ namespace Adapter
         }
         public void Log(String message,LogLevel level){
             Console.WriteLine($"{DateTime.Now.ToString("HH:mm:ss")} [{level.ToString()}] {message}");
-            File.AppendAllText($"./data/logs/{DateTime.Now.ToString("yyyy--MM-dd")}.log",$"{DateTime.Now.ToString("HH:mm:ss")} [{level.ToString()}] {message}\n");
+            File.AppendAllText($"./data/logs/{DateTime.Now.ToString("yyyy-MM-dd")}.log",$"{DateTime.Now.ToString("HH:mm:ss")} [{level.ToString()}] {message}\n");
         }
     }
 }
