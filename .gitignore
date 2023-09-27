@@ -13,3 +13,4 @@ EverlinkAdapter/ServerSimulator/bin/*
 EverlinkAdapter/ServerSimulator/obj/*
 EverlinkAdapter/ServerSimulator/message/*
 EverlinkAdapter/ServerSimulator/message.zip
+EverlinkAdapter/Adapter/data/logs/*.log
