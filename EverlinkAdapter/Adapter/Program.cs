@@ -2,11 +2,22 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
+using Adapter;
 using Adapter.EverlinkProtocol;
 using Microsoft.AspNetCore.SignalR.Client;
+using static Adapter.Logger;
+
+
+var config = JsonSerializer.Deserialize<Config>(await File.ReadAllTextAsync("./data/config.json"));
+if(config == null){
+  Console.WriteLine("Config file not found at ./data/config.json");
+  return;
+}
+var logger = new Logger(config);
 
 var hubConnection = new HubConnectionBuilder()
-                .WithUrl("https://nloc.duckdns.org:8030/hubs/everlink",conf=>{conf.HttpMessageHandlerFactory = _ => new HttpClientHandler
+                .WithUrl(config.SignalRURL,conf=>{conf.HttpMessageHandlerFactory = _ => new HttpClientHandler
                 {
                     ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
                 };})
@@ -15,42 +26,73 @@ var hubConnection = new HubConnectionBuilder()
 hubConnection.Closed += async (error) =>
 {
 
-  Console.WriteLine("Disconnected from SignalR");
-  await Task.Delay(1000);    
-  Console.WriteLine("Reconnecting");
-  await hubConnection.StartAsync();
+  logger.Log("Disconnected from SignalR",LogLevel.Warning);
+  while(true){
+    CancellationTokenSource source = new CancellationTokenSource();
+    source.CancelAfter(5000);
+    logger.Log("Trying to reconnect to SignalR",LogLevel.Info);
+    bool reconnected = false;
+    try{
+      await hubConnection.StartAsync(source.Token);
+      reconnected = true;
+    }catch(Exception ex){
+      if(ex is TaskCanceledException){
+        logger.Log("Reconnecting to SignalR timed out",LogLevel.Warning);
+      }else{
+        logger.Log(ex.Message+": "+ex.StackTrace,LogLevel.Error);
+      Thread.Sleep(1000);
+    }
+    }finally{
+      source = new CancellationTokenSource();      
+    }
+    if(reconnected){
+      logger.Log("Reconnected to SignalR",LogLevel.Info);
+      break;
+    }
+  }
+  logger.Log("Connected to SignalR", LogLevel.Info);
 };
 
 EverlinkConnection connection;
 BlockingCollection<string> queryQueue = new BlockingCollection<string>();
 hubConnection.On<string>("RunQuerry", async (query) =>{ 
-  Console.WriteLine($"Received query: {query}");
-  queryQueue.Add(query);
+  if(query.ToUpper().Contains("DELETE") || query.ToUpper().Contains("UPDATE") || query.ToUpper().Contains("INSERT"))
+    logger.Log("Query rejected, only SELECT allowed",LogLevel.Warning);
+  else
+    queryQueue.Add(query);
   });
+while(true){
+  logger.Log("Trying to connect to SignalR",LogLevel.Info);
+  try{
+    await hubConnection.StartAsync();
+    break;
+  }catch(Exception ex){
+    logger.Log(ex.Message+": "+ex.StackTrace, LogLevel.Error);
+    await Task.Delay(1000);
+  }
+}
+logger.Log("Connected to SignalR", LogLevel.Info);
 
-await hubConnection.StartAsync();
-Console.WriteLine("Connected to SignalR");
 while(true){
   try
   {
-    connection = new EverlinkConnection("localhost", 5100, "admin","12345");
+    connection = new EverlinkConnection(config.EverlinkServer, config.EverlinkPort, config.EverlinkUsername,config.EverlinkPassword);
     await connection.ConnectAsync();
-    Console.WriteLine("Connected to Everlink");
+    logger.Log("Connected to Everlink", LogLevel.Info);
     while(true){
       var query = queryQueue.Take();
-      Console.WriteLine($"Received query: {query}");
+      logger.Log($"Received query: {query}", LogLevel.Info);
       var result = await connection.QueryAsync(query);
       await hubConnection.InvokeAsync("SendQuerryResult", result);
     }
 
   }catch(Exception ex)
   {
-    Console.WriteLine(ex.Message);
+    logger.Log(ex.Message+": "+ex.StackTrace, LogLevel.Error);
     await Task.Delay(1000);    
-    Console.WriteLine("Reconnecting...");
+    logger.Log("Reconnecting...",LogLevel.Info);
   }
 }
-return;
 
 //
 

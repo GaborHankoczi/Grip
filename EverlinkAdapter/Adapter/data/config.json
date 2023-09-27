@@ -1,0 +1,8 @@
+{
+    "SignalRURL":"https://nloc.duckdns.org:8030/hubs/everlink",
+    "EverlinkServer":"localhost",
+    "EverlinkPort":5100,
+    "EverlinkUsername":"admin",
+    "EverlinkPassword":"12345",
+    "LogLevel": "Info" 
+}

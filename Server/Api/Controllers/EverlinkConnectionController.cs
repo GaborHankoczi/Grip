@@ -27,9 +27,9 @@ namespace Grip.Api.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> Query([FromQuery]string query){
             _logger.LogInformation($"Sending query {query} to EverlinkAdapterHub");
-            var result = await _everlinkService.SendQuary(query);
+            var result = await _everlinkService.SendQuery(query);
             _logger.LogInformation($"Query {query} executed with result {Encoding.UTF8.GetString(result)}");
-            return Ok();
+            return File(result, "application/zip", "result.zip");
         }
 
     }

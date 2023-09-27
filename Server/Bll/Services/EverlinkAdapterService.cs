@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Grip.Bll.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using Grip.Api.Hubs;
+using System.Data;
 
 namespace Grip.Bll.Services
 {
@@ -40,7 +41,7 @@ namespace Grip.Bll.Services
             dataReceivedTaskCompletionSource.SetResult(response);
         }
 
-        public async Task<byte[]> SendQuary(string query)
+        public async Task<byte[]> SendQuery(string query)
         {
             if(!IsConnected())
                 throw new Exception("Everlink adapter is not connected" );
