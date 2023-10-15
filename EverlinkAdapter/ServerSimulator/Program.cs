@@ -52,6 +52,10 @@ async void ConnectionHandler(TcpClient handler){
                 var message = await System.IO.File.ReadAllBytesAsync("message.zip");
                 await stream.WriteAsync(new byte[]{0xbc,0x03,0x00,0x00}.Concat(message).ToArray());
                 continue;
+            }else if(buffer[0]==0x1a){
+                Console.WriteLine("Heartbeat");
+                await stream.WriteAsync(new byte[]{0x00});
+                continue;
             }
             
         }
