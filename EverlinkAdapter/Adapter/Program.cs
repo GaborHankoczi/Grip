@@ -15,7 +15,6 @@ if(config == null){
   return;
 }
 var logger = new Logger(config);
-
 var hubConnection = new HubConnectionBuilder()
                 .WithUrl(config.SignalRURL,conf=>{conf.HttpMessageHandlerFactory = _ => new HttpClientHandler
                 {
@@ -71,12 +70,17 @@ while(true){
     await Task.Delay(1000);
   }
 }
+hubConnection.Closed += (e)=>
+{
+  logger.Log($"Disconnected from SignalR with reason: {e?.Message}",LogLevel.Warning);
+  return Task.CompletedTask;
+};
 logger.Log("Connected to SignalR", LogLevel.Info);
 
 while(true){
   try
   {
-    connection = new EverlinkConnection(config.EverlinkServer, config.EverlinkPort, config.EverlinkUsername,config.EverlinkPassword);
+    connection = new EverlinkConnection(config.EverlinkServer, config.EverlinkPort, config.EverlinkUsername,config.EverlinkPassword,logger);
     await connection.ConnectAsync();
     logger.Log("Connected to Everlink", LogLevel.Info);
     while(true){

@@ -11,13 +11,13 @@ namespace Adapter.EverlinkProtocol.Messages
         public byte[]? FileContent { get; private set; }
         public FileResponseMessage(byte[] message)
         {
-            if(!(message.Length == 4 && message.SequenceEqual(new byte[]{0x00,0x00,0x00,0x00})))
+            if(message.Length == 4 && message.SequenceEqual(new byte[]{0x00,0x00,0x00,0x00}))
             {
-                IsReady = true;
-                FileContent = message.Skip(4).ToArray();
+                IsReady = false;                
             }
             else
             {
+                FileContent = message;
                 IsReady = true;
             }
         }
