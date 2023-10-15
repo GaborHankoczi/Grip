@@ -7,6 +7,9 @@ using Grip.Bll.Services.Interfaces;
 using Microsoft.AspNetCore.SignalR;
 using Grip.Api.Hubs;
 using System.Data;
+using Grip.Bll.Everlink;
+using AutoMapper;
+using Grip.Bll.DTO.Everlink;
 
 namespace Grip.Bll.Services
 {
@@ -16,10 +19,12 @@ namespace Grip.Bll.Services
         private TaskCompletionSource<byte[]> dataReceivedTaskCompletionSource = new TaskCompletionSource<byte[]>();
         private readonly ILogger<EverlinkAdapterService> _logger;
         private readonly IHubContext<EverlinkAdapterHub, IEverlinkAdapterClient> _hubContext;
-        public EverlinkAdapterService(ILogger<EverlinkAdapterService> logger, IHubContext<EverlinkAdapterHub, IEverlinkAdapterClient> hubContext)
+        private readonly IMapper _mapper;
+        public EverlinkAdapterService(ILogger<EverlinkAdapterService> logger, IHubContext<EverlinkAdapterHub, IEverlinkAdapterClient> hubContext, IMapper mapper)
         {
             _logger = logger;
             _hubContext = hubContext;
+            _mapper = mapper;
         }
         public void AdapterConnected()
         {
@@ -41,13 +46,27 @@ namespace Grip.Bll.Services
             dataReceivedTaskCompletionSource.SetResult(response);
         }
 
-        public async Task<byte[]> SendQuery(string query)
+
+        public async Task<TableDTO> SendQuery(string query)
         {
             if(!IsConnected())
                 throw new Exception("Everlink adapter is not connected" );
             await _hubContext.Clients.All.RunQuerry(query);
             var result = await AwaitResponse();
-            _logger.LogInformation($"Querry {query} executed with result {Encoding.UTF8.GetString(result)}");
+            var table = new Table();
+            await table.LoadFromZip(result);
+            var tableDTO =  _mapper.Map<TableDTO>(table);
+            _logger.LogInformation($"Querry {query} executed successfully");
+            return tableDTO;
+        }
+
+        public async Task<byte[]> SendQueryZip(string query)
+        {
+            if(!IsConnected())
+                throw new Exception("Everlink adapter is not connected" );
+            await _hubContext.Clients.All.RunQuerry(query);
+            var result = await AwaitResponse();
+            _logger.LogInformation($"Querry {query} executed successfully");
             return result;
         }
         private async Task<byte[]> AwaitResponse(TimeSpan? timeout = null)

@@ -22,6 +22,8 @@ using Grip.Api.Middleware;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.Net.Http.Headers;
 using Duende.IdentityServer.AspNetIdentity;
+using Grip.Bll.Everlink;
+
 
 ILogger<User> logger = null;
 
@@ -202,7 +204,14 @@ builder.Services.AddProblemDetails(options =>
     });
     options.MapToStatusCode<DbConcurrencyException>(StatusCodes.Status409Conflict);
 });
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(
+    options =>
+    {
+        options.MaximumReceiveMessageSize = 1024 * 1024 * 200; // 200 MB
+        if(builder.Environment.IsDevelopment()|| builder.Environment.EnvironmentName == "TestEnvironment")
+            options.EnableDetailedErrors = true;
+    }
+);
 
 builder.Services.AddSingleton<IEmailService, EmailService>();
 builder.Services.AddScoped<IUserService, UserService>();
