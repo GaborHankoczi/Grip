@@ -15,7 +15,7 @@ namespace Adapter.EverlinkProtocol
         public void Append(byte[] data)
         {
             _buffer.AddRange(data);
-            if(data.Skip(data.Length-4).Take(4).SequenceEqual(new byte[]{0x00,0x00,0x00,0x00}))
+            if(data.Skip(data.Length-3).Take(3).SequenceEqual(new byte[]{0x00,0x00,0x00}))
                 IsComplete = true;
         }
     }
