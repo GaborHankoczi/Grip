@@ -283,6 +283,8 @@ builder.Services.AddHealthChecks().AddDbContextCheck<ApplicationDbContext>();
 
 var app = builder.Build();
 
+app.MapRazorPages()
+    .RequireAuthorization();
 app.UseProblemDetails();
 
 app.UseCookiePolicy(new CookiePolicyOptions
@@ -338,8 +340,6 @@ app.UseAuthentication();
 app.UseIdentityServer();
 app.UseAuthorization();
 
-app.MapRazorPages()
-    .RequireAuthorization();
 
 app.UseMiddleware<DeChunkingMiddleware>();
 app.UseMiddleware<ApiKeyValidationMiddleware>();
