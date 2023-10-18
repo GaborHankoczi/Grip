@@ -1,9 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Grip.Bll.DTO.Everlink;
+using Grip.Bll.Everlink;
 using Grip.Bll.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -24,11 +28,20 @@ namespace Grip.Api.Controllers
         }
 
         [HttpGet("[action]")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Query([FromQuery]string query){
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<TableDTO> Query([FromQuery]string query){
             _logger.LogInformation($"Sending query {query} to EverlinkAdapterHub");
             var result = await _everlinkService.SendQuery(query);
-            _logger.LogInformation($"Query {query} executed with result {Encoding.UTF8.GetString(result)}");
+            _logger.LogInformation($"Query {query} executed successfully");
+            return result;
+        }
+
+        [HttpGet("[action]")]
+        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> QueryZip([FromQuery]string query){
+            _logger.LogInformation($"Sending query {query} to EverlinkAdapterHub");
+            var result = await _everlinkService.SendQueryZip(query);
+            _logger.LogInformation($"Query {query} executed successfully");
             return File(result, "application/zip", "result.zip");
         }
 

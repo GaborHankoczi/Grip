@@ -22,26 +22,6 @@ namespace Adapter.EverlinkProtocol
         private string password;
 
         private Logger logger;
-
-        private object _keepAliveLock = new object();
-
-
-        private long _lastKeepAliveBinary;
-        private DateTime _lastKeepAlive {get => DateTime.FromBinary(Interlocked.CompareExchange(ref _lastKeepAliveBinary,0,0)); set { Interlocked.Exchange(ref _lastKeepAliveBinary,value.ToBinary());}}
-
-        private SemaphoreSlim _keepAliveSemaphore = new SemaphoreSlim(1);
-
-        private Thread KeepAliveThread;
-
-        private async void KeepAlive(){
-            while(true){
-                await Task.Delay(1000);
-                if((DateTime.Now - _lastKeepAlive).TotalSeconds > 3){
-                    _lastKeepAlive = DateTime.Now;
-                    await SendMessageAndAwaitResponse<BinaryMessage>(BinaryMessage.KEEPALIVE);
-                }
-            }
-        }
         
         public EverlinkConnection(string host, int port, string username, string password, Logger logger)
         {
@@ -62,6 +42,10 @@ namespace Adapter.EverlinkProtocol
             var outputBuffer = new ArraySegment<byte>(buffer,0,read).ToArray();
             logger.LogHex(outputBuffer,Logger.LogLevel.Dump);
             return outputBuffer;
+            logger.Log("Receiving message",Logger.LogLevel.Debug);
+            var outputBuffer = new ArraySegment<byte>(buffer,0,read).ToArray();
+            logger.LogHex(outputBuffer,Logger.LogLevel.Dump);
+            return outputBuffer;
         }
 
         private async Task SendMessage(MessageBase message){
@@ -70,7 +54,6 @@ namespace Adapter.EverlinkProtocol
             logger.Log("Sending message",Logger.LogLevel.Debug);
             logger.LogHex(messageData,Logger.LogLevel.Dump);
             await stream.WriteAsync(messageData);
-            _lastKeepAlive = DateTime.Now;
         }
 
         private async Task<T> SendMessageAndAwaitResponse<T>(MessageBase message) where T : MessageBase{
@@ -121,11 +104,15 @@ namespace Adapter.EverlinkProtocol
             // Save first response and skip first 4 bytes
             response.Append(fileResponse.FileContent.Skip(4).ToArray());
             while(!response.IsComplete){
-                response.Append((new FileResponseMessage(await AwaitMessage()).FileContent));
+                response.Append(new FileResponseMessage(await AwaitMessage()).FileContent);
             }
             IsReady = true;
             return response.Data;
         }
 
+        internal async Task SendHeartbeat()
+        {
+            await SendMessageAndAwaitResponse<BinaryMessage>(BinaryMessage.KEEPALIVE);
+        }
     }
 }

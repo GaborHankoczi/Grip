@@ -1,5 +1,7 @@
 using AutoMapper;
 using Grip.Bll.DTO;
+using Grip.Bll.DTO.Everlink;
+using Grip.Bll.Everlink;
 using Grip.DAL.Model;
 
 namespace Grip.DAL
@@ -27,6 +29,7 @@ namespace Grip.DAL
             CreateMap<Exempt, ExemptDTO>().ForMember(dto => dto.IssuedBy, opt => opt.MapFrom(e => e.IssuedBy)).ForMember(dto => dto.IssuedTo, opt => opt.MapFrom(e => e.IssuedTo));
             CreateMap<CreateExemptDTO, Exempt>();
             CreateMap<User, StudentDetailDTO>();
+            CreateMap<Table,TableDTO>();
         }
     }
 }

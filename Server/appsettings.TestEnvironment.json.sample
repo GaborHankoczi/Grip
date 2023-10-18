@@ -1,6 +1,6 @@
 {
   "Urls": "https://*:443",
-  "Host": "https://nloc.duckdns.org:8025",
+  "Host": "https://nloc.duckdns.org:8030",
   "HostName": "grip.sytes.net",
   "SMTP": {
     "Host": "smtp.gmail.com",

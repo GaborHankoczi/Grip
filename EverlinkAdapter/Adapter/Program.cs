@@ -84,10 +84,17 @@ while(true){
     await connection.ConnectAsync();
     logger.Log("Connected to Everlink", LogLevel.Info);
     while(true){
-      var query = queryQueue.Take();
-      logger.Log($"Received query: {query}", LogLevel.Info);
-      var result = await connection.QueryAsync(query);
-      await hubConnection.InvokeAsync("SendQuerryResult", result);
+      CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+      cancellationTokenSource.CancelAfter(3000);
+      try{
+        var query = queryQueue.Take(cancellationTokenSource.Token);
+        logger.Log($"Received query: {query}", LogLevel.Info);
+        var result = await connection.QueryAsync(query);
+        await hubConnection.InvokeAsync("SendQuerryResult", result);
+      }catch(OperationCanceledException){
+        await connection.SendHeartbeat();
+      }
+      
     }
 
   }catch(Exception ex)
