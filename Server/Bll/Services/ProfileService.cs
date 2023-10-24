@@ -16,7 +16,6 @@ namespace Grip.Bll.Services
             var user = context.Subject;
             // your implementation to retrieve the requested information
             context.IssuedClaims.AddRange(user.Claims);
-            context.IssuedClaims.Add(new Claim("idp", "https://localhost:7258/"));
 
             return Task.CompletedTask;
         }

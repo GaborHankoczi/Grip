@@ -28,7 +28,7 @@ namespace Grip.Api.Controllers
         }
 
         [HttpGet("[action]")]
-        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = "Everlink", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<TableDTO> Query([FromQuery]string query){
             _logger.LogInformation($"Sending query {query} to EverlinkAdapterHub");
             var result = await _everlinkService.SendQuery(query);
@@ -37,7 +37,7 @@ namespace Grip.Api.Controllers
         }
 
         [HttpGet("[action]")]
-        [Authorize(Roles = "Admin", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [Authorize(Policy = "Everlink", AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> QueryZip([FromQuery]string query){
             _logger.LogInformation($"Sending query {query} to EverlinkAdapterHub");
             var result = await _everlinkService.SendQueryZip(query);

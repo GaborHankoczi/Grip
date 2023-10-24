@@ -1,9 +1,0 @@
-﻿{
-    "Version": 1,
-    "Id": "1F62B08AD10089AF66CF6CB3F892CD6F",
-    "Created": "2023-05-31T09:39:07.1897014Z",
-    "Algorithm": "RS256",
-    "IsX509Certificate": false,
-    "Data": "<some key>",
-    "DataProtected": true
-}

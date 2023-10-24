@@ -237,3 +237,5 @@ appsettings.json
 
 # Doxygen files
 Doc/Doxygen/*
+
+keys/*

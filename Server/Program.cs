@@ -23,6 +23,9 @@ using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.Net.Http.Headers;
 using Duende.IdentityServer.AspNetIdentity;
 using Grip.Bll.Everlink;
+using IdentityModel;
+using Server.Authorisation.Everlink;
+using Microsoft.AspNetCore.Authorization;
 
 
 ILogger<User> logger = null;
@@ -166,7 +169,13 @@ builder.Services.AddAuthorization(options =>
     {
         policy.RequireRole("Admin");
     });
+    options.AddPolicy("Everlink", policy =>
+    {
+        policy.AddRequirements(new EverlinkAccessRequirement());
+    });
 });
+builder.Services.AddSingleton<IAuthorizationHandler, IsEverlinkMachineClient>();
+
 builder.Services.AddSingleton<IStationTokenProvider, HMACTokenProvider>();
 builder.Services.AddSingleton<IEverlinkAdapterService, EverlinkAdapterService>();
 
@@ -243,6 +252,7 @@ builder.Services.AddSwaggerGen(o =>
                 { "profile", "Profile" },
                 { "roles", "Roles" },
                 { "offline_access", "Refresh token" },
+                { "everlink", "Everlink adapter access"}
             }
             }
         }

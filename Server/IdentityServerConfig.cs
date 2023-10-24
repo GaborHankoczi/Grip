@@ -26,8 +26,7 @@ public class IdentityServerConfig
         get =>
         new ApiScope[]
         {
-            new ApiScope("scope1"),
-            new ApiScope("scope2"),
+            new ApiScope("everlink"),
         };
     }
 
@@ -48,23 +47,23 @@ public class IdentityServerConfig
 
             return new Client[]
             {
-                // m2m client credentials flow client
-                /*new Client
+                // Everlink machine to machine client
+                new Client
                 {
-                    ClientId = "m2m.client",
-                    ClientName = "Client Credentials Client",
+                    ClientId = "everlink.m2m.client",
+                    ClientName = "Everlink machine to machine client",
 
                     AllowedGrantTypes = GrantTypes.ClientCredentials,
-                    ClientSecrets = { new Secret("511536EF-F270-4058-80CA-1C89C192F69A".Sha256()) },
-
-                    AllowedScopes = { "scope1" }
-                },*/
+                    ClientSecrets = { new Secret(Configuration["Oauth2:Clients:everlinkM2M:ClientSecret"].Sha256()) },
+                    Claims = new List<ClientClaim> { new ClientClaim("EverlinkAccess", "true") },
+                    AllowedScopes = { "everlink" }
+                },
 
                 // interactive client using code flow + pkce
                 new Client
                 {
                     ClientId = "interactive",
-                    ClientSecrets = { new Secret("49C1A7E1-0C79-4A89-A3D6-A37998FB86B0".Sha256()) },
+                    ClientSecrets = { new Secret(Configuration["Oauth2:Clients:interactive:ClientSecret"].Sha256()) },
 
                     AllowedGrantTypes = GrantTypes.Code,
 
@@ -73,7 +72,7 @@ public class IdentityServerConfig
                     PostLogoutRedirectUris = { host + "/signout-callback-oidc", "grip://signout" },
 
                     AllowOfflineAccess = true,
-                    AllowedScopes = { "openid", "profile", "scope2", "roles" }
+                    AllowedScopes = { "openid", "profile", "roles", "everlink" }
                 },
             };
         }

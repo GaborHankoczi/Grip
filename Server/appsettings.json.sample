@@ -3,6 +3,16 @@
   "Certificate": {
     "LoadCertificate": true
   },
+  "Oauth2":{
+    "Clients":{
+      "everlinkM2M": {
+        "ClientSecret":  "Secret"
+      },
+      "interactive": {
+        "ClientSecret":  "Secret"
+      }
+    }
+  },
   "Attendance": {
     "ScanAllowedBeforeClassStart": 15,
     "ScanAllowedAfterClassStart": 15
